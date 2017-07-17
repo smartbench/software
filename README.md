@@ -11,9 +11,9 @@ Ubuntu ->
 		sudo apt install python-kivy
 		sudo apt install python3-kivy
 	pip  ->
-		sudo apt install python-pyp
+		sudo apt install python-pip
 	Kivy Garden ->
-		pip install kivy garden
+		pip install kivy-garden
 	Kivy Garden graph ->
 		garden install graph
 		garden install --upgrade graph

@@ -1,7 +1,7 @@
 """ Smartbench app
 
 This app is the computer-side part of Smartbench project.
-You can control the scope, see the measured signal and posprocess it.
+You can control the scope, see the measured signal and do some post-processing.
 
 Authors:
             IP      Ivan Santiago Paunovic
