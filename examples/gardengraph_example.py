@@ -17,9 +17,9 @@ class TestApp(App):
         plot.points = [(x, sin(x / 10.)) for x in range(0, 101)]
         graph.add_plot(plot)
         self.plot = plot
-
-        # Comentar siguiente línea para graico fijo
-        Clock.schedule_interval(self.update_points, 1 / 60.)
+        
+        # Comentar la siguiente linea para grafico fijo
+        Clock.schedule_interval(self.update_points, 1/60.)
 
         b.add_widget(graph)
         return b
