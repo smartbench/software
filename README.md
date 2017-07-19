@@ -20,6 +20,9 @@ Ubuntu ->
 		sudo apt install python-matplotlib
 		garden install matplotlib
 		garden install --upgrade matplotlib
+    Kivy Garden Knob ->
+        sudo garden install knob
+        sudo garden install --upgrade knob
 
 
 # Possible issues
