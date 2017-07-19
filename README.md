@@ -8,8 +8,7 @@ Ubuntu ->
 	Kivy ->
 		sudo add-apt-repository ppa:kivy-team/kivy
 		sudo apt update
-		sudo apt install python-kivy
-		sudo apt install python3-kivy
+		sudo apt install python-kivy python3-kivy
 	pip  ->
 		sudo apt install python-pip
 	Kivy Garden ->
@@ -18,11 +17,18 @@ Ubuntu ->
 		garden install graph
 		garden install --upgrade graph
 	Kivy Garden MatPlotLib ->
+		sudo apt install python-matplotlib
 		garden install matplotlib
 		garden install --upgrade matplotlib
 
 
-
-	
-
-
+# Possible issues
+    Error: "TypeError: register_backend() takes exactly 2 arguments (3 given)"
+    The matplotlib version installed is old and has a different definition for 'register_backend()' (and maybe also for others).
+    This can be solver by compiling and installing the library from source.
+    - install python-dev
+        sudo apt install python-dev python3-dev
+    - Download the source code of matplotlib v2.0.2 from https://matplotlib.org/2.0.2/users/installing.html
+    - Uncompress and run:
+        python setup.py build
+        sudo python setup.py install
