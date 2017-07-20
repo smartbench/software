@@ -24,6 +24,8 @@ import matplotlib.pyplot as plt
 from kivy.garden.matplotlib.backend_kivy import FigureCanvasKivy,\
                                                                 NavigationToolbar2Kivy
 
+from kivy.clock import Clock
+
 from kivy.app import App
 from kivy.lang import Builder
 
@@ -42,7 +44,7 @@ x = range(0,500)
 y = [ sin(2*pi*i/500.) for i in range(0,500) ]
 
 fig, ax = plt.subplots()
-rects = ax.plot( x, y, 'r-' , label='y=sin(x)' )
+ax.plot( x, y, 'r-' , label='y=sin(x)' )
 ax.set_ylabel('y')
 ax.set_title('A beautiful sinewave function')
 ax.set_xlabel('x')
@@ -86,6 +88,18 @@ class SmartbenchApp(App):
     title = 'SmartbenchApp'
     def build(self):
         return root
-        
+
+def myCallback(dt):
+    myCallback.k = myCallback.k + 10
+    y = [ sin(2*pi*(i-myCallback.k)/500.) for i in range(0,500) ]
+    ax.clear()
+    ax.plot( x, y, 'r-' , label='y=sin(x)' )
+    canvas.draw()
+    #print 'tick ...'
+myCallback.k=0 #initial value of static local variable k
+
+Clock.schedule_interval(myCallback,0.1)
+
+
 if __name__ == '__main__':
     SmartbenchApp().run()
