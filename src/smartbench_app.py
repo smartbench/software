@@ -6,9 +6,14 @@ You can control the scope, see the measured signal and do some post-processing.
 Authors:
             IP      Ivan Santiago Paunovic
 
+
 Version:
             Date            Number          Name            Modified by     Comment
             2017/07/17      0.1             SmBegins_mplf   IP              First approach. Using garden.matplotlib.
+            2017/07/19      0.1             SmBegins_mplf   IP              Working. First layout. Added a button, knob and a plot.
+                                                                            Plot is updated periodically.
+            2017/07/20      0.1             SmBegins_mplf   IP              Added an action when button is pressed. Using the knob value
+                                                                            (in progress)
 
 ToDo:
             Date            Suggested by    Activity                Description
@@ -28,6 +33,7 @@ from kivy.clock import Clock
 
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.properties import StringProperty
 
 from kivy.uix.actionbar import ActionBar
 from kivy.uix.button import Button
@@ -53,25 +59,19 @@ ax.legend( loc='upper right', shadow=True )
 canvas= fig.canvas
 nav = NavigationToolbar2Kivy(canvas)
 
-root = Builder.load_string( '''
-BoxLayout:
-    orientation: 'horizontal'                                               # 'vertical'
-    spacing: 10                                                             # in pixels
-    BoxLayout:
-        id: leftPanel
-        orientation: 'vertical'
-        spacing: 10
-''')
-root.ids.leftPanel.add_widget(nav.actionbar)
-root.ids.leftPanel.add_widget(canvas)
+baseText = ("Run it again?","Press me to \nstop the \nsinewave")
 
-rightPanel = Builder.load_string( '''
-BoxLayout:
+Builder.load_string( '''
+<rightPanel>:
+    size_hint: .15,1
     orientation: 'vertical'
     spacing: 10
     Knob:
-        #size_hint: (.9,1)
-        value: 0
+        # on_knob: root.knOnCallback(root.knVal)
+        value: root.knVal
+        min: 0.0
+        step: 0.1
+        max: 1.0
         knobimg_source: "img/knob_black.png"
         markeroff_color: 0.0, 0.0, .0, 1
         knobimg_size: 0.9
@@ -79,27 +79,60 @@ BoxLayout:
     Label:
         text: "Hola mundo"
     Button:
-        text: "Press me, bitch"
+        on_press: root.btOpCallback()
+        # id: btPressMe
+        # text: "Press me, bitch"
+        text: root.btText
 ''')
 
-root.add_widget(rightPanel)
+class rightPanel(BoxLayout):
+    btText = StringProperty(baseText[1])
+    state = 1
+    knVal = 0.0
+    k = 0
+    # def knOnCallback(self,value):
+    #     print 'called'
+    def btOpCallback(self):
+        if self.state:
+            self.state=0
+            Clock.unschedule(self.myCallback)
+            self.btText = baseText[0]
+        else:
+            self.state=1
+            Clock.schedule_interval(self.myCallback,0.1)
+            self.btText = baseText[1]
+    def myCallback(self,dt):
+        self.k = self.k + 10
+        y = [ (sin(2*pi*(i-self.k)/500.)) for i in range(0,500) ]
+        ax.clear()
+        ax.plot( x, y, 'r-' , label='y=sin(x)' )
+        canvas.draw()
+
+
+Builder.load_string( '''
+<MainWindow>:
+    orientation: 'horizontal'                                               # 'vertical'
+    spacing: 10                                                             # in pixels
+    BoxLayout:
+        id: leftPanel
+        orientation: 'vertical'
+        spacing: 10
+''')
+
+class MainWindow(BoxLayout):
+    rp = rightPanel()
+
+    def __init__(self,**kwargs):
+        super(MainWindow, self).__init__()
+        self.ids.leftPanel.add_widget(nav.actionbar)
+        self.ids.leftPanel.add_widget(canvas)
+        self.add_widget(self.rp)
+        Clock.schedule_interval(self.rp.myCallback,0.1)
 
 class SmartbenchApp(App):
     title = 'SmartbenchApp'
     def build(self):
-        return root
-
-def myCallback(dt):
-    myCallback.k = myCallback.k + 10
-    y = [ sin(2*pi*(i-myCallback.k)/500.) for i in range(0,500) ]
-    ax.clear()
-    ax.plot( x, y, 'r-' , label='y=sin(x)' )
-    canvas.draw()
-    #print 'tick ...'
-myCallback.k=0 #initial value of static local variable k
-
-Clock.schedule_interval(myCallback,0.1)
-
+        return MainWindow()
 
 if __name__ == '__main__':
     SmartbenchApp().run()
