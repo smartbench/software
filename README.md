@@ -11,13 +11,14 @@ Ubuntu ->
 		sudo apt install python-kivy python3-kivy
 	pip  ->
 		sudo apt install python-pip
+		pip install --upgrade pip
 	Kivy Garden ->
 		pip install kivy-garden
 	Kivy Garden graph ->
 		garden install graph
 		garden install --upgrade graph
 	Kivy Garden MatPlotLib ->
-		sudo apt install python-matplotlib
+		pip install matplotlib
 		garden install matplotlib
 		garden install --upgrade matplotlib
     Kivy Garden Knob ->
