@@ -50,57 +50,42 @@ ax.legend( loc='upper right', shadow=True )
 
 canvas= fig.canvas
 nav = NavigationToolbar2Kivy(canvas)
-#nav_act = nav.actionbar
 
-# root = Builder.load_string( '''
-# BoxLayout:
-#     orientation: 'horizontal'                                               # 'vertical'
-#     spacing: 10                                                             # in pixels
-#     ActionBar:
-#         id: nav_act
-#     FigureCanvasKivy:     ## ACA la caga
-#         id: canvas
-#     BoxLayout:
-#         orientation: 'vertical'
-#         spacing: 10
-#         Knob:
-#             #size_hint: (.9,1)
-#             value: 0
-#             knobimg_source: "img/knob_black.png"
-#             markeroff_color: 0.0, 0.0, .0, 1
-#             knobimg_size: 0.9
-#             marker_img: "img/bline3.png"
-#         Label:
-#             text: "Hola mundo"
-#         Button:
-#         ''')
+root = Builder.load_string( '''
+BoxLayout:
+    orientation: 'horizontal'                                               # 'vertical'
+    spacing: 10                                                             # in pixels
+    BoxLayout:
+        id: leftPanel
+        orientation: 'vertical'
+        spacing: 10
+''')
+root.ids.leftPanel.add_widget(nav.actionbar)
+root.ids.leftPanel.add_widget(canvas)
 
+rightPanel = Builder.load_string( '''
+BoxLayout:
+    orientation: 'vertical'
+    spacing: 10
+    Knob:
+        #size_hint: (.9,1)
+        value: 0
+        knobimg_source: "img/knob_black.png"
+        markeroff_color: 0.0, 0.0, .0, 1
+        knobimg_size: 0.9
+        marker_img: "img/bline3.png"
+    Label:
+        text: "Hola mundo"
+    Button:
+        text: "Press me, bitch"
+''')
+
+root.add_widget(rightPanel)
 
 class SmartbenchApp(App):
     title = 'SmartbenchApp'
     def build(self):
-        #return root        # Me CANSE DEL KIVI LANGUAGE JAJA
-        fl = BoxLayout(orientation="horizontal",spacing=10)
-        fl2 = BoxLayout(orientation="vertical",spacing=10)
-        fl2.add_widget(nav.actionbar)
-        fl2.add_widget(canvas)
-        fl3 = BoxLayout(orientation="vertical",spacing=10)
-        knob=Knob(
-        #size_hint=(0.7,1),
-        value=0,
-        knobimg_source = "img/knob_black.png",
-        markeroff_color = (0.0, 0.0, .0, 1),
-        knobimg_size = 0.9,
-        marker_img = "img/bline3.png",
-        )
-        label=Label(text= "Hola mundo")
-        button=Button(text= "Press me, bitch")
-        fl3.add_widget(knob)
-        fl3.add_widget(label)
-        fl3.add_widget(button)
-        fl.add_widget(fl2)
-        fl.add_widget(fl3)
-        return fl
-
+        return root
+        
 if __name__ == '__main__':
     SmartbenchApp().run()
