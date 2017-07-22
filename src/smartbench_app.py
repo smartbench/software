@@ -67,15 +67,19 @@ Builder.load_string( '''
     orientation: 'vertical'
     spacing: 10
     Knob:
-        # on_knob: root.knOnCallback(root.knVal)
-        value: root.knVal
+        id: kn
+        value: .5
         min: 0.0
         step: 0.1
         max: 1.0
+        curve: 1                                # A mayor valor mayor sensibilidad. curve=1 es lineal.
         knobimg_source: "img/knob_black.png"
         markeroff_color: 0.0, 0.0, .0, 1
         knobimg_size: 0.9
         marker_img: "img/bline3.png"
+        show_marker: False
+    #    on_touch_down: root.my_on_touch_down
+    #    on_touch_move: root.my_on_touch_move
     Label:
         text: "Hola mundo"
     Button:
@@ -88,10 +92,12 @@ Builder.load_string( '''
 class rightPanel(BoxLayout):
     btText = StringProperty(baseText[1])
     state = 1
-    knVal = 0.0
     k = 0
-    # def knOnCallback(self,value):
-    #     print 'called'
+
+    def __init__( self, **kwargs):
+        super( rightPanel, self).__init__()
+        self.ids.kn._value(self.ids.kn,self.ids.kn.value)
+
     def btOpCallback(self):
         if self.state:
             self.state=0
@@ -101,13 +107,13 @@ class rightPanel(BoxLayout):
             self.state=1
             Clock.schedule_interval(self.myCallback,0.1)
             self.btText = baseText[1]
+
     def myCallback(self,dt):
         self.k = self.k + 10
-        y = [ (sin(2*pi*(i-self.k)/500.)) for i in range(0,500) ]
+        y = [ (self.ids.kn.value*(sin(2*pi*(i-self.k)/500.))) for i in range(0,500) ]
         ax.clear()
         ax.plot( x, y, 'r-' , label='y=sin(x)' )
         canvas.draw()
-
 
 Builder.load_string( '''
 <MainWindow>:
