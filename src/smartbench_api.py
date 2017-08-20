@@ -78,82 +78,9 @@ __ADC_WIDTH = 8
 __DAC_WIDTH = 10
 __ADDR_WIDTH = 8
 
-class Smartbench:
-
-    __trigger_settings = ( TRIGGER_SOURCE_CHA << __TRIGGER_CONF_SOURCE_SEL ) | ( POSITIVE_EDGE << __TRIGGER_CONF_EDGE )
-    __triger_value = 2 ^ ( __ADC_WIDTH-1 )
-    __num_samples = 100
-    __pretrigger = 0
-
-    # Channel register instance
-    chA = channel(0)
-    chB = channel(1)
-
-    def request_start( self ):
-        __send( __ADDR_REQUESTS, 1 << __RQST_START_IDX )
-
-    def request_stop( self ):
-        __send( __ADDR_REQUESTS, 1 << __RQST_STOP_IDX )
-
-    def request_chA( self ):
-        __send( __ADDR_REQUESTS, 1 << __RQST_CHA_IDX )
-
-    def request_chB( self ):
-        __send( __ADDR_REQUESTS, 1 << __RQST_CHB_IDX )
-
-    def request_trigger_status( self ):
-        __send( __ADDR_REQUESTS, 1 << __RQST_TRIG_IDX )
-
-    def request_reset( self ):
-        __send( __ADDR_REQUESTS, 1 << __RQST_RST_IDX )
-
-    def get_trigger_edge( self ):
-        return ( self.__trigger_settings >> __TRIGGER_CONF_EDGE ) & 0x1
-
-    def set_trigger_posedge( self ):
-        self.__trigger_settings &= ~( 1 << __TRIGGER_CONF_EDGE )
-
-    def set_trigger_negedge( self ):
-        self.__trigger_settings |= ( 1 << __TRIGGER_CONF_EDGE )
-
-    def get_trigger_source( self ):
-        return ( self.__trigger_settings >> __TRIGGER_CONF_SOURCE_SEL ) & 0x3
-
-    def set_trigger_source_cha( self ):
-        self.__trigger_settings &= 0x3 << __TRIGGER_CONF_SOURCE_SEL
-        self.__trigger_settings |= TRIGGER_SOURCE_CHA << __TRIGGER_CONF_SOURCE_SEL
-
-    def set_trigger_source_chb( self ):
-        self.__trigger_settings &= 0x3 << __TRIGGER_CONF_SOURCE_SEL
-        self.__trigger_settings |= TRIGGER_SOURCE_CHB << __TRIGGER_CONF_SOURCE_SEL
-
-    def set_trigger_source_ext( self ):
-        self.__trigger_settings &= 0x3 << __TRIGGER_CONF_SOURCE_SEL
-        self.__trigger_settings |= TRIGGER_SOURCE_EXT << __TRIGGER_CONF_SOURCE_SEL
-
-    def send_trigger_settings( send ):
-        __send( __ADDR_TRIGGER_SETTINGS, self.__trigger_settings )
-
-    def get_trigger_value( self, val ):
-        return self.__trigger_value - 2^(__ADC_WIDTH-1)
-
-    def set_trigger_value( self, val ):
-        self.__trigger_value = 2^(__ADC_WIDTH-1) + val
-        __send( __ADDR_TRIGGER_VALUE, self.__trigger_value )
-
-    def get_number_of_samples( self ):
-        return self.__num_samples
-
-    def set_number_of_samples( self, N ):
-        self.__num_samples = N
-        __send( __ADDR_NUM_SAMPLES, self.__num_samples )
-
-    def get_pretrigger( self ):
-        return self.__pretrigger
-
-    def set_pretrigger( self, pt_value ):
-        self.__pretrigger = pt_value
-        __send( __ADDR_PRETRIGGER, self.__pretrigger )
+#######################################################
+#################### CHANNEL CLASS ####################
+#######################################################
 
 class __Channel:
 
@@ -237,3 +164,84 @@ class __Channel:
         self.__clk_divisor = div-1
         __send( __ADDR_ADC_CLK_DIV_CHA_L + self.__nchannel, self.__clk_divisor&0xFFFF )
         __send( __ADDR_ADC_CLK_DIV_CHA_H + self.__nchannel, (self.__clk_divisor>>16)&0xFFFF )
+
+#######################################################
+##################### OSCOPE CLASS ####################
+#######################################################
+
+class Smartbench:
+
+    __trigger_settings = ( TRIGGER_SOURCE_CHA << __TRIGGER_CONF_SOURCE_SEL ) | ( POSITIVE_EDGE << __TRIGGER_CONF_EDGE )
+    __triger_value = 2 ^ ( __ADC_WIDTH-1 )
+    __num_samples = 100
+    __pretrigger = 0
+
+    # Channel register instance
+    chA = channel(0)
+    chB = channel(1)
+
+    def request_start( self ):
+        __send( __ADDR_REQUESTS, 1 << __RQST_START_IDX )
+
+    def request_stop( self ):
+        __send( __ADDR_REQUESTS, 1 << __RQST_STOP_IDX )
+
+    def request_chA( self ):
+        __send( __ADDR_REQUESTS, 1 << __RQST_CHA_IDX )
+
+    def request_chB( self ):
+        __send( __ADDR_REQUESTS, 1 << __RQST_CHB_IDX )
+
+    def request_trigger_status( self ):
+        __send( __ADDR_REQUESTS, 1 << __RQST_TRIG_IDX )
+
+    def request_reset( self ):
+        __send( __ADDR_REQUESTS, 1 << __RQST_RST_IDX )
+
+    def get_trigger_edge( self ):
+        return ( self.__trigger_settings >> __TRIGGER_CONF_EDGE ) & 0x1
+
+    def set_trigger_posedge( self ):
+        self.__trigger_settings &= ~( 1 << __TRIGGER_CONF_EDGE )
+
+    def set_trigger_negedge( self ):
+        self.__trigger_settings |= ( 1 << __TRIGGER_CONF_EDGE )
+
+    def get_trigger_source( self ):
+        return ( self.__trigger_settings >> __TRIGGER_CONF_SOURCE_SEL ) & 0x3
+
+    def set_trigger_source_cha( self ):
+        self.__trigger_settings &= 0x3 << __TRIGGER_CONF_SOURCE_SEL
+        self.__trigger_settings |= TRIGGER_SOURCE_CHA << __TRIGGER_CONF_SOURCE_SEL
+
+    def set_trigger_source_chb( self ):
+        self.__trigger_settings &= 0x3 << __TRIGGER_CONF_SOURCE_SEL
+        self.__trigger_settings |= TRIGGER_SOURCE_CHB << __TRIGGER_CONF_SOURCE_SEL
+
+    def set_trigger_source_ext( self ):
+        self.__trigger_settings &= 0x3 << __TRIGGER_CONF_SOURCE_SEL
+        self.__trigger_settings |= TRIGGER_SOURCE_EXT << __TRIGGER_CONF_SOURCE_SEL
+
+    def send_trigger_settings( send ):
+        __send( __ADDR_TRIGGER_SETTINGS, self.__trigger_settings )
+
+    def get_trigger_value( self, val ):
+        return self.__trigger_value - 2^(__ADC_WIDTH-1)
+
+    def set_trigger_value( self, val ):
+        self.__trigger_value = 2^(__ADC_WIDTH-1) + val
+        __send( __ADDR_TRIGGER_VALUE, self.__trigger_value )
+
+    def get_number_of_samples( self ):
+        return self.__num_samples
+
+    def set_number_of_samples( self, N ):
+        self.__num_samples = N
+        __send( __ADDR_NUM_SAMPLES, self.__num_samples )
+
+    def get_pretrigger( self ):
+        return self.__pretrigger
+
+    def set_pretrigger( self, pt_value ):
+        self.__pretrigger = pt_value
+        __send( __ADDR_PRETRIGGER, self.__pretrigger )
