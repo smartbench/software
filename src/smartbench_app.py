@@ -45,6 +45,8 @@ from kivy.garden.knob import Knob
 
 from math import sin,pi
 
+from pyftdi.ftdi import Ftdi
+
 
 x = range(0,500)
 y = [ sin(2*pi*i/500.) for i in range(0,500) ]
@@ -93,10 +95,12 @@ class rightPanel(BoxLayout):
     btText = StringProperty(baseText[1])
     state = 1
     k = 0
+    ft = Ftdi()
 
     def __init__( self, **kwargs):
         super( rightPanel, self).__init__()
         self.ids.kn._value(self.ids.kn,self.ids.kn.value)
+        self.ft.open(vendor=0x0403,product=0x6010,interface=2)
 
     def btOpCallback(self):
         if self.state:
@@ -114,6 +118,12 @@ class rightPanel(BoxLayout):
         ax.clear()
         ax.plot( x, y, 'r-' , label='y=sin(x)' )
         canvas.draw()
+        myCallback.i = (myCallback.i*2)%255
+        print(ft.write_data(bytes([myCallback.i])),myCallback.i)
+        time.sleep(0.5)
+    myCallback.i = 1 # variable estatica de myCallback, valor inicial
+
+
 
 Builder.load_string( '''
 <MainWindow>:
@@ -142,3 +152,4 @@ class SmartbenchApp(App):
 
 if __name__ == '__main__':
     SmartbenchApp().run()
+    
