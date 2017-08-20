@@ -177,8 +177,8 @@ class Smartbench:
     __pretrigger = 0
 
     # Channel register instance
-    chA = channel(0)
-    chB = channel(1)
+    chA = __channel(0)
+    chB = __channel(1)
 
     def request_start( self ):
         __send( __ADDR_REQUESTS, 1 << __RQST_START_IDX )
