@@ -100,7 +100,14 @@ class rightPanel(BoxLayout):
     def __init__( self, **kwargs):
         super( rightPanel, self).__init__()
         self.ids.kn._value(self.ids.kn,self.ids.kn.value)
-        self.ft.open(vendor=0x0403,product=0x6010,interface=2)
+        dev_list = self.ft.find_all([(0x0403,0x6010)],True)
+        if(len(dev_list) > 0):
+            print ("Device found:\n\t", dev_list)
+            self.ft.open(vendor=0x0403,product=0x6010,interface=2)
+            print("Opened device!")
+        else:
+            print ("Device not connected!")
+            exit()
 
     def btOpCallback(self):
         if self.state:
@@ -152,4 +159,3 @@ class SmartbenchApp(App):
 
 if __name__ == '__main__':
     SmartbenchApp().run()
-    
