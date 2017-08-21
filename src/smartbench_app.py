@@ -46,6 +46,8 @@ from kivy.garden.knob import Knob
 from math import sin,pi
 
 from pyftdi.ftdi import Ftdi
+import time
+
 
 
 x = range(0,500)
@@ -93,8 +95,6 @@ Builder.load_string( '''
 
 class rightPanel(BoxLayout):
     btText = StringProperty(baseText[1])
-    state = 1
-    k = 0
     ft = Ftdi()
 
     def __init__( self, **kwargs):
@@ -108,6 +108,9 @@ class rightPanel(BoxLayout):
         else:
             print ("Device not connected!")
             exit()
+        self.state = 1
+        self.k = 0
+        self.i = 1
 
     def btOpCallback(self):
         if self.state:
@@ -119,16 +122,15 @@ class rightPanel(BoxLayout):
             Clock.schedule_interval(self.myCallback,0.1)
             self.btText = baseText[1]
 
-    def myCallback(self,dt):
+    def myCallback( self, dt ):
         self.k = self.k + 10
         y = [ (self.ids.kn.value*(sin(2*pi*(i-self.k)/500.))) for i in range(0,500) ]
         ax.clear()
         ax.plot( x, y, 'r-' , label='y=sin(x)' )
         canvas.draw()
-        myCallback.i = (myCallback.i*2)%255
-        print(ft.write_data(bytes([myCallback.i])),myCallback.i)
+        self.i = ( self.i*2 )%255
+        print( self.ft.write_data(bytes( [ self.i ] ) ), self.i )
         time.sleep(0.5)
-    myCallback.i = 1 # variable estatica de myCallback, valor inicial
 
 
 
