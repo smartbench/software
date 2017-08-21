@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 
 from pyftdi.ftdi import Ftdi
 #import time
@@ -6,12 +7,22 @@ from pyftdi.ftdi import Ftdi
 ################## FTDI bridge driver #################
 #######################################################
 
-ft = Ftdi()
-#ft.open(vendor=0x0403,product=0x6010,interface=2)
+class _Oscope_ftdi( Ftdi ):
 
-def send( addr, data ):
-    ft.write_data( addr )
-    ft.write_data( data )
+    __BYTEORDER = "little" # "big"
+
+    def open( self ):
+        dev_list = self.find_all([(0x0403,0x6010)],True)
+        if(len(dev_list) > 0):
+            print ("Device found:\n\t", dev_list)
+            self.open(vendor=0x0403,product=0x6010,interface=2)
+            print("Opened device!")
+        else:
+            print ("Device not connected!")
+
+    def send( self, addr, data ):
+        self.write_data( addr.to_bytes( 2, byteorder=__BYTEORDER ) )
+        self.write_data( data.to_bytes( 2, byteorder=__BYTEORDER ) )
 
 #######################################################
 ################# LIBRARY DEFINITIONS #################
@@ -83,7 +94,7 @@ class _Definitions ( object ):
 #################### CHANNEL CLASS ####################
 #######################################################
 
-class _Channel( _Definitions ):
+class _Channel( _Definitions, _Oscope_ftdi ):
 
     def __init__( self, channel_number ):
         # __nchannel is:
@@ -107,7 +118,7 @@ class _Channel( _Definitions ):
             self.__settings &= ~( 0x7 << self._CONF_CH_ATT )
             self.__settings |= att << self._CONF_CH_ATT
         else:
-            print "Attenuation selector must be a number between 0 and 7"
+            print( "Attenuation selector must be a number between 0 and 7" )
 
     def get_gain( self ):
         return ( self.__settings >> __CONF_CH_GAIN ) & 0x7
@@ -117,7 +128,7 @@ class _Channel( _Definitions ):
             self.__settings &= ~( 0x7 << self._CONF_CH_GAIN )
             self.__settings |= gain << self._CONF_CH_GAIN
         else:
-            print "Gain selector must be a number between 0 and 7"
+            print( "Gain selector must be a number between 0 and 7" )
 
     def get_coupling( self ):
         return ( self.__settings >> self._CONF_CH_DC_COUPLING ) & 0x1
@@ -138,7 +149,7 @@ class _Channel( _Definitions ):
         self.__settings &= ~(1 << self._CONF_CH_ON)
 
     def send_settings( self ):
-        send( self._ADDR_SETTINGS_CHA + self.__nchannel, self.__settings )
+        self.send( self._ADDR_SETTINGS_CHA + self.__nchannel, self.__settings )
 
     # Offset value
     def get_offset( self ):
@@ -146,31 +157,32 @@ class _Channel( _Definitions ):
 
     def set_offset( self, val ):
         self.__dac_value = val + 2^( self._DAC_WIDTH-1 )
-        __send( self._ADDR_DAC_CHA + self.__nchannel, self.__dac_value )
+        self.send( self._ADDR_DAC_CHA + self.__nchannel, self.__dac_value )
 
     def get_nprom( self ):
         return __nprom + 1
 
     def set_nprom( self, n ):
         self.__nprom = n - 1
-        __send( self._ADDR_N_MOVING_AVERAGE_CHA + self.__nchannel, self.__nprom )
+        self.send( self._ADDR_N_MOVING_AVERAGE_CHA + self.__nchannel, self.__nprom )
 
     def get_clk_divisor( self ):
         return self.__clk_divisor+1
 
     def set_clk_divisor( self, div ):
         self.__clk_divisor = div-1
-        __send( self._ADDR_ADC_CLK_DIV_CHA_L + self.__nchannel, self.__clk_divisor&0xFFFF )
-        __send( self._ADDR_ADC_CLK_DIV_CHA_H + self.__nchannel, (self.__clk_divisor>>16)&0xFFFF )
+        self.send( self._ADDR_ADC_CLK_DIV_CHA_L + self.__nchannel, self.__clk_divisor&0xFFFF )
+        self.send( self._ADDR_ADC_CLK_DIV_CHA_H + self.__nchannel, (self.__clk_divisor>>16)&0xFFFF )
 
 #######################################################
 ##################### OSCOPE CLASS ####################
 #######################################################
 
-class Smartbench( _Definitions ):
+class Smartbench( _Definitions, _Oscope_ftdi ):
 
     def __init__( self ):
 
+        self.open()
         self.__trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
         self.__triger_value = 2 ^ ( self._ADC_WIDTH-1 )
         self.__num_samples = 100
@@ -181,22 +193,22 @@ class Smartbench( _Definitions ):
         self.chB = _Channel(1)
 
     def request_start( self ):
-        send( self._ADDR_REQUESTS, 1 << self._RQST_START_IDX )
+        self.send( self._ADDR_REQUESTS, 1 << self._RQST_START_IDX )
 
     def request_stop( self ):
-        send( self._ADDR_REQUESTS, 1 << self._RQST_STOP_IDX )
+        self.send( self._ADDR_REQUESTS, 1 << self._RQST_STOP_IDX )
 
     def request_chA( self ):
-        send( self._ADDR_REQUESTS, 1 << self._RQST_CHA_IDX )
+        self.send( self._ADDR_REQUESTS, 1 << self._RQST_CHA_IDX )
 
     def request_chB( self ):
-        send( self._ADDR_REQUESTS, 1 << self._RQST_CHB_IDX )
+        self.send( self._ADDR_REQUESTS, 1 << self._RQST_CHB_IDX )
 
     def request_trigger_status( self ):
-        send( self._ADDR_REQUESTS, 1 << self._RQST_TRIG_IDX )
+        self.send( self._ADDR_REQUESTS, 1 << self._RQST_TRIG_IDX )
 
     def request_reset( self ):
-        send( self._ADDR_REQUESTS, 1 << self._RQST_RST_IDX )
+        self.send( self._ADDR_REQUESTS, 1 << self._RQST_RST_IDX )
 
     def get_trigger_edge( self ):
         return ( self.__trigger_settings >> self._TRIGGER_CONF_EDGE ) & 0x1
@@ -223,28 +235,28 @@ class Smartbench( _Definitions ):
         self.__trigger_settings |= self.TRIGGER_SOURCE_EXT << self._TRIGGER_CONF_SOURCE_SEL
 
     def send_trigger_settings( send ):
-        send( self._ADDR_TRIGGER_SETTINGS, self.__trigger_settings )
+        self.send( self._ADDR_TRIGGER_SETTINGS, self.__trigger_settings )
 
     def get_trigger_value( self, val ):
         return self.__trigger_value - 2^( self._ADC_WIDTH-1 )
 
     def set_trigger_value( self, val ):
         self.__trigger_value = 2^( self._ADC_WIDTH-1 ) + val
-        send( self._ADDR_TRIGGER_VALUE, self.__trigger_value )
+        self.send( self._ADDR_TRIGGER_VALUE, self.__trigger_value )
 
     def get_number_of_samples( self ):
         return self.__num_samples
 
     def set_number_of_samples( self, N ):
         self.__num_samples = N
-        send( self._ADDR_NUM_SAMPLES, self.__num_samples )
+        self.send( self._ADDR_NUM_SAMPLES, self.__num_samples )
 
     def get_pretrigger( self ):
         return self.__pretrigger
 
     def set_pretrigger( self, pt_value ):
         self.__pretrigger = pt_value
-        send( self._ADDR_PRETRIGGER, self.__pretrigger )
+        self.send( self._ADDR_PRETRIGGER, self.__pretrigger )
 
 if __name__ == "__main__":
     oscope = Smartbench()
