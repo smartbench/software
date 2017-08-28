@@ -48,6 +48,8 @@ from math import sin,pi
 from pyftdi.ftdi import Ftdi
 import time
 
+from smartbench_api import *
+
 
 
 x = range(0,500)
@@ -95,19 +97,10 @@ Builder.load_string( '''
 
 class rightPanel(BoxLayout):
     btText = StringProperty(baseText[1])
-    ft = Ftdi()
 
     def __init__( self, **kwargs):
         super( rightPanel, self).__init__()
         self.ids.kn._value(self.ids.kn,self.ids.kn.value)
-        dev_list = self.ft.find_all([(0x0403,0x6010)],True)
-        if(len(dev_list) > 0):
-            print ("Device found:\n\t", dev_list)
-            self.ft.open(vendor=0x0403,product=0x6010,interface=2)
-            print("Opened device!")
-        else:
-            print ("Device not connected!")
-            exit()
         self.state = 1
         self.k = 0
         self.i = 1
@@ -132,6 +125,11 @@ class rightPanel(BoxLayout):
         print( self.ft.write_data(bytes( [ self.i ] ) ), self.i )
         time.sleep(0.5)
 
+    def plotData(self, x, y):
+        ax.clear()
+        ax.plot( x, y, 'r-' , label='y=sin(x)' )
+        canvas.draw()
+
 
 
 Builder.load_string( '''
@@ -145,14 +143,105 @@ Builder.load_string( '''
 ''')
 
 class MainWindow(BoxLayout):
-    rp = rightPanel()
+    #myScope = _Oscope_ftdi()
+
+
 
     def __init__(self,**kwargs):
+        self.rp = rightPanel()
+        self.smartbench = Smartbench()
+
         super(MainWindow, self).__init__()
         self.ids.leftPanel.add_widget(nav.actionbar)
         self.ids.leftPanel.add_widget(canvas)
         self.add_widget(self.rp)
-        Clock.schedule_interval(self.rp.myCallback,0.1)
+        #Clock.schedule_interval(self.rp.myCallback,0.1)
+
+        # ft = Ftdi()
+        # ft.open(vendor=0x0403, product=0x6010,interface=2)
+
+        # if you don't do this, first byte sent never arrives to the other side
+        # if you happen to know why, let us know :)
+        #dummy = self.smartbench.ft.ft.read_data(1) #empty buffer
+
+        # ## testing with ECHO
+        # self.smartbench.ft.ft.write_data(bytes([1, 2, 3, 4, 5]))
+        # self.smartbench.ft.ft.write_data(bytes([6,7]))
+        # time.sleep(1)
+        # #a = self.smartbench.ft.ft.read_data_bytes(10).tolist()
+        # #print("a=",a)
+        # buffer_full,triggered = self.smartbench.receive_trigger_status()
+        # print ("tr={}\tbuf={}".format(triggered, buffer_full))
+        # exit()
+
+        # ## WIII -> TESTING ANSWER OF RQST_TRIGGER_STATUS
+        # print("Start")
+        # self.smartbench.request_start()
+        # time.sleep(1)
+        # print("Request Trigger Status")
+        # self.smartbench.request_trigger_status()
+        # time.sleep(1)
+        # print("Trigger Status")
+        # self.smartbench.request_trigger_status()
+        # data = []
+        # while len(data) == 0:
+        #     data = self.smartbench.ft.ft.read_data_bytes(10).tolist()
+        #     time.sleep(0.4)
+        #     print("data=",data)
+        # #buffer_full,triggered = self.smartbench.receive_trigger_status()
+        # #print ("tr={}\tbuf={}".format(triggered, buffer_full))
+        # exit()
+
+        self.dataX = range(0, 100)
+
+        #MainWindow.smartbench.open()
+        self.smartbench.set_trigger_source_cha()
+        self.smartbench.set_trigger_posedge()
+        self.smartbench.set_trigger_value(0)
+        self.smartbench.set_number_of_samples(100)
+        self.smartbench.set_pretrigger(30)
+        self.smartbench.send_trigger_settings()
+
+        self.smartbench.chA.set_attenuator(1)
+        self.smartbench.chA.set_gain(2)
+        self.smartbench.chA.set_coupling_dc()
+        self.smartbench.chA.set_ch_on()
+        self.smartbench.chA.send_settings()
+        self.smartbench.chA.set_offset(0)
+        self.smartbench.chA.set_nprom(1)
+        self.smartbench.chA.set_clk_divisor(1)
+
+        self.smartbench.chB.set_attenuator(3)
+        self.smartbench.chB.set_gain(4)
+        self.smartbench.chB.set_coupling_dc()
+        self.smartbench.chB.set_ch_on()
+        self.smartbench.chB.send_settings()
+        self.smartbench.chB.set_offset(0)
+        self.smartbench.chB.set_nprom(1)
+        self.smartbench.chB.set_clk_divisor(1)
+
+        # mode normal
+        while True:
+            triggered = 0
+            buffer_full = 0
+            data = []
+            print("> Request Start")
+            self.smartbench.request_start()
+            while triggered==0 and buffer_full==0:
+                time.sleep(0.5)
+                print("> Request Trigger Status")
+                self.smartbench.request_trigger_status()
+                print("> Waiting...")
+                buffer_full,triggered = self.smartbench.receive_trigger_status()
+            #time.sleep(2)
+            print("> Request Stop")
+            self.smartbench.request_stop()
+            print("> Request CHA")
+            self.smartbench.request_chA()
+            print("> Waiting...")
+            self.smartbench.receive_channel_data(data)
+            self.dataY = data.to_bytes()
+            self.rp.plotData( self.dataX , self.dataY )
 
 class SmartbenchApp(App):
     title = 'SmartbenchApp'
