@@ -35,6 +35,7 @@ class _Oscope_ftdi( ):
             dummy = self.ft.read_data(1) #empty buffer
         else:
             print ("Device not connected!")
+            exit()
 
     def send( self, addr, data ):
         #print("written {} byyes".format(self.ft.write_data( addr.to_bytes( 1, byteorder=_Oscope_ftdi.__BYTEORDER ) ) ) )
