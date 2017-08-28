@@ -26,6 +26,7 @@ matplotlib.use('module://kivy.garden.matplotlib.backend_kivy')
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
+import kivy # require
 from kivy.garden.matplotlib.backend_kivy import FigureCanvasKivy,\
                                                                 NavigationToolbar2Kivy
 
@@ -148,6 +149,8 @@ class MainWindow(BoxLayout):
 
 
     def __init__(self,**kwargs):
+        #If a user attempts to run your application with a version of Kivy that is older than the specified version, an Exception is raised
+        kivy.require('1.0.1')
         self.rp = rightPanel()
         self.smartbench = Smartbench()
 
