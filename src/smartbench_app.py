@@ -46,7 +46,8 @@ from kivy.garden.knob import Knob
 
 from math import sin,pi
 
-from pyftdi.ftdi import Ftdi
+#from pyftdi.ftdi import Ftdi
+import serial
 import time
 
 from smartbench_api import *

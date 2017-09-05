@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-from pyftdi.ftdi import Ftdi
+#from pyftdi.ftdi import Ftdi
+import serial
 #import time
 from threading import Timer
 from math import log
@@ -18,48 +19,28 @@ class _Oscope_ftdi( ):
     status = 'closed'
 
     def __init__(self,**kwargs):
-        self.ft = Ftdi()
+        self.ftdi = 0
         pass
 
-    def open( self, VID=0x0403, PID=0x6010 ):
-        dev_list = self.ft.find_all([(VID,PID)],True)
-        if(len(dev_list) > 0):
-            print ("Device found:\n\t", dev_list)
-            self.ft.open(vendor=VID,product=PID,interface=2)
-            #super(_Oscope_ftdi, self).open(vendor=VID,product=PID,interface=2)
-            #super(_Oscope_ftdi, self).open(vendor=0x0403,product=0x6010,interface=2)
-            print("Opened device!")
-            status = 'open'
-            # if you don't do this, first byte sent never arrives to the other side
-            # if you happen to know why, let us know :)
-            dummy = self.ft.read_data(1) #empty buffer
+    def open( self, device='/dev/ttyUSB1' ):
+        self.ftdi = serial.Serial(device, baudrate=921600, timeout=2)
+        if(self.ftdi.is_open): print("Opened device!")
         else:
             print ("Device not connected!")
             exit()
 
     def send( self, addr, data ):
-        #print("written {} byyes".format(self.ft.write_data( addr.to_bytes( 1, byteorder=_Oscope_ftdi.__BYTEORDER ) ) ) )
-        #print("written {} byyes".format(self.ft.write_data( data.to_bytes( 2, byteorder=_Oscope_ftdi.__BYTEORDER ) ) ) )
-        #aux = addr.to_bytes(1, byteorder=_Oscope_ftdi.__BYTEORDER) +  data.to_bytes( 2, byteorder=_Oscope_ftdi.__BYTEORDER )
         aux = bytes( [ int(addr) , int(data%256) , int((data>>8)%256) ] )
-        #self.ft.write_data( aux )
-        #print("written {} bytes: {}".format(i, aux))
+        n = self.ftdi.write( aux )
+        print("written {} bytes: {}".format(len(list(aux)), aux))
         i = 0
-        i = i +  self.ft.write_data( bytes([int(addr)] ) )
-        i = i +  self.ft.write_data( bytes([int(data%256)] ) )
-        i = i +  self.ft.write_data( bytes([int((data>>8)%256)] ) )
-        print("written {} bytes: {}".format(i, aux))
-        #print("written {} bytes".format(self.ft.write_data( bytes([int(addr)]) ) ) )
-        #print("written {} bytes".format(self.ft.write_data( bytes( [int(data%256)] ) ) ) )
-        #print("written {} bytes".format(self.ft.write_data( bytes( [int((data>>8)%256)] ) ) ) )
-
 
     def receive(self, size, blocking=True, timeout=0):
         data = []
         if(blocking==True):
             if(timeout==0):
                 while(len(data) < size):
-                    data = data + self.ft.read_data_bytes(size - len(data)).tolist()
+                    data = data + list(self.ftdi.read(size - len(data)))
                     if(len(data)>0): print ("data=", data)
                     else: print ("receiving...")
                     time.sleep(0.3)
@@ -67,19 +48,19 @@ class _Oscope_ftdi( ):
             else:
                 to = Timeout(timeout)
                 while(len(data) < size and to.timeout == False):
-                    data = data + self.ft.read_data_bytes(size - len(data)).tolist()
+                    data = data + list(self.ftdi.read(size - len(data)))
                     time.sleep(0.05)
                     #print ("b) data=", data)
                 del to
         else:
-            data = data + self.ft.read_data_bytes(size - len(data)).tolist()
+            data = data + list(self.ftdi.read(size - len(data)))
             #print ("c) data=", data)
         print (data)
         return data
 
     def empty_read_buffer():
         data = range(10)
-        while (len(data) == 10): data = self.ft.read_data_bytes(10)
+        while (len(data) == 10): data = self.ftdi.read(10)
 
 
 class Timeout (Timer):
@@ -164,7 +145,7 @@ class _Definitions ( object ):
 
 class _Channel( _Definitions ):
 
-    def __init__( self, channel_number, ft):
+    def __init__( self, channel_number, oscope):
         # __nchannel is:
         # 0 -> channel A
         # 1 -> channel B
@@ -176,7 +157,7 @@ class _Channel( _Definitions ):
         self.__dac_value = 2 ^ ( self._DAC_WIDTH - 1 )
         self.__nprom = 0
         self.__clk_divisor = 3
-        self.ft = ft
+        self.oscope = oscope
 
     # channel settings
     def get_attenuator( self ):
@@ -218,7 +199,7 @@ class _Channel( _Definitions ):
         self.__settings &= ~(1 << self._CONF_CH_ON)
 
     def send_settings( self ):
-        self.ft.send( self._ADDR_SETTINGS_CHA + self.__nchannel, self.__settings )
+        self.oscope.send( self._ADDR_SETTINGS_CHA + self.__nchannel, self.__settings )
 
     # Offset value
     def get_offset( self ):
@@ -226,7 +207,7 @@ class _Channel( _Definitions ):
 
     def set_offset( self, val ):
         self.__dac_value = val + 2^( self._DAC_WIDTH-1 )
-        self.ft.send( self._ADDR_DAC_CHA + self.__nchannel, self.__dac_value )
+        self.oscope.send( self._ADDR_DAC_CHA + self.__nchannel, self.__dac_value )
 
     # Documentation for nprom:
     # Prom  Fpga_value
@@ -240,15 +221,15 @@ class _Channel( _Definitions ):
 
     def set_nprom( self, n ):
         self.__nprom = int(log(n,2))
-        self.ft.send( self._ADDR_N_MOVING_AVERAGE_CHA + self.__nchannel, self.__nprom )
+        self.oscope.send( self._ADDR_N_MOVING_AVERAGE_CHA + self.__nchannel, self.__nprom )
 
     def get_clk_divisor( self ):
         return self.__clk_divisor+1
 
     def set_clk_divisor( self, div ):
         self.__clk_divisor = div-1
-        self.ft.send( self._ADDR_ADC_CLK_DIV_CHA_L + self.__nchannel, self.__clk_divisor&0xFFFF )
-        self.ft.send( self._ADDR_ADC_CLK_DIV_CHA_H + self.__nchannel, (self.__clk_divisor>>16)&0xFFFF )
+        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_L + self.__nchannel, self.__clk_divisor&0xFFFF )
+        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_H + self.__nchannel, (self.__clk_divisor>>16)&0xFFFF )
 
 #######################################################
 ##################### OSCOPE CLASS ####################
@@ -256,10 +237,10 @@ class _Channel( _Definitions ):
 
 class Smartbench( _Definitions ):
 
-    def __init__( self , VID=0x0403 , PID=0x6010):
+    def __init__( self , device='/dev/ttyUSB1'):
 
-        self.ft = _Oscope_ftdi()
-        self.ft.open(VID,PID)
+        self.oscope = _Oscope_ftdi()
+        self.oscope.open(device)
 
         self.__trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
         self.__triger_value = 2 ^ ( self._ADC_WIDTH-1 )
@@ -267,30 +248,30 @@ class Smartbench( _Definitions ):
         self.__pretrigger = 0
 
         # Channel register instance
-        self.chA = _Channel(0, self.ft)
-        self.chB = _Channel(1, self.ft)
+        self.chA = _Channel(0, self.oscope)
+        self.chB = _Channel(1, self.oscope)
 
 
     def request_start( self ):
-        self.ft.send( self._ADDR_REQUESTS, 1 << self._RQST_START_IDX )
+        self.oscope.send( self._ADDR_REQUESTS, 1 << self._RQST_START_IDX )
 
     def request_stop( self ):
-        self.ft.send( self._ADDR_REQUESTS, 1 << self._RQST_STOP_IDX )
+        self.oscope.send( self._ADDR_REQUESTS, 1 << self._RQST_STOP_IDX )
 
     def request_chA( self ):
-        self.ft.send( self._ADDR_REQUESTS, 1 << self._RQST_CHA_IDX )
+        self.oscope.send( self._ADDR_REQUESTS, 1 << self._RQST_CHA_IDX )
 
     def request_chB( self ):
-        self.ft.send( self._ADDR_REQUESTS, 1 << self._RQST_CHB_IDX )
+        self.oscope.send( self._ADDR_REQUESTS, 1 << self._RQST_CHB_IDX )
 
     def request_trigger_status( self ):
-        self.ft.send( self._ADDR_REQUESTS, 1 << self._RQST_TRIG_IDX )
+        self.oscope.send( self._ADDR_REQUESTS, 1 << self._RQST_TRIG_IDX )
 
     def request_reset( self ):
-        self.ft.send( self._ADDR_REQUESTS, 1 << self._RQST_RST_IDX )
+        self.oscope.send( self._ADDR_REQUESTS, 1 << self._RQST_RST_IDX )
 
     def receive_trigger_status( self ):
-        data = self.ft.receive( 1, blocking=True )
+        data = self.oscope.receive( 1, blocking=True )
         print("data len={}".format( len(data) ) )
         print ("data={}".format(data[0]))
         buffer_full = (data[0] & 0x01)
@@ -300,7 +281,7 @@ class Smartbench( _Definitions ):
     def receive_channel_data( self , data , n=0 ):
         if(n==0): n = self.__num_samples
         #data = []
-        data = self.ft.receive(n, blocking=True)
+        data = self.oscope.receive(n, blocking=True)
 
     def get_trigger_edge( self ):
         return ( self.__trigger_settings >> self._TRIGGER_CONF_EDGE ) & 0x1
@@ -327,28 +308,28 @@ class Smartbench( _Definitions ):
         self.__trigger_settings |= self.TRIGGER_SOURCE_EXT << self._TRIGGER_CONF_SOURCE_SEL
 
     def send_trigger_settings( self ):
-        self.ft.send( self._ADDR_TRIGGER_SETTINGS, self.__trigger_settings )
+        self.oscope.send( self._ADDR_TRIGGER_SETTINGS, self.__trigger_settings )
 
     def get_trigger_value( self, val ):
         return self.__trigger_value - 2^( self._ADC_WIDTH-1 )
 
     def set_trigger_value( self, val ):
         self.__trigger_value = 2^( self._ADC_WIDTH-1 ) + val
-        self.ft.send( self._ADDR_TRIGGER_VALUE, self.__trigger_value )
+        self.oscope.send( self._ADDR_TRIGGER_VALUE, self.__trigger_value )
 
     def get_number_of_samples( self ):
         return self.__num_samples
 
     def set_number_of_samples( self, N ):
         self.__num_samples = N
-        self.ft.send( self._ADDR_NUM_SAMPLES, self.__num_samples )
+        self.oscope.send( self._ADDR_NUM_SAMPLES, self.__num_samples )
 
     def get_pretrigger( self ):
         return self.__pretrigger
 
     def set_pretrigger( self, pt_value ):
         self.__pretrigger = pt_value
-        self.ft.send( self._ADDR_PRETRIGGER, self.__pretrigger )
+        self.oscope.send( self._ADDR_PRETRIGGER, self.__pretrigger )
 
 if __name__ == "__main__":
     oscope = Smartbench()
