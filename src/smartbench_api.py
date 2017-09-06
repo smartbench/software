@@ -316,13 +316,15 @@ class Smartbench( _Definitions ):
 
     def send_trigger_settings( self ):
         self.oscope.send( self._ADDR_TRIGGER_SETTINGS, self.__trigger_settings )
+        print("Trigger settings set to {}".format(hex(self.__trigger_settings) ) )
 
     def get_trigger_value( self, val ):
         return self.__trigger_value - 2^( self._ADC_WIDTH-1 )
 
     def set_trigger_value( self, val ):
-        self.__trigger_value = 2^( self._ADC_WIDTH-1 ) + val
+        self.__trigger_value = (1 << self._ADC_WIDTH-1 ) + val
         self.oscope.send( self._ADDR_TRIGGER_VALUE, self.__trigger_value )
+        print("Trigger value set to {}".format(self.__trigger_value))
 
     def get_number_of_samples( self ):
         return self.__num_samples
@@ -330,6 +332,7 @@ class Smartbench( _Definitions ):
     def set_number_of_samples( self, N ):
         self.__num_samples = N
         self.oscope.send( self._ADDR_NUM_SAMPLES, self.__num_samples )
+        print("Num_samples set to {}".format(self.__num_samples))
 
     def get_pretrigger( self ):
         return self.__pretrigger
@@ -337,6 +340,7 @@ class Smartbench( _Definitions ):
     def set_pretrigger( self, pt_value ):
         self.__pretrigger = pt_value
         self.oscope.send( self._ADDR_PRETRIGGER, self.__pretrigger )
+        print("Pretrigger set to {}".format(self.__pretrigger))
 
 if __name__ == "__main__":
     oscope = Smartbench()
