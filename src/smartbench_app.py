@@ -43,6 +43,8 @@ from kivy.uix.boxlayout import BoxLayout
 
 from kivy.garden.knob import Knob
 
+# from kivy.garden.graph import Graph, MeshLinePlot
+
 from math import sin,pi
 
 import kivy # require
@@ -67,6 +69,17 @@ canvas= fig.canvas
 nav = NavigationToolbar2Kivy(canvas)
 
 baseText = ("Run it again?","Press me to \nstop the \nsinewave")
+
+#b = BoxLayout(orientation='vertical')
+# graph = Graph(xlabel='X', ylabel='Y', x_ticks_minor=5,
+#     x_ticks_major=25, y_ticks_major=1,
+#     y_grid_label=True, x_grid_label=True, padding=5,
+#     x_grid=True, y_grid=True, xmin=-0, xmax=100, ymin=0, ymax=255)
+# plot = MeshLinePlot(color=[1, 0, 0, 1])
+# plot.points = [(i, sin(i / 10.)) for i in range(0, 100)]
+# graph.add_plot(plot)
+#b.add_widget(graph)
+#self.plot = plot
 
 Builder.load_string( '''
 <rightPanel>:
@@ -101,15 +114,54 @@ class rightPanel(BoxLayout):
     state = 1
     k = 0
 
-    def __init__( self, **kwargs):
+    def __init__( self, smartbench, **kwargs):
         super( rightPanel, self).__init__()
         self.ids.kn._value(self.ids.kn,self.ids.kn.value)
+        self.smartbench = smartbench
 
     def btOpCallback(self):
         if self.state:
             self.state=0
             Clock.unschedule(self.myCallback)
             self.btText = baseText[0]
+
+            triggered = 0
+            buffer_full = 0
+            data = []
+            print("> Request Start")
+            self.smartbench.request_start()
+            print("> Request Trigger Status")
+            self.smartbench.request_trigger_status()
+            print("> Waiting...")
+            buffer_full,triggered = self.smartbench.receive_trigger_status()
+            print("> Trigger={}\tBuffer_full={}".format(triggered,buffer_full))
+            while triggered==0 or buffer_full==0:
+                time.sleep(0.5)
+                print("> Request Trigger Status")
+                self.smartbench.request_trigger_status()
+                print("> Waiting...")
+                buffer_full,triggered = self.smartbench.receive_trigger_status()
+                print("> Trigger={}\tBuffer_full={}".format(triggered,buffer_full))
+            #time.sleep(2)
+            print("> Request Stop")
+            self.smartbench.request_stop()
+            print("> Request CHA")
+            self.smartbench.request_chA()
+            print("> Waiting...")
+            self.dataY = self.smartbench.receive_channel_data()
+            self.dataX = range(0,len(self.dataY))
+
+            # x = range(100)
+            # y = [(10*i) for i in range(100)]
+            ax.clear()
+            ax.plot( self.dataX, self.dataY, 'r-' , label='y=sin(x)' )
+            #ax.plot( x, y, 'r-' , label='y=sin(x)' )
+            canvas.draw()
+            # plot.points = [(self.dataX[i], self.dataY[i]) for i in range (len(self.dataX))]
+            # graph.add_plot(plot)
+            time.sleep(1)
+            #self.rp.fx()
+            #return
         else:
             self.state=1
             Clock.schedule_interval(self.myCallback,0.1)
@@ -117,10 +169,10 @@ class rightPanel(BoxLayout):
 
     def myCallback(self,dt):
         self.k = self.k + 10
-        y = [ (self.ids.kn.value*(sin(2*pi*(i-self.k)/500.))) for i in range(0,500) ]
-        ax.clear()
-        ax.plot( x, y, 'r-' , label='y=sin(x)' )
-        canvas.draw()
+        # y = [ (self.ids.kn.value*(sin(2*pi*(i-self.k)/500.))) for i in range(0,500) ]
+        # ax.clear()
+        # ax.plot( x, y, 'r-' , label='y=sin(x)' )
+        # canvas.draw()
 
     #def plotData(self, x, y):
     #    ax.clear()
@@ -140,29 +192,26 @@ Builder.load_string( '''
 
 class MainWindow(BoxLayout):
     #myScope = _Oscope_ftdi()
-    rp = rightPanel()
+    #rp = rightPanel()
 
     def __init__(self,**kwargs):
         #If a user attempts to run your application with a version of Kivy that is older than the specified version, an Exception is raised
         kivy.require('1.0.1')
-        #self.rp = rightPanel()
         self.smartbench = Smartbench()
+        self.rp = rightPanel(self.smartbench)
 
         super(MainWindow, self).__init__()
         self.ids.leftPanel.add_widget(nav.actionbar)
         self.ids.leftPanel.add_widget(canvas)
         self.add_widget(self.rp)
-        #Clock.schedule_interval(self.rp.myCallback,0.1)
-        self.rp.myCallback(0)
-        #return
-        self.dataX = range(0, 100)
+        Clock.schedule_interval(self.rp.myCallback,0.1)
 
         #MainWindow.smartbench.open()
         self.smartbench.set_trigger_source_cha()
         self.smartbench.set_trigger_posedge()
         self.smartbench.set_trigger_value(0)
-        self.smartbench.set_number_of_samples(30)
-        self.smartbench.set_pretrigger(10)
+        self.smartbench.set_number_of_samples(100)
+        self.smartbench.set_pretrigger(30)
         self.smartbench.send_trigger_settings()
 
         self.smartbench.chA.set_attenuator(1)
@@ -183,39 +232,7 @@ class MainWindow(BoxLayout):
         self.smartbench.chB.set_nprom(1)
         self.smartbench.chB.set_clk_divisor(1)
 
-        # mode normal
-        while True:
-            triggered = 0
-            buffer_full = 0
-            data = []
-            print("> Request Start")
-            self.smartbench.request_start()
-            #while triggered==0 and buffer_full==0:
-            while triggered==0 or buffer_full==0:
-                time.sleep(0.5)
-                print("> Request Trigger Status")
-                self.smartbench.request_trigger_status()
-                print("> Waiting...")
-                buffer_full,triggered = self.smartbench.receive_trigger_status()
-                print("> Trigger={}\tBuffer_full={}".format(triggered,buffer_full))
-            #time.sleep(2)
-            print("> Request Stop")
-            self.smartbench.request_stop()
-            print("> Request CHA")
-            self.smartbench.request_chA()
-            print("> Waiting...")
-            self.dataY = self.smartbench.receive_channel_data()
-            self.dataX = range(0,len(self.dataY))
-
-            # x = range(100)
-            # y = [(10*i) for i in range(100)]
-            #ax.clear()
-            ##ax.plot( self.dataX, self.dataY, 'r-' , label='y=sin(x)' )
-            #ax.plot( x, y, 'r-' , label='y=sin(x)' )
-            #canvas.draw()
-            time.sleep(1)
-            #self.rp.fx()
-            #return
+        return
 
 class SmartbenchApp(App):
     title = 'SmartbenchApp'
