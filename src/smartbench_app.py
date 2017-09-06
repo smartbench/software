@@ -53,7 +53,8 @@ import time
 from smartbench_api import *
 
 x = range(0,500)
-y = [ sin(2*pi*i/500.) for i in range(0,500) ]
+#y = [ sin(2*pi*i/500.) for i in range(0,500) ]
+y = [i for i in range(500)]
 
 fig, ax = plt.subplots()
 ax.plot( x, y, 'r-' , label='y=sin(x)' )
@@ -121,10 +122,10 @@ class rightPanel(BoxLayout):
         ax.plot( x, y, 'r-' , label='y=sin(x)' )
         canvas.draw()
 
-    def plotData(self, x, y):
-        ax.clear()
-        ax.plot( x, y, 'r-' , label='y=sin(x)' )
-        canvas.draw()
+    #def plotData(self, x, y):
+    #    ax.clear()
+    #    ax.plot( x, y, 'r-' , label='y=sin(x)' )
+    #    canvas.draw()
 
 
 Builder.load_string( '''
@@ -140,55 +141,20 @@ Builder.load_string( '''
 class MainWindow(BoxLayout):
     #myScope = _Oscope_ftdi()
     rp = rightPanel()
-    smartbench = Smartbench()
 
     def __init__(self,**kwargs):
         #If a user attempts to run your application with a version of Kivy that is older than the specified version, an Exception is raised
         kivy.require('1.0.1')
         #self.rp = rightPanel()
-        #self.smartbench = Smartbench()
+        self.smartbench = Smartbench()
 
         super(MainWindow, self).__init__()
         self.ids.leftPanel.add_widget(nav.actionbar)
         self.ids.leftPanel.add_widget(canvas)
         self.add_widget(self.rp)
-        Clock.schedule_interval(self.rp.myCallback,0.1)
-
-        # ft = Ftdi()
-        # ft.open(vendor=0x0403, product=0x6010,interface=2)
-
-        # if you don't do this, first byte sent never arrives to the other side
-        # if you happen to know why, let us know :)
-        #dummy = self.smartbench.ft.ft.read_data(1) #empty buffer
-
-        # ## testing with ECHO
-        # self.smartbench.ft.ft.write_data(bytes([1, 2, 3, 4, 5]))
-        # self.smartbench.ft.ft.write_data(bytes([6,7]))
-        # time.sleep(1)
-        # #a = self.smartbench.ft.ft.read_data_bytes(10).tolist()
-        # #print("a=",a)
-        # buffer_full,triggered = self.smartbench.receive_trigger_status()
-        # print ("tr={}\tbuf={}".format(triggered, buffer_full))
-        # exit()
-
-        # ## WIII -> TESTING ANSWER OF RQST_TRIGGER_STATUS
-        # print("Start")
-        # self.smartbench.request_start()
-        # time.sleep(1)
-        # print("Request Trigger Status")
-        # self.smartbench.request_trigger_status()
-        # time.sleep(1)
-        # print("Trigger Status")
-        # self.smartbench.request_trigger_status()
-        # data = []
-        # while len(data) == 0:
-        #     data = self.smartbench.ft.ft.read_data_bytes(10).tolist()
-        #     time.sleep(0.4)
-        #     print("data=",data)
-        # #buffer_full,triggered = self.smartbench.receive_trigger_status()
-        # #print ("tr={}\tbuf={}".format(triggered, buffer_full))
-        # exit()
-
+        #Clock.schedule_interval(self.rp.myCallback,0.1)
+        self.rp.myCallback(0)
+        #return
         self.dataX = range(0, 100)
 
         #MainWindow.smartbench.open()
@@ -239,11 +205,17 @@ class MainWindow(BoxLayout):
             self.smartbench.request_chA()
             print("> Waiting...")
             self.dataY = self.smartbench.receive_channel_data()
-            time.sleep(1)
+            self.dataX = range(0,len(self.dataY))
+
+            # x = range(100)
+            # y = [(10*i) for i in range(100)]
             #ax.clear()
-            #ax.plot( self.dataX, self.dataY, 'r-' , label='Received data' )
+            ##ax.plot( self.dataX, self.dataY, 'r-' , label='y=sin(x)' )
+            #ax.plot( x, y, 'r-' , label='y=sin(x)' )
             #canvas.draw()
-            #time.sleep(1)
+            time.sleep(1)
+            #self.rp.fx()
+            #return
 
 class SmartbenchApp(App):
     title = 'SmartbenchApp'
