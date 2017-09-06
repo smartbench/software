@@ -243,8 +243,7 @@ class MainWindow(BoxLayout):
             print("> Request CHA")
             self.smartbench.request_chA()
             print("> Waiting...")
-            self.smartbench.receive_channel_data(data)
-            self.dataY = data.to_bytes()
+            self.dataY = self.smartbench.receive_channel_data()
             self.rp.plotData( self.dataX , self.dataY )
 
 class SmartbenchApp(App):

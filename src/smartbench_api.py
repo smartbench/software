@@ -278,10 +278,9 @@ class Smartbench( _Definitions ):
         triggered = (data[0] >> 1) & 0x01
         return [buffer_full, triggered]
 
-    def receive_channel_data( self , data , n=0 ):
+    def receive_channel_data( self , n=0 ):
         if(n==0): n = self.__num_samples
-        #data = []
-        data = self.oscope.receive(n, blocking=True)
+        return self.oscope.receive(n, blocking=True)
 
     def get_trigger_edge( self ):
         return ( self.__trigger_settings >> self._TRIGGER_CONF_EDGE ) & 0x1
