@@ -5,8 +5,9 @@
 # https://pythonhosted.org/pyserial/pyserial_api.html
 
 import serial
+import sys
 import time
-
+from statistics import mean
 
 ftdi = serial.Serial('/dev/ttyUSB1', baudrate=921600, timeout=2)
 ftdi.is_open
@@ -22,14 +23,20 @@ j=0
 k=0
 c1 = 0
 
-# print("""Units:
-#   Enviados: Bytes
-#   Recibidos: Bytes
-#   Errors: Bytes
-#   Bps: Bytes por segundo
-# """)
+print("""Units:
+  Enviados: Bytes
+  Recibidos: Bytes
+  errores: Bytes
+  Bps: Bytes por segundo
+""")
 
+TIMEOUT = 3.0
+t = []
+enviados = 0
+recibidos = 0
+errores = 0
 t1 = time.time()
+
 for i in range(N2):
     data_rd = []
     data = []
@@ -38,22 +45,31 @@ for i in range(N2):
     while(len(list(data)) < N1):
         data_rd = list(ftdi.read(N1-len(data)))
         data = data + data_rd
+        if(time.time()-t1 > TIMEOUT): break
     k=k+1
-    j=j+N1
-    c1=c1+N1
+    j=j+len(data)
+    recibidos=recibidos+len(data)
     #print( "({})\tin_waiting={}\tout_waiting={}\tdata_rd={}".format(i, ftdi.in_waiting, ftdi.out_waiting, data_rd) )
     #print( "Sent={}\tRead={}".format( list(trama) , list(data_rd) ) )
-    if(0==(k%100)):
-        t2 = time.time()
-        #t2 = time.time()
-        vel = c1 / (t2-t1)
-        c1 = 0
-        t1 = t2
+    t2 = time.time()
+    t.append(t2-t1)
+    vel = len(data) / (t2-t1)
+    t1 = t2
+    t_mean = mean(t)
+    #print("\rN={}\tSPEED={} MBPS".format(j, vel/1.0e6))
 
-        print("\rN={}\tSPEED={} MBPS".format(j, vel/1.0e6))
-    if(list(trama) != list(data_rd)):
-        print( "\rSent={}\tRead={}".format( list(trama) , list(data_rd) ) )
-        break
+    if trama != bytes(data):
+        for n,c in enumerate(list(trama)):
+             if data[n] != c:
+                    errores = errores + 1
+
+    sys.stdout.write( \
+        "\r Enviados: {} Recibidos: {}  Errores: {} ({:.2}%)  Bps: {:.2}".format( \
+         enviados, recibidos, errores, 100*errores/recibidos , (len(data)+len(trama)) / t_mean ) )
+
+    # if(list(trama) != list(data_rd)):
+    #     print( "\rERROR!\tSent={}\tRead={}".format( list(trama) , list(data_rd) ) )
+    #     break
 
 ftdi.close()
 
