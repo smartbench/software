@@ -22,14 +22,20 @@ j=0
 k=0
 c1 = 0
 
+# print("""Units:
+#   Enviados: Bytes
+#   Recibidos: Bytes
+#   Errors: Bytes
+#   Bps: Bytes por segundo
+# """)
+
 t1 = time.time()
 for i in range(N2):
     data_rd = []
     data = []
-    t1 = time.time()
     trama = bytes(i % 256 for i in range(i, i+N1))
     ftdi.write(trama)
-    while(len(list(data)) < len(list(trama))):
+    while(len(list(data)) < N1):
         data_rd = list(ftdi.read(N1-len(data)))
         data = data + data_rd
     k=k+1
@@ -42,6 +48,7 @@ for i in range(N2):
         #t2 = time.time()
         vel = c1 / (t2-t1)
         c1 = 0
+        t1 = t2
 
         print("\rN={}\tSPEED={} MBPS".format(j, vel/1.0e6))
     if(list(trama) != list(data_rd)):
