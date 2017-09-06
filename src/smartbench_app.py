@@ -151,17 +151,17 @@ class rightPanel(BoxLayout):
             print("> Waiting...")
             buffer_full,triggered = self.smartbench.receive_trigger_status()
             print("> Trigger={}\tBuffer_full={}".format(triggered,buffer_full))
-        #time.sleep(2)
         print("> Request Stop")
         self.smartbench.request_stop()
         print("> Request CHA")
         self.smartbench.request_chA()
         print("> Waiting...")
-        self.dataY = self.smartbench.receive_channel_data()
+        self.dataY = list(reversed(self.smartbench.receive_channel_data()))
         self.dataX = range(0,len(self.dataY))
 
         ax.clear()
-        ax.plot( self.dataX, self.dataY, 'r-' , label='y=sin(x)' )
+        ax.plot( self.dataX, self.dataY, 'r-' , label='Smartbench' )
+        ax.plot( self.smartbench.get_pretrigger()-1, self.smartbench.get_trigger_value(), 'b*')
         canvas.draw()
 
     #def plotData(self, x, y):
@@ -198,10 +198,10 @@ class MainWindow(BoxLayout):
 
         #MainWindow.smartbench.open()
         self.smartbench.set_trigger_source_cha()
-        self.smartbench.set_trigger_posedge()
-        self.smartbench.set_trigger_value(0)
-        self.smartbench.set_number_of_samples(100)
-        self.smartbench.set_pretrigger(30)
+        self.smartbench.set_trigger_negedge()
+        self.smartbench.set_trigger_value(-28)
+        self.smartbench.set_number_of_samples(150)
+        self.smartbench.set_pretrigger(50)
         self.smartbench.send_trigger_settings()
 
         self.smartbench.chA.set_attenuator(1)

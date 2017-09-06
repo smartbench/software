@@ -318,8 +318,8 @@ class Smartbench( _Definitions ):
         self.oscope.send( self._ADDR_TRIGGER_SETTINGS, self.__trigger_settings )
         print("Trigger settings set to {}".format(hex(self.__trigger_settings) ) )
 
-    def get_trigger_value( self, val ):
-        return self.__trigger_value - 2^( self._ADC_WIDTH-1 )
+    def get_trigger_value( self ):
+        return self.__trigger_value# - 2^( self._ADC_WIDTH-1 )
 
     def set_trigger_value( self, val ):
         self.__trigger_value = (1 << self._ADC_WIDTH-1 ) + val
