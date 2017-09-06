@@ -124,44 +124,6 @@ class rightPanel(BoxLayout):
             self.state=0
             Clock.unschedule(self.myCallback)
             self.btText = baseText[0]
-
-            triggered = 0
-            buffer_full = 0
-            data = []
-            print("> Request Start")
-            self.smartbench.request_start()
-            print("> Request Trigger Status")
-            self.smartbench.request_trigger_status()
-            print("> Waiting...")
-            buffer_full,triggered = self.smartbench.receive_trigger_status()
-            print("> Trigger={}\tBuffer_full={}".format(triggered,buffer_full))
-            while triggered==0 or buffer_full==0:
-                time.sleep(0.5)
-                print("> Request Trigger Status")
-                self.smartbench.request_trigger_status()
-                print("> Waiting...")
-                buffer_full,triggered = self.smartbench.receive_trigger_status()
-                print("> Trigger={}\tBuffer_full={}".format(triggered,buffer_full))
-            #time.sleep(2)
-            print("> Request Stop")
-            self.smartbench.request_stop()
-            print("> Request CHA")
-            self.smartbench.request_chA()
-            print("> Waiting...")
-            self.dataY = self.smartbench.receive_channel_data()
-            self.dataX = range(0,len(self.dataY))
-
-            # x = range(100)
-            # y = [(10*i) for i in range(100)]
-            ax.clear()
-            ax.plot( self.dataX, self.dataY, 'r-' , label='y=sin(x)' )
-            #ax.plot( x, y, 'r-' , label='y=sin(x)' )
-            canvas.draw()
-            # plot.points = [(self.dataX[i], self.dataY[i]) for i in range (len(self.dataX))]
-            # graph.add_plot(plot)
-            time.sleep(1)
-            #self.rp.fx()
-            #return
         else:
             self.state=1
             Clock.schedule_interval(self.myCallback,0.1)
@@ -173,6 +135,34 @@ class rightPanel(BoxLayout):
         # ax.clear()
         # ax.plot( x, y, 'r-' , label='y=sin(x)' )
         # canvas.draw()
+        triggered = 0
+        buffer_full = 0
+        print("> Request Start")
+        self.smartbench.request_start()
+        print("> Request Trigger Status")
+        self.smartbench.request_trigger_status()
+        print("> Waiting...")
+        buffer_full,triggered = self.smartbench.receive_trigger_status()
+        print("> Trigger={}\tBuffer_full={}".format(triggered,buffer_full))
+        while triggered==0 or buffer_full==0:
+            time.sleep(0.5)
+            print("> Request Trigger Status")
+            self.smartbench.request_trigger_status()
+            print("> Waiting...")
+            buffer_full,triggered = self.smartbench.receive_trigger_status()
+            print("> Trigger={}\tBuffer_full={}".format(triggered,buffer_full))
+        #time.sleep(2)
+        print("> Request Stop")
+        self.smartbench.request_stop()
+        print("> Request CHA")
+        self.smartbench.request_chA()
+        print("> Waiting...")
+        self.dataY = self.smartbench.receive_channel_data()
+        self.dataX = range(0,len(self.dataY))
+
+        ax.clear()
+        ax.plot( self.dataX, self.dataY, 'r-' , label='y=sin(x)' )
+        canvas.draw()
 
     #def plotData(self, x, y):
     #    ax.clear()
