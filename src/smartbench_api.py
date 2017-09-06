@@ -29,6 +29,10 @@ class _Oscope_ftdi( ):
             print ("Device not connected!")
             exit()
 
+    def close(self):
+        self.ftdi.close()
+        print ("Device closed.")
+
     def send( self, addr, data ):
         aux = bytes( [ int(addr) , int(data%256) , int((data>>8)%256) ] )
         n = self.ftdi.write( aux )
@@ -119,6 +123,10 @@ class _Definitions ( object ):
     _RQST_CHB_IDX = 3
     _RQST_TRIG_IDX = 4
     _RQST_RST_IDX = 5
+
+    # TRIGGER Status
+    _BUFFER_FULL = 0
+    _TRIGGERED   = 0
 
     ### WIDTH DEFINITIONS ###
     _ADC_WIDTH = 8
@@ -274,8 +282,8 @@ class Smartbench( _Definitions ):
         data = self.oscope.receive( 1, blocking=True )
         print("data len={}".format( len(data) ) )
         print ("data={}".format(data[0]))
-        buffer_full = (data[0] & 0x01)
-        triggered = (data[0] >> 1) & 0x01
+        buffer_full = (data[0] >> self._BUFFER_FULL) & 0x01
+        triggered = (data[0] >> self._TRIGGERED) & 0x01
         return [buffer_full, triggered]
 
     def receive_channel_data( self , n=0 ):

@@ -26,7 +26,6 @@ matplotlib.use('module://kivy.garden.matplotlib.backend_kivy')
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
-import kivy # require
 from kivy.garden.matplotlib.backend_kivy import FigureCanvasKivy,\
                                                                 NavigationToolbar2Kivy
 
@@ -46,13 +45,12 @@ from kivy.garden.knob import Knob
 
 from math import sin,pi
 
+import kivy # require
 #from pyftdi.ftdi import Ftdi
 import serial
 import time
 
 from smartbench_api import *
-
-
 
 x = range(0,500)
 y = [ sin(2*pi*i/500.) for i in range(0,500) ]
@@ -99,13 +97,12 @@ Builder.load_string( '''
 
 class rightPanel(BoxLayout):
     btText = StringProperty(baseText[1])
+    state = 1
+    k = 0
 
     def __init__( self, **kwargs):
         super( rightPanel, self).__init__()
         self.ids.kn._value(self.ids.kn,self.ids.kn.value)
-        self.state = 1
-        self.k = 0
-        self.i = 1
 
     def btOpCallback(self):
         if self.state:
@@ -117,21 +114,17 @@ class rightPanel(BoxLayout):
             Clock.schedule_interval(self.myCallback,0.1)
             self.btText = baseText[1]
 
-    def myCallback( self, dt ):
+    def myCallback(self,dt):
         self.k = self.k + 10
         y = [ (self.ids.kn.value*(sin(2*pi*(i-self.k)/500.))) for i in range(0,500) ]
         ax.clear()
         ax.plot( x, y, 'r-' , label='y=sin(x)' )
         canvas.draw()
-        self.i = ( self.i*2 )%255
-        print( self.ft.write_data(bytes( [ self.i ] ) ), self.i )
-        time.sleep(0.5)
 
     def plotData(self, x, y):
         ax.clear()
         ax.plot( x, y, 'r-' , label='y=sin(x)' )
         canvas.draw()
-
 
 
 Builder.load_string( '''
@@ -146,20 +139,20 @@ Builder.load_string( '''
 
 class MainWindow(BoxLayout):
     #myScope = _Oscope_ftdi()
-
-
+    rp = rightPanel()
+    smartbench = Smartbench()
 
     def __init__(self,**kwargs):
         #If a user attempts to run your application with a version of Kivy that is older than the specified version, an Exception is raised
         kivy.require('1.0.1')
-        self.rp = rightPanel()
-        self.smartbench = Smartbench()
+        #self.rp = rightPanel()
+        #self.smartbench = Smartbench()
 
         super(MainWindow, self).__init__()
         self.ids.leftPanel.add_widget(nav.actionbar)
         self.ids.leftPanel.add_widget(canvas)
         self.add_widget(self.rp)
-        #Clock.schedule_interval(self.rp.myCallback,0.1)
+        Clock.schedule_interval(self.rp.myCallback,0.1)
 
         # ft = Ftdi()
         # ft.open(vendor=0x0403, product=0x6010,interface=2)
@@ -202,8 +195,8 @@ class MainWindow(BoxLayout):
         self.smartbench.set_trigger_source_cha()
         self.smartbench.set_trigger_posedge()
         self.smartbench.set_trigger_value(0)
-        self.smartbench.set_number_of_samples(100)
-        self.smartbench.set_pretrigger(30)
+        self.smartbench.set_number_of_samples(30)
+        self.smartbench.set_pretrigger(10)
         self.smartbench.send_trigger_settings()
 
         self.smartbench.chA.set_attenuator(1)
@@ -231,12 +224,14 @@ class MainWindow(BoxLayout):
             data = []
             print("> Request Start")
             self.smartbench.request_start()
-            while triggered==0 and buffer_full==0:
+            #while triggered==0 and buffer_full==0:
+            while triggered==0 or buffer_full==0:
                 time.sleep(0.5)
                 print("> Request Trigger Status")
                 self.smartbench.request_trigger_status()
                 print("> Waiting...")
                 buffer_full,triggered = self.smartbench.receive_trigger_status()
+                print("> Trigger={}\tBuffer_full={}".format(triggered,buffer_full))
             #time.sleep(2)
             print("> Request Stop")
             self.smartbench.request_stop()
@@ -244,7 +239,11 @@ class MainWindow(BoxLayout):
             self.smartbench.request_chA()
             print("> Waiting...")
             self.dataY = self.smartbench.receive_channel_data()
-            self.rp.plotData( self.dataX , self.dataY )
+            time.sleep(1)
+            #ax.clear()
+            #ax.plot( self.dataX, self.dataY, 'r-' , label='Received data' )
+            #canvas.draw()
+            #time.sleep(1)
 
 class SmartbenchApp(App):
     title = 'SmartbenchApp'
@@ -252,4 +251,9 @@ class SmartbenchApp(App):
         return MainWindow()
 
 if __name__ == '__main__':
-    SmartbenchApp().run()
+    try:
+        SmartbenchApp().run()
+    except KeyboardInterrupt:
+        print ("Interrupted")
+        MainWindow.smartbench.oscope.close()
+        exit()
