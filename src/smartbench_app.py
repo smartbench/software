@@ -129,28 +129,24 @@ class rightPanel(BoxLayout):
             Clock.schedule_interval(self.myCallback,0.1)
             self.btText = baseText[1]
 
-    def myCallback(self,dt):
-        self.k = self.k + 10
-        # y = [ (self.ids.kn.value*(sin(2*pi*(i-self.k)/500.))) for i in range(0,500) ]
-        # ax.clear()
-        # ax.plot( x, y, 'r-' , label='y=sin(x)' )
-        # canvas.draw()
-        triggered = 0
-        buffer_full = 0
+    def newFrameCallback(self,dt):
+        self.triggered = 0
+        self.buffer_full = 0
         print("> Request Start")
         self.smartbench.request_start()
+        Clock.schedule_once(self.waitingTriggerCallback) # Called as soon as possible
+
+    def waitingTriggerCallback(self,dt):
         print("> Request Trigger Status")
         self.smartbench.request_trigger_status()
         print("> Waiting...")
         buffer_full,triggered = self.smartbench.receive_trigger_status()
-        print("> Trigger={}\tBuffer_full={}".format(triggered,buffer_full))
-        while triggered==0 or buffer_full==0:
-            time.sleep(0.5)
-            print("> Request Trigger Status")
-            self.smartbench.request_trigger_status()
-            print("> Waiting...")
-            buffer_full,triggered = self.smartbench.receive_trigger_status()
-            print("> Trigger={}\tBuffer_full={}".format(triggered,buffer_full))
+        print("> Trigger={}\tBuffer_full={}".format( self.triggered, self.buffer_full ))
+
+        if self.triggered==0 or self.buffer_full==0:
+            Clock.schedule_once(self.waitingTriggerCallback,0.5) # Check again in 500 ms.
+            return
+
         print("> Request Stop")
         self.smartbench.request_stop()
         print("> Request CHA")
@@ -163,11 +159,7 @@ class rightPanel(BoxLayout):
         ax.plot( self.dataX, self.dataY, 'r-' , label='Smartbench' )
         ax.plot( self.smartbench.get_pretrigger()-1, self.smartbench.get_trigger_value(), 'b*')
         canvas.draw()
-
-    #def plotData(self, x, y):
-    #    ax.clear()
-    #    ax.plot( x, y, 'r-' , label='y=sin(x)' )
-    #    canvas.draw()
+        Clock.schedule_once(self.newFrameCallback) # Called as soon as possible
 
 
 Builder.load_string( '''
@@ -194,7 +186,8 @@ class MainWindow(BoxLayout):
         self.ids.leftPanel.add_widget(nav.actionbar)
         self.ids.leftPanel.add_widget(canvas)
         self.add_widget(self.rp)
-        Clock.schedule_interval(self.rp.myCallback,0.1)
+        Clock.schedule_once(self.rp.newFrameCallback) # Called as soon as possible
+        #Clock.schedule_interval(self.rp.myCallback,0.1)
 
         #MainWindow.smartbench.open()
         self.smartbench.set_trigger_source_cha()
