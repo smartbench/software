@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 """ Smartbench app
 
 This app is the computer-side part of Smartbench project.
@@ -140,7 +142,7 @@ class rightPanel(BoxLayout):
         print("> Request Trigger Status")
         self.smartbench.request_trigger_status()
         print("> Waiting...")
-        buffer_full,triggered = self.smartbench.receive_trigger_status()
+        self.buffer_full,self.triggered = self.smartbench.receive_trigger_status()
         print("> Trigger={}\tBuffer_full={}".format( self.triggered, self.buffer_full ))
 
         if self.triggered==0 or self.buffer_full==0:
