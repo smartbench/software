@@ -3,7 +3,6 @@
 """ Main application for smartbench project """
 
 from kivy.app import App
-import kivy # require
 
 #from pyftdi.ftdi import Ftdi
 import serial
@@ -13,45 +12,11 @@ import time
 from OscopeApi import *
 from SmartbenchAppLayout import *
 
-def newFrameCallback(self,dt):
-    self.triggered = 0
-    self.buffer_full = 0
-    print("> Request Start")
-    self.smartbench.request_start()
-    Clock.schedule_once(self.waitingTriggerCallback) # Called as soon as possible
-
-def waitingTriggerCallback(self,dt):
-    print("> Request Trigger Status")
-    self.smartbench.request_trigger_status()
-    print("> Waiting...")
-    self.buffer_full,self.triggered = self.smartbench.receive_trigger_status()
-    print("> Trigger={}\tBuffer_full={}".format( self.triggered, self.buffer_full ))
-
-    if self.triggered==0 or self.buffer_full==0:
-        Clock.schedule_once(self.waitingTriggerCallback,0.5) # Check again in 500 ms.
-        return
-
-    print("> Request Stop")
-    self.smartbench.request_stop()
-    print("> Request CHA")
-    self.smartbench.request_chA()
-    print("> Waiting...")
-    self.dataY = list(reversed(self.smartbench.receive_channel_data()))
-    self.dataX = range(0,len(self.dataY))
-
-    ax.clear()
-    ax.plot( self.dataX, self.dataY, 'r-' , label='Smartbench' )
-    ax.plot( self.smartbench.get_pretrigger()-1, self.smartbench.get_trigger_value(), 'b*')
-    canvas.draw()
-    Clock.schedule_once(self.newFrameCallback) # Called as soon as possible
-
-
 class SmartbenchApp(App):
     title = 'SmartbenchApp'
     def build(self):
 
-        # Creating main widget
-        self.root = MainWindow()
+        super(SmartbenchApp, self).__init__()
 
         # Initializing oscope api
         self.smartbench = Smartbench()
@@ -81,14 +46,47 @@ class SmartbenchApp(App):
         self.smartbench.chB.set_nprom(1)
         self.smartbench.chB.set_clk_divisor(1)
 
-        Clock.schedule_once(newFrameCallback) # Called as soon as possible
+        Clock.schedule_once(self.newFrameCallback) # Called as soon as possible
+        self.mw = MainWindow()
 
-        return self.root
+        return self.mw
+
+
+    def newFrameCallback(self,dt):
+        self.triggered = 0
+        self.buffer_full = 0
+        print("> Request Start")
+        self.smartbench.request_start()
+        Clock.schedule_once(self.waitingTriggerCallback) # Called as soon as possible
+
+    def waitingTriggerCallback(self,dt):
+        print("> Request Trigger Status")
+        self.smartbench.request_trigger_status()
+        print("> Waiting...")
+        self.buffer_full,self.triggered = self.smartbench.receive_trigger_status()
+        print("> Trigger={}\tBuffer_full={}".format( self.triggered, self.buffer_full ))
+
+        if self.triggered==0 or self.buffer_full==0:
+            Clock.schedule_once(self.waitingTriggerCallback,0.5) # Check again in 500 ms.
+            return
+
+        print("> Request Stop")
+        self.smartbench.request_stop()
+        print("> Request CHA")
+        self.smartbench.request_chA()
+        print("> Waiting...")
+        self.dataY = list(reversed(self.smartbench.receive_channel_data()))
+        self.dataX = range(0,len(self.dataY))
+
+        self.mw.updatePlot( self.dataX, self.dataY )
+        self.mw.plotTriggerPoint( self.smartbench.get_pretrigger()-1, self.smartbench.get_trigger_value() )
+        Clock.schedule_once( self.newFrameCallback ) # Called as soon as possible
 
 if __name__ == '__main__':
     try:
-        SmartbenchApp().run()
+        sm = SmartbenchApp()
+        sm.run()
     except KeyboardInterrupt:
         print ("Interrupted")
-        MainWindow.smartbench.oscope.close()
+        sm.smartbench.oscope.close()
         exit()

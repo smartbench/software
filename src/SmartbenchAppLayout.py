@@ -1,8 +1,13 @@
+""" Layout of Smartbench app and basic actions """
+
+# Matplotlib includes
 import matplotlib
 matplotlib.use('module://kivy.garden.matplotlib.backend_kivy')
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
+# Kivy includes
+import kivy # require
 from kivy.garden.matplotlib.backend_kivy import FigureCanvasKivy,\
                                                                 NavigationToolbar2Kivy
 
@@ -86,18 +91,34 @@ class MainWindow(BoxLayout):
         #If a user attempts to run your application with a version of Kivy that is older than the specified version, an Exception is raised
         kivy.require('1.0.1')
 
+        self.rp = rightPanel()
+        super(MainWindow, self).__init__()
+
+        # # Creting plot
+        x = range(0,500)
+        y = [i for i in range(500)]
         self.fig, self.ax = plt.subplots()
-        self.ax.plot( x, y, 'r-' , label='y=sin(x)' )
+        self.ax.plot( x, y, 'r-' )#, label='y=sin(x)' )
+        del x,y
         self.ax.set_ylabel('y')
         self.ax.set_title('A beautiful sinewave function')
         self.ax.set_xlabel('x')
         self.ax.legend( loc='upper right', shadow=True )
+        self.canvasPlot= self.fig.canvas
+        self.nav = NavigationToolbar2Kivy( self.canvasPlot )
 
-        self.canvas= fig.canvas
-        self.nav = NavigationToolbar2Kivy(canvas)
+        # Adding plot and right panel
+        self.ids.leftPanel.add_widget( self.nav.actionbar )
+        self.ids.leftPanel.add_widget( self.canvasPlot )
+        self.add_widget( self.rp )
 
-        self.rp = rightPanel(self.smartbench)
-        self.add_widget(self.rp)
-
-        super(MainWindow, self).__init__()
         return
+
+    def updatePlot( self, dataX, dataY ):
+        self.ax.clear()
+        self.ax.plot( dataX, dataY, 'r-' , label='Smartbench' )
+        self.canvasPlot.draw()
+
+    def plotTriggerPoint( self, x, y ):
+        self.ax.plot( x, y, 'b*')
+        self.canvasPlot.draw()
