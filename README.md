@@ -18,11 +18,11 @@ A multi-platform software for data acquisition.
 
 		sudo apt install python-pip
 
-		pip install --upgrade pip
+		pip3 install --upgrade pip
 
 * Kivy Garden
 
-		pip install kivy-garden
+		pip3 install kivy-garden
 
 * Kivy Garden graph
 
@@ -32,7 +32,7 @@ A multi-platform software for data acquisition.
 
 * Kivy Garden MatPlotLib
 
-		pip install matplotlib
+		sudo pip3 install matplotlib
 
 		garden install matplotlib
 
@@ -40,9 +40,22 @@ A multi-platform software for data acquisition.
 
 * Kivy Garden Knob
 
-        sudo garden install knob
+        garden install knob
 
-        sudo garden install --upgrade knob
+        garden install --upgrade knob
+
+* Pyftdi
+    http://eblot.github.io/pyftdi/
+    Clone repo: https://github.com/eblot/pyftdi
+
+        pip3 install pyftdi
+
+    or:
+
+        python3 setup.py config
+
+        sudo python3 setup.py install
+
 
 
 ## Possible issues
@@ -67,4 +80,3 @@ A multi-platform software for data acquisition.
     $ python setup.py build
     $ sudo python setup.py install
     ```
-        
