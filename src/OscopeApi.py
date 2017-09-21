@@ -162,7 +162,7 @@ class _Channel( _Definitions ):
         # Use methods to get/set actual values.
         self.__requests = 0
         self.__settings = 0xE1
-        self.__dac_value = 2 ^ ( self._DAC_WIDTH - 1 )
+        self.__dac_value = 2 ** ( self._DAC_WIDTH - 1 )
         self.__nprom = 0
         self.__clk_divisor = 3
         self.oscope = oscope
@@ -211,10 +211,10 @@ class _Channel( _Definitions ):
 
     # Offset value
     def get_offset( self ):
-        return self.__dac_value - 2^( self._DAC_WIDTH-1 )
+        return self.__dac_value - 2**( self._DAC_WIDTH-1 )
 
     def set_offset( self, val ):
-        self.__dac_value = val + 2^( self._DAC_WIDTH-1 )
+        self.__dac_value = val + 2**( self._DAC_WIDTH-1 )
         self.oscope.send( self._ADDR_DAC_CHA + self.__nchannel, self.__dac_value )
 
     # Documentation for nprom:
@@ -251,7 +251,7 @@ class Smartbench( _Definitions ):
         self.oscope.open(device)
 
         self.__trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
-        self.__triger_value = 2 ^ ( self._ADC_WIDTH-1 )
+        self.__triger_value = 2 ** ( self._ADC_WIDTH-1 )
         self.__num_samples = 100
         self.__pretrigger = 0
 
@@ -319,7 +319,7 @@ class Smartbench( _Definitions ):
         print("Trigger settings set to {}".format(hex(self.__trigger_settings) ) )
 
     def get_trigger_value( self ):
-        return self.__trigger_value# - 2^( self._ADC_WIDTH-1 )
+        return self.__trigger_value# - 2**( self._ADC_WIDTH-1 )
 
     def set_trigger_value( self, val ):
         self.__trigger_value = (1 << self._ADC_WIDTH-1 ) + val
