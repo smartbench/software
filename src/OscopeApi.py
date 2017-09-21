@@ -144,8 +144,12 @@ class _Definitions ( object ):
     TRIGGER_SOURCE_CHB = 2
     TRIGGER_SOURCE_EXT = 3
 
-    COUPLING_AC = 1
-    COUPLING_DC = 0
+    COUPLING_AC     = 1
+    COUPLING_DC     = 0
+
+    MODE_SINGLE  = 0
+    MODE_NORMAL  = 1
+    MODE_AUTO    = 2
 
 #######################################################
 #################### CHANNEL CLASS ####################
@@ -252,8 +256,9 @@ class Smartbench( _Definitions ):
 
         self.__trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
         self.__triger_value = 2 ** ( self._ADC_WIDTH-1 )
-        self.__num_samples = 100
-        self.__pretrigger = 0
+        self.__num_samples  = 100
+        self.__pretrigger   = 0
+        self.__trigger_mode = self.MODE_NORMAL
 
         # Channel register instance
         self.chA = _Channel(0, self.oscope)
@@ -341,6 +346,20 @@ class Smartbench( _Definitions ):
         self.__pretrigger = pt_value
         self.oscope.send( self._ADDR_PRETRIGGER, self.__pretrigger )
         print("Pretrigger set to {}".format(self.__pretrigger))
+
+    def set_trigger_mode( self, mode ):
+        self.__trigger_mode = mode
+
+    def set_trigger_mode_single ( self ): self.set_trigger_mode(self.MODE_SINGLE)
+    def set_trigger_mode_normal ( self ): self.set_trigger_mode(self.MODE_NORMAL)
+    def set_trigger_mode_auto   ( self ): self.set_trigger_mode(self.MODE_AUTO)
+
+    def get_trigger_mode( self ):
+        return self.__trigger_mode
+
+    def is_trigger_mode_single (self): return (self.__trigger_mode == self.MODE_SINGLE)
+    def is_trigger_mode_normal (self): return (self.__trigger_mode == self.MODE_NORMAL)
+    def is_trigger_mode_auto   (self): return (self.__trigger_mode == self.MODE_AUTO)
 
 if __name__ == "__main__":
     oscope = Smartbench()
