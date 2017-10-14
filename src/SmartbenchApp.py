@@ -18,6 +18,7 @@ class SmartbenchApp(App):
 
         super(SmartbenchApp, self).__init__()
 
+        self.count = 0
         # Initializing oscope api
         self.smartbench = Smartbench()
 
@@ -46,6 +47,8 @@ class SmartbenchApp(App):
         self.smartbench.chB.set_nprom(1)
         self.smartbench.chB.set_clk_divisor(1)
 
+        self.smartbench.set_trigger_mode_normal()
+
         Clock.schedule_once(self.newFrameCallback) # Called as soon as possible
         self.mw = MainWindow()
 
@@ -53,8 +56,9 @@ class SmartbenchApp(App):
 
 
     def newFrameCallback(self,dt):
-        self.triggered = 0
-        self.buffer_full = 0
+        self.triggered      = 0
+        self.buffer_full    = 0
+        self.count          = 0
         print("> Request Start")
         self.smartbench.request_start()
         Clock.schedule_once(self.waitingTriggerCallback) # Called as soon as possible
@@ -67,8 +71,14 @@ class SmartbenchApp(App):
         print("> Trigger={}\tBuffer_full={}".format( self.triggered, self.buffer_full ))
 
         if self.triggered==0 or self.buffer_full==0:
-            Clock.schedule_once(self.waitingTriggerCallback,0.5) # Check again in 500 ms.
-            return
+            if( self.smartbench.is_trigger_mode_single() or self.smartbench.is_trigger_mode_normal() ):
+                Clock.schedule_once(self.waitingTriggerCallback,0.5) # Check again in 500 ms.
+                return
+            else:
+                if(self.buffer_full == 1 and self.count < 5):
+                    self.count = self.count + 1
+                    Clock.schedule_once(self.waitingTriggerCallback,0.5) # Check again in 500 ms.
+                    return
 
         print("> Request Stop")
         self.smartbench.request_stop()
@@ -80,7 +90,9 @@ class SmartbenchApp(App):
 
         self.mw.updatePlot( self.dataX, self.dataY )
         self.mw.plotTriggerPoint( self.smartbench.get_pretrigger()-1, self.smartbench.get_trigger_value() )
-        Clock.schedule_once( self.newFrameCallback ) # Called as soon as possible
+
+        if( self.smartbench.is_trigger_mode_auto() or self.smartbench.is_trigger_mode_normal() ):
+            Clock.schedule_once( self.newFrameCallback ) # Called as soon as possible
 
 if __name__ == '__main__':
     try:
