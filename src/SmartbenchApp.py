@@ -22,35 +22,45 @@ class SmartbenchApp(App):
         # Initializing oscope api
         self.smartbench = Smartbench()
 
-        self.smartbench.set_trigger_source_cha()
-        self.smartbench.set_trigger_negedge()
-        self.smartbench.set_trigger_value(-28)
-        self.smartbench.set_number_of_samples(150)
-        self.smartbench.set_pretrigger(50)
-        self.smartbench.send_trigger_settings()
 
-        self.smartbench.chA.set_attenuator(1)
-        self.smartbench.chA.set_gain(2)
-        self.smartbench.chA.set_coupling_dc()
-        self.smartbench.chA.set_ch_on()
-        self.smartbench.chA.send_settings()
-        self.smartbench.chA.set_offset(0)
-        self.smartbench.chA.set_nprom(1)
-        self.smartbench.chA.set_clk_divisor(1)
 
-        self.smartbench.chB.set_attenuator(3)
-        self.smartbench.chB.set_gain(4)
-        self.smartbench.chB.set_coupling_dc()
-        self.smartbench.chB.set_ch_on()
-        self.smartbench.chB.send_settings()
-        self.smartbench.chB.set_offset(0)
-        self.smartbench.chB.set_nprom(1)
-        self.smartbench.chB.set_clk_divisor(1)
 
-        self.smartbench.set_trigger_mode_normal()
+        # self.smartbench.set_trigger_source_cha()
+        # self.smartbench.set_trigger_negedge()
+        # self.smartbench.set_trigger_value(-28)
+        # self.smartbench.set_number_of_samples(150)
+        # self.smartbench.set_pretrigger(50)
+        # self.smartbench.send_trigger_settings()
+        #
+        # self.smartbench.chA.set_attenuator(1)
+        # self.smartbench.chA.set_gain(2)
+        # self.smartbench.chA.set_coupling_dc()
+        # self.smartbench.chA.set_ch_on()
+        # self.smartbench.chA.send_settings()
+        # self.smartbench.chA.set_offset(0)
+        # self.smartbench.chA.set_nprom(1)
+        # self.smartbench.chA.set_clk_divisor(1)
+        #
+        # self.smartbench.chB.set_attenuator(3)
+        # self.smartbench.chB.set_gain(4)
+        # self.smartbench.chB.set_coupling_dc()
+        # self.smartbench.chB.set_ch_on()
+        # self.smartbench.chB.send_settings()
+        # self.smartbench.chB.set_offset(0)
+        # self.smartbench.chB.set_nprom(1)
+        # self.smartbench.chB.set_clk_divisor(1)
+        #
+        # self.smartbench.set_trigger_mode_normal()
 
-        Clock.schedule_once(self.newFrameCallback) # Called as soon as possible
+        # Clock.schedule_once(self.newFrameCallback) # Called as soon as possible
         self.mw = MainWindow()
+
+
+        # continue here!
+        # testing kivy updating upon failure on opening port
+        # toDo: Add an option so the users can let the App that they connected a device
+        if self.smartbench.get_oscope_status() == False:
+            self.mw.orientation = 'vertical'
 
         return self.mw
 

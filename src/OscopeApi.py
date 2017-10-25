@@ -23,11 +23,19 @@ class _Oscope_ftdi( ):
         pass
 
     def open( self, device='/dev/ttyUSB1' ):
-        self.ftdi = serial.Serial(device, baudrate=921600, timeout=2)
-        if(self.ftdi.is_open): print("Opened device!")
-        else:
+        try:
+            self.ftdi = serial.Serial(device, baudrate=921600, timeout=2)
+            print("Opened device!")
+            return True
+        except:
             print ("Device not connected!")
-            exit()
+            return False
+        # if(self.ftdi.is_open):
+        #     print("Opened device!")
+        #     return True
+        # else:
+        #     print ("Device not connected!")
+        #     return False
 
     def close(self):
         self.ftdi.close()
@@ -252,7 +260,7 @@ class Smartbench( _Definitions ):
     def __init__( self , device='/dev/ttyUSB1'):
 
         self.oscope = _Oscope_ftdi()
-        self.oscope.open(device)
+        self.oscope_status = self.oscope.open(device)
 
         self.__trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
         self.__triger_value = 2 ** ( self._ADC_WIDTH-1 )
@@ -264,6 +272,9 @@ class Smartbench( _Definitions ):
         self.chA = _Channel(0, self.oscope)
         self.chB = _Channel(1, self.oscope)
 
+
+    def get_oscope_status (self):
+        return (self.oscope_status)
 
     def request_start( self ):
         self.oscope.send( self._ADDR_REQUESTS, 1 << self._RQST_START_IDX )

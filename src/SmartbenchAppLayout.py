@@ -27,34 +27,6 @@ from kivy.garden.knob import Knob
 
 baseText = ("Run it again?","Press me to \nstop the \nsinewave")
 
-Builder.load_string( '''
-<rightPanel>:
-    size_hint: .15,1
-    orientation: 'vertical'
-    spacing: 10
-    Knob:
-        id: kn
-        value: .5
-        min: 0.0
-        step: 0.1
-        max: 1.0
-        curve: 1                                # A mayor valor mayor sensibilidad. curve=1 es lineal.
-        knobimg_source: "img/knob_black.png"
-        markeroff_color: 0.0, 0.0, .0, 1
-        knobimg_size: 0.9
-        marker_img: "img/bline3.png"
-        show_marker: False
-    #    on_touch_down: root.my_on_touch_down
-    #    on_touch_move: root.my_on_touch_move
-    Label:
-        text: "Hola mundo"
-    Button:
-        on_press: root.btOpCallback()
-        # id: btPressMe
-        # text: "Press me, bitch"
-        text: root.btText
-''')
-
 class rightPanel(BoxLayout):
     btText = StringProperty(baseText[1])
     state = 1
@@ -74,16 +46,6 @@ class rightPanel(BoxLayout):
     #         self.state=1
     #         Clock.schedule_interval(self.myCallback,0.1)
     #         self.btText = baseText[1]
-
-Builder.load_string( '''
-<MainWindow>:
-    orientation: 'horizontal'                                               # 'vertical'
-    spacing: 10                                                             # in pixels
-    BoxLayout:
-        id: leftPanel
-        orientation: 'vertical'
-        spacing: 10
-''')
 
 class MainWindow(BoxLayout):
 
