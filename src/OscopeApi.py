@@ -23,11 +23,19 @@ class _Oscope_ftdi( ):
         pass
 
     def open( self, device='/dev/ttyUSB1' ):
-        self.ftdi = serial.Serial(device, baudrate=921600, timeout=2)
-        if(self.ftdi.is_open): print("Opened device!")
-        else:
+        try:
+            self.ftdi = serial.Serial(device, baudrate=921600, timeout=2)
+            print("Opened device!")
+            return True
+        except:
             print ("Device not connected!")
-            exit()
+            return False
+        # if(self.ftdi.is_open):
+        #     print("Opened device!")
+        #     return True
+        # else:
+        #     print ("Device not connected!")
+        #     return False
 
     def close(self):
         self.ftdi.close()
@@ -45,21 +53,21 @@ class _Oscope_ftdi( ):
             if(timeout==0):
                 while(len(data) < size):
                     data = data + list(self.ftdi.read(size - len(data)))
-                    if(len(data)>0): print ("data=", data)
+                    if(len(data)>0): pass # print ("data=", data)
                     else: print ("receiving...")
-                    time.sleep(0.3)
+                    if(len(data) < size):   time.sleep(0.3)
                     #print ("a) data=", data)
             else:
                 to = Timeout(timeout)
                 while(len(data) < size and to.timeout == False):
                     data = data + list(self.ftdi.read(size - len(data)))
-                    time.sleep(0.05)
+                    if(len(data) < size and to.timeout == False):   time.sleep(0.05)
                     #print ("b) data=", data)
                 del to
         else:
             data = data + list(self.ftdi.read(size - len(data)))
             #print ("c) data=", data)
-        print (data)
+        #print (data)
         return data
 
     def empty_read_buffer():
@@ -144,8 +152,12 @@ class _Definitions ( object ):
     TRIGGER_SOURCE_CHB = 2
     TRIGGER_SOURCE_EXT = 3
 
-    COUPLING_AC = 1
-    COUPLING_DC = 0
+    COUPLING_AC     = 1
+    COUPLING_DC     = 0
+
+    MODE_SINGLE  = 0
+    MODE_NORMAL  = 1
+    MODE_AUTO    = 2
 
 #######################################################
 #################### CHANNEL CLASS ####################
@@ -162,7 +174,7 @@ class _Channel( _Definitions ):
         # Use methods to get/set actual values.
         self.__requests = 0
         self.__settings = 0xE1
-        self.__dac_value = 2 ^ ( self._DAC_WIDTH - 1 )
+        self.__dac_value = 2 ** ( self._DAC_WIDTH - 1 )
         self.__nprom = 0
         self.__clk_divisor = 3
         self.oscope = oscope
@@ -211,10 +223,10 @@ class _Channel( _Definitions ):
 
     # Offset value
     def get_offset( self ):
-        return self.__dac_value - 2^( self._DAC_WIDTH-1 )
+        return self.__dac_value - 2**( self._DAC_WIDTH-1 )
 
     def set_offset( self, val ):
-        self.__dac_value = val + 2^( self._DAC_WIDTH-1 )
+        self.__dac_value = val + 2**( self._DAC_WIDTH-1 )
         self.oscope.send( self._ADDR_DAC_CHA + self.__nchannel, self.__dac_value )
 
     # Documentation for nprom:
@@ -248,17 +260,28 @@ class Smartbench( _Definitions ):
     def __init__( self , device='/dev/ttyUSB1'):
 
         self.oscope = _Oscope_ftdi()
-        self.oscope.open(device)
+        self.oscope_status = self.oscope.open(device)
 
+        # initial configuration:
+        # Trigger Source:       Channel A
+        # Trigger edge:         positive
+        # Trigger value:        128
+        # Number of samples:    100
+        # Pretrigger:           0
+        # Trigger mode:         normal
         self.__trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
-        self.__triger_value = 2 ^ ( self._ADC_WIDTH-1 )
-        self.__num_samples = 100
-        self.__pretrigger = 0
+        self.__triger_value = 2 ** ( self._ADC_WIDTH-1 )
+        self.__num_samples  = 100
+        self.__pretrigger   = 0
+        self.__trigger_mode = self.MODE_NORMAL
 
         # Channel register instance
         self.chA = _Channel(0, self.oscope)
         self.chB = _Channel(1, self.oscope)
 
+
+    def get_oscope_status (self):
+        return (self.oscope_status)
 
     def request_start( self ):
         self.oscope.send( self._ADDR_REQUESTS, 1 << self._RQST_START_IDX )
@@ -319,7 +342,7 @@ class Smartbench( _Definitions ):
         print("Trigger settings set to {}".format(hex(self.__trigger_settings) ) )
 
     def get_trigger_value( self ):
-        return self.__trigger_value# - 2^( self._ADC_WIDTH-1 )
+        return self.__trigger_value# - 2**( self._ADC_WIDTH-1 )
 
     def set_trigger_value( self, val ):
         self.__trigger_value = (1 << self._ADC_WIDTH-1 ) + val
@@ -341,6 +364,20 @@ class Smartbench( _Definitions ):
         self.__pretrigger = pt_value
         self.oscope.send( self._ADDR_PRETRIGGER, self.__pretrigger )
         print("Pretrigger set to {}".format(self.__pretrigger))
+
+    def set_trigger_mode( self, mode ):
+        self.__trigger_mode = mode
+
+    def set_trigger_mode_single ( self ): self.set_trigger_mode(self.MODE_SINGLE)
+    def set_trigger_mode_normal ( self ): self.set_trigger_mode(self.MODE_NORMAL)
+    def set_trigger_mode_auto   ( self ): self.set_trigger_mode(self.MODE_AUTO)
+
+    def get_trigger_mode( self ):
+        return self.__trigger_mode
+
+    def is_trigger_mode_single (self): return (self.__trigger_mode == self.MODE_SINGLE)
+    def is_trigger_mode_normal (self): return (self.__trigger_mode == self.MODE_NORMAL)
+    def is_trigger_mode_auto   (self): return (self.__trigger_mode == self.MODE_AUTO)
 
 if __name__ == "__main__":
     oscope = Smartbench()
