@@ -5,6 +5,7 @@ import matplotlib
 matplotlib.use('module://kivy.garden.matplotlib.backend_kivy')
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Kivy includes
 import kivy # require
@@ -57,19 +58,23 @@ class MainWindow(BoxLayout):
         super(MainWindow, self).__init__()
 
         # # Creting plot
-        x = range(0,500)
-        y = [i for i in range(500)]
         self.fig, self.ax = plt.subplots()
+        self.canvasPlot= self.fig.canvas
         #self.ax.plot( x, y, 'r-' )#, label='y=sin(x)' )
         self.ax.clear()
-        self.h1, = self.ax.plot([],[])
-        self.setAxis([0, 150, 0, 256])
-        del x,y
-        self.ax.set_ylabel('y')
-        self.ax.set_title('A beautiful sinewave function')
-        self.ax.set_xlabel('x')
+        self.channelPlots = []
+        # by default, 2 channels
+        self.h1, = self.ax.plot([],[], 'b-', markersize=2)
+        self.h2, = self.ax.plot([],[], 'r-', markersize=2)
+        #self.channelPlots.insert(0, h1)
+        self.channelPlots.append([self.h1, self.h2])
+        #self.ax.grid(color='r', linestyle='-', linewidth=2)
+        self.ax.grid(linestyle='-', linewidth=1)
+        self.ax.set_ylabel('Voltage [V]')
+        self.ax.set_title('Smartbench')
+        self.ax.set_xlabel('Time [sec]')
         self.ax.legend( loc='upper right', shadow=True )
-        self.canvasPlot= self.fig.canvas
+        self.setAxis([0, 150, 0, 256])
         self.nav = NavigationToolbar2Kivy( self.canvasPlot )
 
         # Adding plot and right panel
@@ -81,6 +86,14 @@ class MainWindow(BoxLayout):
 
     def setAxis(self, vec):
         self.ax.axis(vec)
+        self.ax.set_xticks(np.arange(vec[0], vec[1], (vec[1]-vec[0])/10))
+        self.ax.set_yticks(np.arange(vec[2], vec[3], (vec[3]-vec[2])/10))
+        self.ax.set_xticklabels([])
+        self.ax.set_yticklabels([])
+        return
+
+    def addChannelPlot(self):
+
         return
 
     def updatePlot( self, dataX, dataY ):
@@ -91,7 +104,9 @@ class MainWindow(BoxLayout):
         self.h1.set_xdata(dataX)
         self.h1.set_ydata(dataY)
         self.canvasPlot.draw()
+        return
 
     def plotTriggerPoint( self, x, y ):
         self.ax.plot( x, y, 'b*')
         self.canvasPlot.draw()
+        return

@@ -24,9 +24,6 @@ class SmartbenchApp(App):
         # Initializing oscope api
         self.smartbench = Smartbench()
 
-        # Default configuration
-        self.setDefaultConfiguration()
-
         # Window initialization
         self.mw = MainWindow()
 
@@ -35,6 +32,9 @@ class SmartbenchApp(App):
         # toDo: Add an option so the users can let the App that they connected a device
         if self.smartbench.get_oscope_status() == False:
             self.mw.orientation = 'vertical'
+
+        # Default configuration
+        self.setDefaultConfiguration()
 
         # This starts the application flow
         Clock.schedule_once(self.newFrameCallback) # Called as soon as possible
@@ -123,6 +123,8 @@ class SmartbenchApp(App):
         self.smartbench.chB.set_clk_divisor(1)
 
         self.smartbench.set_trigger_mode_normal()
+
+        self.mw.setAxis([0, self.smartbench.get_number_of_samples()-1, 0, 255])
 
         return
 
