@@ -53,21 +53,21 @@ class _Oscope_ftdi( ):
             if(timeout==0):
                 while(len(data) < size):
                     data = data + list(self.ftdi.read(size - len(data)))
-                    if(len(data)>0): print ("data=", data)
+                    if(len(data)>0): pass # print ("data=", data)
                     else: print ("receiving...")
-                    time.sleep(0.3)
+                    if(len(data) < size):   time.sleep(0.3)
                     #print ("a) data=", data)
             else:
                 to = Timeout(timeout)
                 while(len(data) < size and to.timeout == False):
                     data = data + list(self.ftdi.read(size - len(data)))
-                    time.sleep(0.05)
+                    if(len(data) < size and to.timeout == False):   time.sleep(0.05)
                     #print ("b) data=", data)
                 del to
         else:
             data = data + list(self.ftdi.read(size - len(data)))
             #print ("c) data=", data)
-        print (data)
+        #print (data)
         return data
 
     def empty_read_buffer():

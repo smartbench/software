@@ -60,7 +60,10 @@ class MainWindow(BoxLayout):
         x = range(0,500)
         y = [i for i in range(500)]
         self.fig, self.ax = plt.subplots()
-        self.ax.plot( x, y, 'r-' )#, label='y=sin(x)' )
+        #self.ax.plot( x, y, 'r-' )#, label='y=sin(x)' )
+        self.ax.clear()
+        self.h1, = self.ax.plot([],[])
+        self.setAxis([0, 150, 0, 256])
         del x,y
         self.ax.set_ylabel('y')
         self.ax.set_title('A beautiful sinewave function')
@@ -76,9 +79,17 @@ class MainWindow(BoxLayout):
 
         return
 
+    def setAxis(self, vec):
+        self.ax.axis(vec)
+        return
+
     def updatePlot( self, dataX, dataY ):
-        self.ax.clear()
-        self.ax.plot( dataX, dataY, 'r-' , label='Smartbench' )
+        # self.ax.clear()
+        # self.ax.plot( dataX, dataY, 'r-' , label='Smartbench' )
+        # self.canvasPlot.draw()
+        #self.ax.plot( dataX, dataY, 'bo')
+        self.h1.set_xdata(dataX)
+        self.h1.set_ydata(dataY)
         self.canvasPlot.draw()
 
     def plotTriggerPoint( self, x, y ):
