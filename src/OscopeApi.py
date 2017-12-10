@@ -262,6 +262,13 @@ class Smartbench( _Definitions ):
         self.oscope = _Oscope_ftdi()
         self.oscope_status = self.oscope.open(device)
 
+        # initial configuration:
+        # Trigger Source:       Channel A
+        # Trigger edge:         positive
+        # Trigger value:        128
+        # Number of samples:    100
+        # Pretrigger:           0
+        # Trigger mode:         normal
         self.__trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
         self.__triger_value = 2 ** ( self._ADC_WIDTH-1 )
         self.__num_samples  = 100
