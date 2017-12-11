@@ -26,27 +26,33 @@ from kivy.uix.boxlayout import BoxLayout
 
 from kivy.garden.knob import Knob
 
-baseText = ("Run it again?","Press me to \nstop the \nsinewave")
+#baseText = ("Run it again?","Press me to \nstop the \nsinewave")
+statusBtnText = ["Start", "Stop"]
+_STATUS_STOPPED = 0
+_STATUS_RUNNING = 1
 
 class rightPanel(BoxLayout):
-    btText = StringProperty(baseText[1])
-    state = 1
+    status = _STATUS_RUNNING
+    btText = StringProperty(statusBtnText[status])
     k = 0
+    #self.statusChangeSignal
 
     def __init__( self, **kwargs):
         super( rightPanel, self).__init__()
         self.ids.kn._value(self.ids.kn,self.ids.kn.value)
 
-    def btOpCallback(self):
+    def btnStatusPressed(self):
+        self.statusChangeSignal(self.status)
         return
-    #     if self.state:
-    #         self.state=0
-    #         Clock.unschedule(self.myCallback)
-    #         self.btText = baseText[0]
-    #     else:
-    #         self.state=1
-    #         Clock.schedule_interval(self.myCallback,0.1)
-    #         self.btText = baseText[1]
+
+    def setStatusChangeSignal(self, signal):
+        self.statusChangeSignal = signal
+        return
+
+    def statusChanged(self, status):
+        self.status = status
+        self.btText = statusBtnText[status]
+        return
 
 class MainWindow(BoxLayout):
 
@@ -67,14 +73,25 @@ class MainWindow(BoxLayout):
 
         return
 
+    def setStatusChangeSignal(self, signal):
+        self.rp.setStatusChangeSignal(signal)
+        return
+
+    def statusChanged(self, status):
+        self.rp.statusChanged(status)
+        return
+
     def setAxis(self, vec):
         self.plot.setAxis(vec)
+        return
 
     def updatePlot( self, dataX, dataY ):
         self.plot.updatePlot(dataX, dataY)
+        return
 
     def plotTriggerPoint( self, x, y ):
         self.plot.plotTriggerPoint(x,y)
+        return
 
     def getPlot(self):
         return self.plot

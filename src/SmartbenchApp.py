@@ -12,8 +12,12 @@ import time
 from OscopeApi import *
 from SmartbenchAppLayout import *
 
+_STATUS_STOPPED = 0
+_STATUS_RUNNING = 1
+
 class SmartbenchApp(App):
     title = 'SmartbenchApp'
+
     def build(self):
 
         # Kivy App initialization
@@ -26,6 +30,7 @@ class SmartbenchApp(App):
 
         # Window initialization
         self.mw = MainWindow()
+        self.mw.setStatusChangeSignal(self.statusChanged)
 
         # continue here!
         # testing kivy updating upon failure on opening port
@@ -37,10 +42,30 @@ class SmartbenchApp(App):
         self.setDefaultConfiguration()
 
         # This starts the application flow
+        self.status = _STATUS_RUNNING
         Clock.schedule_once(self.newFrameCallback) # Called as soon as possible
 
         return self.mw
 
+    def statusChanged(self, status):
+        if(status == _STATUS_RUNNING):
+            self.stop()
+        else:
+            self.start()
+        return
+
+    def start(self):
+        self.status = _STATUS_RUNNING
+        Clock.schedule_once(self.newFrameCallback)
+        self.mw.statusChanged(self.status)
+        return
+
+    def stop(self):
+        self.status = _STATUS_STOPPED
+        Clock.unschedule(self.waitingTriggerCallback)
+        Clock.unschedule(self.newFrameCallback)
+        self.mw.statusChanged(self.status)
+        return
     # --------------------------------------------------------
     # This method sends a "Start Request" to the device.
     def newFrameCallback(self,dt):
@@ -91,7 +116,8 @@ class SmartbenchApp(App):
         self.mw.plotTriggerPoint( self.smartbench.get_pretrigger()-1, self.smartbench.get_trigger_value() )
 
         if( self.smartbench.is_trigger_mode_auto() or self.smartbench.is_trigger_mode_normal() ):
-            Clock.schedule_once( self.newFrameCallback ) # Called as soon as possible
+            if(self.status == _STATUS_RUNNING):
+                Clock.schedule_once( self.newFrameCallback ) # Called as soon as possible
 
         return
 
