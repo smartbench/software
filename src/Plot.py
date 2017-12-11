@@ -59,7 +59,7 @@ class Plot():
         self.canvasPlot.draw()
         return
 
-    def channelRefresh( self, dataX, dataY, channel ):
+    def channelRefresh( self, channel, dataX, dataY ):
         channel.set_xdata(dataX)
         channel.set_ydata(dataY)
         self.canvasPlot.draw()

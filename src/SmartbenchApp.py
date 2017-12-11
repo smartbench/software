@@ -11,9 +11,13 @@ import time
 
 from OscopeApi import *
 from SmartbenchAppLayout import *
+from ScopeStatus import *
 
 _STATUS_STOPPED = 0
 _STATUS_RUNNING = 1
+
+_CHANNEL_ON     = 1
+_CHANNEL_OFF    = 0
 
 class SmartbenchApp(App):
     title = 'SmartbenchApp'
@@ -34,6 +38,8 @@ class SmartbenchApp(App):
         self.plotChA = self.mw.addChannel('-',color='#ffffff', markersize=2, linewidth=3)
         self.plotChB = self.mw.addChannel('-',color='#e6e600', markersize=2, linewidth=3)
         self.plotTriggerMark = self.mw.addChannel('y*', markersize=6)
+
+        self.visibleTriggerMark = True
 
         # continue here!
         # testing kivy updating upon failure on opening port
@@ -106,19 +112,35 @@ class SmartbenchApp(App):
         print("> Request Stop")
         self.smartbench.request_stop()
 
-        # Then, requests the data.
-        print("> Request CHA")
-        self.smartbench.request_chA()
+        # If channel is ON, requests the data.
+        if(self.smartbench.get_chA_status() == _CHANNEL_ON):
+            print("> Request CHA")
+            self.smartbench.request_chA()
 
-        print("> Waiting...")
-        self.dataY = list(reversed(self.smartbench.receive_channel_data()))
-        self.dataX = range(0,len(self.dataY))
+            print("> Waiting...")
+            self.dataY_chA = list(reversed(self.smartbench.receive_channel_data()))
+            self.dataX_chA = range(0,len(self.dataY_chA))
+        else:
+            self.dataY_chA = []
+            self.dataX_chA = []
+
+        # If channel is ON, requests the data.
+        if(self.smartbench.get_chB_status() == _CHANNEL_ON):
+            # Then, requests the data.
+            print("> Request CHB")
+            self.smartbench.request_chB()
+
+            print("> Waiting...")
+            self.dataY_chB = list(reversed(self.smartbench.receive_channel_data()))
+            self.dataX_chB = range(0,len(self.dataY_chB))
+        else:
+            self.dataY_chB = []
+            self.dataX_chB = []
 
 
-        #self.mw.updatePlot( self.dataX, self.dataY )
-        self.mw.channelRefresh(self.dataX, self.dataY, self.plotChA)
-        self.mw.channelRefresh([self.smartbench.get_pretrigger()-1], [self.smartbench.get_trigger_value()], self.plotTriggerMark)
-        #self.mw.plotTriggerPoint( self.smartbench.get_pretrigger()-1, self.smartbench.get_trigger_value() )
+        self.mw.channelRefresh(self.plotChA, self.dataX_chA, self.dataY_chA)
+        self.mw.channelRefresh(self.plotChB, self.dataX_chB, self.dataY_chB)
+        self.mw.channelRefresh(self.plotTriggerMark, [self.smartbench.get_pretrigger()-1], [self.smartbench.get_trigger_value()])
 
         if( self.smartbench.is_trigger_mode_auto() or self.smartbench.is_trigger_mode_normal() ):
             if(self.status == _STATUS_RUNNING):
