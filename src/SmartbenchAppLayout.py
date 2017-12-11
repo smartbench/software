@@ -57,35 +57,67 @@ class MainWindow(BoxLayout):
         self.rp = rightPanel()
         super(MainWindow, self).__init__()
 
-        # # Creting plot
+        self.plot = Plot(numberOfChannels=2)
+        self.nav = NavigationToolbar2Kivy( self.plot.getCanvas() )
+
+        # Adding plot and right panel
+        self.ids.leftPanel.add_widget( self.nav.actionbar )
+        self.ids.leftPanel.add_widget( self.plot.getCanvas() )
+        self.add_widget( self.rp )
+
+        return
+
+    def setAxis(self, vec):
+        self.plot.setAxis(vec)
+
+    def updatePlot( self, dataX, dataY ):
+        self.plot.updatePlot(dataX, dataY)
+
+    def plotTriggerPoint( self, x, y ):
+        self.plot.plotTriggerPoint(x,y)
+
+    def getPlot(self):
+        return self.plot
+
+
+class Plot():
+
+    def __init__(self, numberOfChannels):
+
+        self.numberOfChannels = numberOfChannels
         self.fig, self.ax = plt.subplots()
-        self.canvasPlot= self.fig.canvas
-        #self.ax.plot( x, y, 'r-' )#, label='y=sin(x)' )
+        self.canvasPlot = self.fig.canvas
+        self.channelColors = ['#ffffff', '#e6e600', '#e6e600', '#e6e600', '#e6e600', '#e6e600', '#e6e600', '#e6e600']
+
         self.ax.clear()
+        """
         self.channelPlots = []
-        # by default, 2 channels
+        for i in range(numberOfChannels):
+            h, = self.ax.plot([],[], '-',color=self.channelColors[i], markersize=2, linewidth=3)
+            self.channelPlots.append([h])
+        """
         self.h1, = self.ax.plot([],[], '-',color='#ffffff', markersize=2, linewidth=3)
-        self.h2, = self.ax.plot([],[], '-',color='#e6e600', markersize=2, linewidth=4)
-        #self.channelPlots.insert(0, h1)
-        self.channelPlots.append([self.h1, self.h2])
-        #self.ax.grid(color='r', linestyle='-', linewidth=2)
-        self.ax.grid(linestyle='-', linewidth=2, color='#4d4d4d')
+
         self.ax.set_ylabel('Voltage [V]')
         self.ax.set_title('Smartbench')
         self.ax.set_xlabel('Time [sec]')
         self.ax.legend( loc='upper right', shadow=True )
-        self.setAxis([0, 150, 0, 256])
-        self.nav = NavigationToolbar2Kivy( self.canvasPlot )
 
         #self.ax.set_facecolor('grey')
         self.ax.set_facecolor('#1a1a1a')
 
-        # Adding plot and right panel
-        self.ids.leftPanel.add_widget( self.nav.actionbar )
-        self.ids.leftPanel.add_widget( self.canvasPlot )
-        self.add_widget( self.rp )
+        #self.ax.grid(color='r', linestyle='-', linewidth=2)
+        self.ax.grid(linestyle='-', linewidth=2, color='#4d4d4d')
+
+        self.setAxis([0, 150, 0, 256])
 
         return
+
+    def getCanvas(self):
+        return self.canvasPlot
+
+    def clearPlot(self):
+        self.ax.clear()
 
     def setAxis(self, vec):
         self.ax.axis(vec)
@@ -95,15 +127,7 @@ class MainWindow(BoxLayout):
         self.ax.set_yticklabels([])
         return
 
-    def addChannelPlot(self):
-
-        return
-
     def updatePlot( self, dataX, dataY ):
-        # self.ax.clear()
-        # self.ax.plot( dataX, dataY, 'r-' , label='Smartbench' )
-        # self.canvasPlot.draw()
-        #self.ax.plot( dataX, dataY, 'bo')
         self.h1.set_xdata(dataX)
         self.h1.set_ydata(dataY)
         self.canvasPlot.draw()
