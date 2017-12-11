@@ -15,7 +15,7 @@ import time
 
 class _Oscope_ftdi( ):
 
-    __BYTEORDER = 'little' # 'big' # 'big' / 'little'
+    _BYTEORDER = 'little' # 'big' # 'big' / 'little'
     status = 'closed'
 
     def __init__(self,**kwargs):
@@ -93,7 +93,7 @@ class _Definitions ( object ):
     ### REGISTERS ADDRESSES ###
 
     # CHB addresses not unused
-    # always used __ADDR_XXX_CHA + __nchanel where __nchanel is 0 for channel A and 1 for channel B.
+    # always used _ADDR_XXX_CHA + _nchanel where _nchanel is 0 for channel A and 1 for channel B.
 
     _ADDR_REQUESTS = 0
     _ADDR_SETTINGS_CHA = 1
@@ -159,6 +159,10 @@ class _Definitions ( object ):
     MODE_NORMAL  = 1
     MODE_AUTO    = 2
 
+    # Channel ON/OFF
+    CHANNEL_ON      = 0x1
+    CHANNEL_OFF     = 0x0
+
 #######################################################
 #################### CHANNEL CLASS ####################
 #######################################################
@@ -166,68 +170,68 @@ class _Definitions ( object ):
 class _Channel( _Definitions ):
 
     def __init__( self, channel_number, oscope):
-        # __nchannel is:
+        # _nchannel is:
         # 0 -> channel A
         # 1 -> channel B
-        self.__nchannel = channel_number
+        self._nchannel = channel_number
         # FPGAs register values.
         # Use methods to get/set actual values.
-        self.__requests = 0
-        self.__settings = 0xE1
-        self.__dac_value = 2 ** ( self._DAC_WIDTH - 1 )
-        self.__nprom = 0
-        self.__clk_divisor = 3
+        self._requests = 0
+        self._settings = 0xE1
+        self._dac_value = 2 ** ( self._DAC_WIDTH - 1 )
+        self._nprom = 0
+        self._clk_divisor = 3
         self.oscope = oscope
 
     # channel settings
     def get_attenuator( self ):
-        return ( self.__settings >> self._CONF_CH_ATT ) & 0x7
+        return ( self._settings >> self._CONF_CH_ATT ) & 0x7
 
     def set_attenuator( self, att ):
         if att<8 and att>=0:
-            self.__settings &= ~( 0x7 << self._CONF_CH_ATT )
-            self.__settings |= att << self._CONF_CH_ATT
+            self._settings &= ~( 0x7 << self._CONF_CH_ATT )
+            self._settings |= att << self._CONF_CH_ATT
         else:
             print( "Attenuation selector must be a number between 0 and 7" )
 
     def get_gain( self ):
-        return ( self.__settings >> __CONF_CH_GAIN ) & 0x7
+        return ( self._settings >> _CONF_CH_GAIN ) & 0x7
 
     def set_gain( self, gain ):
         if gain<8 and gain>=0:
-            self.__settings &= ~( 0x7 << self._CONF_CH_GAIN )
-            self.__settings |= gain << self._CONF_CH_GAIN
+            self._settings &= ~( 0x7 << self._CONF_CH_GAIN )
+            self._settings |= gain << self._CONF_CH_GAIN
         else:
             print( "Gain selector must be a number between 0 and 7" )
 
     def get_coupling( self ):
-        return ( self.__settings >> self._CONF_CH_DC_COUPLING ) & 0x1
+        return ( self._settings >> self._CONF_CH_DC_COUPLING ) & 0x1
 
     def set_coupling_dc( self ):
-        self.__settings &= ~( 1 << self._CONF_CH_DC_COUPLING )
+        self._settings &= ~( 1 << self._CONF_CH_DC_COUPLING )
 
     def set_coupling_ac( self ):
-        self.__settings |= 1 << self._CONF_CH_DC_COUPLING
+        self._settings |= 1 << self._CONF_CH_DC_COUPLING
 
     def get_ch_status( self ):
-        return ( self.__setting >> self._CONF_CH_ON ) & 0x1
+        return ( self._settings >> self._CONF_CH_ON ) & 0x1
 
     def set_ch_on( self ):
-        self.__settings |= 1 << self._CONF_CH_ON
+        self._settings |= 1 << self._CONF_CH_ON
 
     def set_ch_off( self ):
-        self.__settings &= ~(1 << self._CONF_CH_ON)
+        self._settings &= ~(1 << self._CONF_CH_ON)
 
     def send_settings( self ):
-        self.oscope.send( self._ADDR_SETTINGS_CHA + self.__nchannel, self.__settings )
+        self.oscope.send( self._ADDR_SETTINGS_CHA + self._nchannel, self._settings )
 
     # Offset value
     def get_offset( self ):
-        return self.__dac_value - 2**( self._DAC_WIDTH-1 )
+        return self._dac_value - 2**( self._DAC_WIDTH-1 )
 
     def set_offset( self, val ):
-        self.__dac_value = val + 2**( self._DAC_WIDTH-1 )
-        self.oscope.send( self._ADDR_DAC_CHA + self.__nchannel, self.__dac_value )
+        self._dac_value = val + 2**( self._DAC_WIDTH-1 )
+        self.oscope.send( self._ADDR_DAC_CHA + self._nchannel, self._dac_value )
 
     # Documentation for nprom:
     # Prom  Fpga_value
@@ -237,19 +241,19 @@ class _Channel( _Definitions ):
     # 8     3
     # ...
     def get_nprom( self ):
-        return int(2 ** __nprom)
+        return int(2 ** _nprom)
 
     def set_nprom( self, n ):
-        self.__nprom = int(log(n,2))
-        self.oscope.send( self._ADDR_N_MOVING_AVERAGE_CHA + self.__nchannel, self.__nprom )
+        self._nprom = int(log(n,2))
+        self.oscope.send( self._ADDR_N_MOVING_AVERAGE_CHA + self._nchannel, self._nprom )
 
     def get_clk_divisor( self ):
-        return self.__clk_divisor+1
+        return self._clk_divisor+1
 
     def set_clk_divisor( self, div ):
-        self.__clk_divisor = div-1
-        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_L + self.__nchannel, self.__clk_divisor&0xFFFF )
-        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_H + self.__nchannel, (self.__clk_divisor>>16)&0xFFFF )
+        self._clk_divisor = div-1
+        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_L + self._nchannel, self._clk_divisor&0xFFFF )
+        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_H + self._nchannel, (self._clk_divisor>>16)&0xFFFF )
 
 #######################################################
 ##################### OSCOPE CLASS ####################
@@ -269,11 +273,11 @@ class Smartbench( _Definitions ):
         # Number of samples:    100
         # Pretrigger:           0
         # Trigger mode:         normal
-        self.__trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
-        self.__triger_value = 2 ** ( self._ADC_WIDTH-1 )
-        self.__num_samples  = 100
-        self.__pretrigger   = 0
-        self.__trigger_mode = self.MODE_NORMAL
+        self._trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
+        self._triger_value = 2 ** ( self._ADC_WIDTH-1 )
+        self._num_samples  = 100
+        self._pretrigger   = 0
+        self._trigger_mode = self.MODE_NORMAL
 
         # Channel register instance
         self.chA = _Channel(0, self.oscope)
@@ -310,74 +314,77 @@ class Smartbench( _Definitions ):
         return [buffer_full, triggered]
 
     def receive_channel_data( self , n=0 ):
-        if(n==0): n = self.__num_samples
+        if(n==0): n = self._num_samples
         return self.oscope.receive(n, blocking=True)
 
     def get_trigger_edge( self ):
-        return ( self.__trigger_settings >> self._TRIGGER_CONF_EDGE ) & 0x1
+        return ( self._trigger_settings >> self._TRIGGER_CONF_EDGE ) & 0x1
 
     def set_trigger_posedge( self ):
-        self.__trigger_settings &= ~( 1 << self._TRIGGER_CONF_EDGE )
+        self._trigger_settings &= ~( 1 << self._TRIGGER_CONF_EDGE )
 
     def set_trigger_negedge( self ):
-        self.__trigger_settings |= ( 1 << self._TRIGGER_CONF_EDGE )
+        self._trigger_settings |= ( 1 << self._TRIGGER_CONF_EDGE )
 
     def get_trigger_source( self ):
-        return ( self.__trigger_settings >> self._TRIGGER_CONF_SOURCE_SEL ) & 0x3
+        return ( self._trigger_settings >> self._TRIGGER_CONF_SOURCE_SEL ) & 0x3
 
     def set_trigger_source_cha( self ):
-        self.__trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
-        self.__trigger_settings |= self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL
+        self._trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
+        self._trigger_settings |= self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL
 
     def set_trigger_source_chb( self ):
-        self.__trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
-        self.__trigger_settings |= self.TRIGGER_SOURCE_CHB << self._TRIGGER_CONF_SOURCE_SEL
+        self._trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
+        self._trigger_settings |= self.TRIGGER_SOURCE_CHB << self._TRIGGER_CONF_SOURCE_SEL
 
     def set_trigger_source_ext( self ):
-        self.__trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
-        self.__trigger_settings |= self.TRIGGER_SOURCE_EXT << self._TRIGGER_CONF_SOURCE_SEL
+        self._trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
+        self._trigger_settings |= self.TRIGGER_SOURCE_EXT << self._TRIGGER_CONF_SOURCE_SEL
 
     def send_trigger_settings( self ):
-        self.oscope.send( self._ADDR_TRIGGER_SETTINGS, self.__trigger_settings )
-        print("Trigger settings set to {}".format(hex(self.__trigger_settings) ) )
+        self.oscope.send( self._ADDR_TRIGGER_SETTINGS, self._trigger_settings )
+        print("Trigger settings set to {}".format(hex(self._trigger_settings) ) )
 
     def get_trigger_value( self ):
-        return self.__trigger_value# - 2**( self._ADC_WIDTH-1 )
+        return self._trigger_value# - 2**( self._ADC_WIDTH-1 )
 
     def set_trigger_value( self, val ):
-        self.__trigger_value = (1 << self._ADC_WIDTH-1 ) + val
-        self.oscope.send( self._ADDR_TRIGGER_VALUE, self.__trigger_value )
-        print("Trigger value set to {}".format(self.__trigger_value))
+        self._trigger_value = (1 << self._ADC_WIDTH-1 ) + val
+        self.oscope.send( self._ADDR_TRIGGER_VALUE, self._trigger_value )
+        print("Trigger value set to {}".format(self._trigger_value))
 
     def get_number_of_samples( self ):
-        return self.__num_samples
+        return self._num_samples
 
     def set_number_of_samples( self, N ):
-        self.__num_samples = N
-        self.oscope.send( self._ADDR_NUM_SAMPLES, self.__num_samples )
-        print("Num_samples set to {}".format(self.__num_samples))
+        self._num_samples = N
+        self.oscope.send( self._ADDR_NUM_SAMPLES, self._num_samples )
+        print("Num_samples set to {}".format(self._num_samples))
 
     def get_pretrigger( self ):
-        return self.__pretrigger
+        return self._pretrigger
 
     def set_pretrigger( self, pt_value ):
-        self.__pretrigger = pt_value
-        self.oscope.send( self._ADDR_PRETRIGGER, self.__pretrigger )
-        print("Pretrigger set to {}".format(self.__pretrigger))
+        self._pretrigger = pt_value
+        self.oscope.send( self._ADDR_PRETRIGGER, self._pretrigger )
+        print("Pretrigger set to {}".format(self._pretrigger))
 
     def set_trigger_mode( self, mode ):
-        self.__trigger_mode = mode
+        self._trigger_mode = mode
 
     def set_trigger_mode_single ( self ): self.set_trigger_mode(self.MODE_SINGLE)
     def set_trigger_mode_normal ( self ): self.set_trigger_mode(self.MODE_NORMAL)
     def set_trigger_mode_auto   ( self ): self.set_trigger_mode(self.MODE_AUTO)
 
     def get_trigger_mode( self ):
-        return self.__trigger_mode
+        return self._trigger_mode
 
-    def is_trigger_mode_single (self): return (self.__trigger_mode == self.MODE_SINGLE)
-    def is_trigger_mode_normal (self): return (self.__trigger_mode == self.MODE_NORMAL)
-    def is_trigger_mode_auto   (self): return (self.__trigger_mode == self.MODE_AUTO)
+    def is_trigger_mode_single (self): return (self._trigger_mode == self.MODE_SINGLE)
+    def is_trigger_mode_normal (self): return (self._trigger_mode == self.MODE_NORMAL)
+    def is_trigger_mode_auto   (self): return (self._trigger_mode == self.MODE_AUTO)
+
+    def get_chA_status(self): return self.chA.get_ch_status()
+    def get_chB_status(self): return self.chB.get_ch_status()
 
 if __name__ == "__main__":
     oscope = Smartbench()
