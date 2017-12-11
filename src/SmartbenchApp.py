@@ -31,6 +31,9 @@ class SmartbenchApp(App):
         # Window initialization
         self.mw = MainWindow()
         self.mw.setStatusChangeSignal(self.statusChanged)
+        self.plotChA = self.mw.addChannel('-',color='#ffffff', markersize=2, linewidth=3)
+        self.plotChB = self.mw.addChannel('-',color='#e6e600', markersize=2, linewidth=3)
+        self.plotTriggerMark = self.mw.addChannel('y*', markersize=6)
 
         # continue here!
         # testing kivy updating upon failure on opening port
@@ -112,8 +115,10 @@ class SmartbenchApp(App):
         self.dataX = range(0,len(self.dataY))
 
 
-        self.mw.updatePlot( self.dataX, self.dataY )
-        self.mw.plotTriggerPoint( self.smartbench.get_pretrigger()-1, self.smartbench.get_trigger_value() )
+        #self.mw.updatePlot( self.dataX, self.dataY )
+        self.mw.channelRefresh(self.dataX, self.dataY, self.plotChA)
+        self.mw.channelRefresh([self.smartbench.get_pretrigger()-1], [self.smartbench.get_trigger_value()], self.plotTriggerMark)
+        #self.mw.plotTriggerPoint( self.smartbench.get_pretrigger()-1, self.smartbench.get_trigger_value() )
 
         if( self.smartbench.is_trigger_mode_auto() or self.smartbench.is_trigger_mode_normal() ):
             if(self.status == _STATUS_RUNNING):
