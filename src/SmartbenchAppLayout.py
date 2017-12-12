@@ -23,6 +23,7 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.switch import Switch
 
 from kivy.garden.knob import Knob
 
@@ -41,7 +42,13 @@ class rightPanel(BoxLayout):
 
     def __init__( self, **kwargs):
         super( rightPanel, self).__init__()
-        self.ids.kn._value(self.ids.kn,self.ids.kn.value)
+        #self.ids.kn._value(self.ids.kn,self.ids.kn.value)
+        self.ids.cha_vdiv._value(self.ids.cha_vdiv,self.ids.cha_vdiv.value)
+        #self.switch = Switch(active=True)
+        #self.switch.bind(active=callbackSwitchOn)
+        #self.ids.btn_ChA_On.group = 'grp_cha_on_off'
+        #self.ids.btn_ChA_Off.group = 'grp_cha_on_off'
+
 
     # Button pressed. Call method 'statusChangeSignal'
     def btnStatusPressed(self):
