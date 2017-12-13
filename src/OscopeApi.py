@@ -16,26 +16,28 @@ import time
 class _Oscope_ftdi( ):
 
     _BYTEORDER = 'little' # 'big' # 'big' / 'little'
-    status = 'closed'
 
     def __init__(self,**kwargs):
         self.ftdi = 0
+        self.status = 'closed'
         pass
 
     def open( self, device='/dev/ttyUSB1' ):
         try:
             self.ftdi = serial.Serial(device, baudrate=921600, timeout=2)
-            print("Opened device!")
-            return True
+            if(self.ftdi.is_open):
+                self.status = 'opened'
+                print("Opened device!")
+                return True
+            else:
+                self.status = 'closed'
+                print ("Device not connected!")
+                return False
         except:
+            self.status = 'closed'
             print ("Device not connected!")
             return False
-        # if(self.ftdi.is_open):
-        #     print("Opened device!")
-        #     return True
-        # else:
-        #     print ("Device not connected!")
-        #     return False
+
 
     def close(self):
         self.ftdi.close()
@@ -43,16 +45,30 @@ class _Oscope_ftdi( ):
 
     def send( self, addr, data ):
         aux = bytes( [ int(addr) , int(data%256) , int((data>>8)%256) ] )
-        n = self.ftdi.write( aux )
-        print("written {} bytes: {}".format(len(list(aux)), aux))
-        i = 0
+        try:
+            n = self.ftdi.write( aux )
+            print("written {} bytes: {}".format(len(list(aux)), aux))
+            i = 0
+        except serial.SerialException:
+            print("ERROR: Device not connected!")
+            return -1
+        except:
+            print("Unknown Error when trying to Write")
+            return -1
 
     def receive(self, size, blocking=True, timeout=0):
         data = []
         if(blocking==True):
             if(timeout==0):
                 while(len(data) < size):
-                    data = data + list(self.ftdi.read(size - len(data)))
+                    try:
+                        data = data + list(self.ftdi.read(size - len(data)))
+                    except serial.SerialException:
+                        print("ERROR: Device not connected!")
+                        return -1
+                    except:
+                        print("Unknown Error when trying to Read")
+                        return -1
                     if(len(data)>0): pass # print ("data=", data)
                     else: print ("receiving...")
                     if(len(data) < size):   time.sleep(0.3)
@@ -60,19 +76,46 @@ class _Oscope_ftdi( ):
             else:
                 to = Timeout(timeout)
                 while(len(data) < size and to.timeout == False):
-                    data = data + list(self.ftdi.read(size - len(data)))
+                    try:
+                        data = data + list(self.ftdi.read(size - len(data)))
+                    except serial.SerialException:
+                        print("ERROR: Device not connected!")
+                        return -1
+                    except:
+                        print("Unknown Error when trying to Read")
+                        return -1
                     if(len(data) < size and to.timeout == False):   time.sleep(0.05)
                     #print ("b) data=", data)
                 del to
         else:
-            data = data + list(self.ftdi.read(size - len(data)))
+            try:
+                data = data + list(self.ftdi.read(size - len(data)))
+            except serial.SerialException:
+                print("ERROR: Device not connected!")
+                return -1
+            except:
+                print("Unknown Error when trying to Read")
+                return -1
             #print ("c) data=", data)
         #print (data)
         return data
 
-    def empty_read_buffer():
+    def empty_read_buffer(self):
         data = range(10)
-        while (len(data) == 10): data = self.ftdi.read(10)
+        try:
+            while (len(data) == 10): data = self.ftdi.read(10)
+        except serial.SerialException:
+            print("ERROR: Device not connected!")
+            return -1
+        except:
+            print("Unknown Error when trying to Read")
+            return -1
+
+    def isOpen(self):
+        try:
+            return self.ftdi.is_open
+        except:
+            return False
 
 
 class Timeout (Timer):
@@ -286,6 +329,9 @@ class Smartbench( _Definitions ):
 
     def get_oscope_status (self):
         return (self.oscope_status)
+
+    def isOpen(self):
+        return self.oscope.isOpen()
 
     def request_start( self ):
         self.oscope.send( self._ADDR_REQUESTS, 1 << self._RQST_START_IDX )

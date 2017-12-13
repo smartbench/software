@@ -47,12 +47,16 @@ class SmartbenchApp(App):
         if self.smartbench.get_oscope_status() == False:
             self.mw.orientation = 'vertical'
 
-        # Default configuration
-        self.setDefaultConfiguration()
+        if(self.smartbench.isOpen()):
+            # Default configuration
+            self.setDefaultConfiguration()
 
-        # This starts the application flow
-        self.status = _STATUS_RUNNING
-        Clock.schedule_once(self.newFrameCallback) # Called as soon as possible
+            # This starts the application flow
+            self.status = _STATUS_RUNNING
+            Clock.schedule_once(self.newFrameCallback) # Called as soon as possible
+        else:
+            print("Device not connected!")
+            exit()
 
         return self.mw
 

@@ -2,13 +2,13 @@
 
 <rightPanel>:
 
-    size_hint: .2,1
+    size_hint: .5,1
     orientation: 'vertical'
     # padding: 10
     # spacing: 10
 
     Button:
-        size_hint: 1,0.2
+        #size_hint: 1,0.2
         on_press: root.btnStatusPressed()
         # id: btPressMe
         # text: "Press me, bitch"
@@ -16,7 +16,7 @@
 
     BoxLayout:  # Channels
         orientation: 'horizontal'
-        size_hint: 1,0.8
+        #size_hint: 1,0.8
         # spacing: 10
         # padding: 10
 
@@ -27,12 +27,12 @@
 
             BoxLayout:  #
                 orientation: 'horizontal' # Potes V/div, offset
-                size_hint: 1,0.5
+                #size_hint: 1,0.5
                 # spacing: 10
                 # padding: 10
 
                 Knob:
-                    size_hint: 1,1
+                    #size_hint: 1,1
                     size: 100, 100
                     id: cha_vdiv
                     value: 0
@@ -49,7 +49,7 @@
                     text: 'holaa'
 
                 Knob:
-                    size_hint: 1,1
+                    #size_hint: 1,1
                     id: cha_offset
                     value: 0
                     min: 0
@@ -64,7 +64,7 @@
 
             BoxLayout:
                 orientation: 'horizontal'
-                size_hint: 1,0.5
+                #size_hint: 1,0.5
                 halign: 'center'
                 valign: 'middle'
                 Switch:
@@ -77,12 +77,12 @@
 
             BoxLayout:  #
                 orientation: 'horizontal' # Potes V/div, offset
-                size_hint: 1,0.5
+                #size_hint: 1,0.5
                 # spacing: 10
                 # padding: 10
 
                 Knob:
-                    size_hint: 0.5,1
+                    #size_hint: 0.5,1
                     id: chb_vdiv
                     value: 0
                     min: 0
@@ -96,7 +96,7 @@
                     show_marker: True
 
                 Knob:
-                    size_hint: 0.5,1
+                    #size_hint: 0.5,1
                     id: chb_offset
                     value: 0
                     min: 0
@@ -111,7 +111,7 @@
 
             BoxLayout:
                 orientation: 'horizontal'
-                size_hint: 1,0.5
+                #size_hint: 1,0.5
                 halign: 'center'
                 valign: 'middle'
                 Switch:
