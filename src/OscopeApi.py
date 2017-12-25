@@ -20,7 +20,7 @@ class _Oscope_ftdi( ):
     def __init__(self,**kwargs):
         self.ftdi = 0
         self.status = 'closed'
-        pass
+#        pass
 
     def open( self, device='/dev/ttyUSB1' ):
         try:
