@@ -11,7 +11,7 @@ import time
 
 from OscopeApi import *
 from SmartbenchAppLayout import *
-from ScopeStatus import *
+#from ScopeStatus import *
 
 _STATUS_STOPPED = 0
 _STATUS_RUNNING = 1
