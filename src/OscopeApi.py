@@ -120,7 +120,7 @@ class _Oscope_ftdi( ):
 
 class Timeout (Timer):
     timeout = False
-    def __init__(self, time, *args, **kwargs):
+    def __init__(self, time, *args, **kwargs): #time in seconds
         timeout = False
         super(Timer, self).__init__(time, self.myFunction, *args, **kwargs)
 
@@ -251,10 +251,10 @@ class _Channel( _Definitions ):
         return ( self._settings >> self._CONF_CH_DC_COUPLING ) & 0x1
 
     def set_coupling_dc( self ):
-        self._settings &= ~( 1 << self._CONF_CH_DC_COUPLING )
+        self._settings |= 1 << self._CONF_CH_DC_COUPLING
 
     def set_coupling_ac( self ):
-        self._settings |= 1 << self._CONF_CH_DC_COUPLING
+        self._settings &= ~( 1 << self._CONF_CH_DC_COUPLING )
 
     def get_ch_status( self ):
         return ( self._settings >> self._CONF_CH_ON ) & 0x1

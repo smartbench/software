@@ -38,6 +38,8 @@ class Configuration_Definitions(object):
 
 # https://docs.google.com/spreadsheets/d/1bY0WnD-5lPMWCzxdtq6AacOtwHaX9ymvFMviB-GncO8/edit#gid=80072049
 
+    PLL_freq =  100.0e6
+
     Clock_Adc_Div_Sel =     [   3814    , 1908  , 763   ,
                                 382     , 191   , 77    ,
                                 39      , 20    , 8     ,
