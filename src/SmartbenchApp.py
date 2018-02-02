@@ -12,6 +12,7 @@ import time
 from OscopeApi import *
 from SmartbenchAppLayout import *
 #from ScopeStatus import *
+from Configuration_Definitions import *
 
 _STATUS_STOPPED = 0
 _STATUS_RUNNING = 1
@@ -156,28 +157,41 @@ class SmartbenchApp(App):
     def setDefaultConfiguration(self):
         self.smartbench.set_trigger_source_cha()
         self.smartbench.set_trigger_negedge()
-        self.smartbench.set_trigger_value(-28)
+        #self.smartbench.set_trigger_value(-28)
+        self.smartbench.set_trigger_value(0)
         self.smartbench.set_number_of_samples(150)
         self.smartbench.set_pretrigger(50)
         self.smartbench.send_trigger_settings()
 
-        self.smartbench.chA.set_attenuator(1)
-        self.smartbench.chA.set_gain(2)
+        self.smartbench.chA.set_attenuator(0)
+        self.smartbench.chA.set_gain(1)
         self.smartbench.chA.set_coupling_dc()
         self.smartbench.chA.set_ch_on()
         self.smartbench.chA.send_settings()
         self.smartbench.chA.set_offset(0)
-        self.smartbench.chA.set_nprom(1)
-        self.smartbench.chA.set_clk_divisor(1)
+        #self.smartbench.chA.set_nprom(1)
+        #self.smartbench.chA.set_clk_divisor(1)
+        # ADC CLOCK SET TO 20MHz
+        #self.smartbench.chA.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13])
+        # AVERAGE DISABLED (1 SAMPLE)
+        self.smartbench.chA.set_nprom(Configuration_Definitions.Mov_Ave_Sel[13])
 
-        self.smartbench.chB.set_attenuator(3)
-        self.smartbench.chB.set_gain(4)
+        self.smartbench.chA.set_clk_divisor(10000)
+        self.smartbench.chA.set_nprom(1)
+
+
+        self.smartbench.chB.set_attenuator(0)
+        self.smartbench.chB.set_gain(1)
         self.smartbench.chB.set_coupling_dc()
         self.smartbench.chB.set_ch_on()
         self.smartbench.chB.send_settings()
         self.smartbench.chB.set_offset(0)
-        self.smartbench.chB.set_nprom(1)
-        self.smartbench.chB.set_clk_divisor(1)
+        #self.smartbench.chB.set_nprom(1)
+        #self.smartbench.chB.set_clk_divisor(1)
+        # ADC CLOCK SET TO 20MHz
+        self.smartbench.chB.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13])
+        # AVERAGE DISABLED (1 SAMPLE)
+        self.smartbench.chB.set_nprom(Configuration_Definitions.Mov_Ave_Sel[13])
 
         self.smartbench.set_trigger_mode_normal()
 
