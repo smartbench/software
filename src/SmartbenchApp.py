@@ -1,18 +1,47 @@
 #!/usr/bin/python3
 
 """ Main application for smartbench project """
+'''
+To run the server
 
-from kivy.app import App
+    bokeh serve WebApp.py
+
+Then navigate to the URL
+
+    http://localhost:5006/WebApp
+
+in your browser.
+
+'''
 
 #from pyftdi.ftdi import Ftdi
 import serial
 import time
-#from math import sin,pi
+
+import numpy as np
+
+from bokeh.io import curdoc
+from bokeh.layouts import row, widgetbox
+from bokeh.models import ColumnDataSource, Range1d
+from bokeh.models.layouts import Spacer
+from bokeh.models.widgets import Slider, TextInput
+from bokeh.plotting import figure
+from bokeh.palettes import Viridis3
+
+from tornado import gen
+import tornado
 
 from OscopeApi import *
-from SmartbenchAppLayout import *
+#from SmartbenchAppLayout import *
 #from ScopeStatus import *
 from Configuration_Definitions import *
+
+# Useful line:
+# yield tornado.gen.sleep(1)
+
+# callbacks
+# https://bokeh.pydata.org/en/latest/docs/reference/server/callbacks.html
+# https://bokeh.pydata.org/en/latest/docs/reference/document.html#bokeh.document.document.Document
 
 _STATUS_STOPPED = 0
 _STATUS_RUNNING = 1
@@ -20,46 +49,38 @@ _STATUS_RUNNING = 1
 _CHANNEL_ON     = 1
 _CHANNEL_OFF    = 0
 
-class SmartbenchApp(App):
-    title = 'SmartbenchApp'
+class SmartbenchApp():
+    #global source_chA, source_chB, doc, plot
 
-    def build(self):
+    def __init__(self, doc, plot, source_chA, source_chB):
 
-        # Kivy App initialization
-        super(SmartbenchApp, self).__init__()
-
-        self.count = 0
+        self.doc = doc
+        self.plot = plot
+        self.source_chA = source_chA
+        self.source_chB = source_chB
 
         # Initializing oscope api
         self.smartbench = Smartbench()
 
-        # Window initialization
-        self.mw = MainWindow()
-        self.mw.setStatusChangeSignal(self.statusChanged)
-        self.plotChA = self.mw.addChannel('-',color='#ffffff', markersize=2, linewidth=3)
-        self.plotChB = self.mw.addChannel('-',color='#e6e600', markersize=2, linewidth=3)
-        self.plotTriggerMark = self.mw.addChannel('y*', markersize=6)
-
-        self.visibleTriggerMark = True
-
-        # continue here!
-        # testing kivy updating upon failure on opening port
-        # toDo: Add an option so the users can let the App that they connected a device
-        if self.smartbench.get_oscope_status() == False:
-            self.mw.orientation = 'vertical'
-
         if(self.smartbench.isOpen()):
+
             # Default configuration
-            self.setDefaultConfiguration()
+            self.configureScope()
 
             # This starts the application flow
             self.status = _STATUS_RUNNING
-            Clock.schedule_once(self.newFrameCallback) # Called as soon as possible
+
+            # Plot axes
+            self.plot.x_range = Range1d(0,self.smartbench.get_number_of_samples()-1)
+            self.plot.y_range = Range1d(0,255)
+
+            # Callback to start the acqusition, called as soon as possible
+            self.doc.add_next_tick_callback(self.newFrameCallback)
         else:
             print("Device not connected!")
             exit()
 
-        return self.mw
+        return
 
     def statusChanged(self, status):
         if(status == _STATUS_RUNNING):
@@ -70,25 +91,30 @@ class SmartbenchApp(App):
 
     def start(self):
         self.status = _STATUS_RUNNING
-        Clock.schedule_once(self.newFrameCallback)
-        self.mw.statusChanged(self.status)
+        self.doc.add_next_tick_callback(self.newFrameCallback)
         return
 
     def stop(self):
         self.status = _STATUS_STOPPED
-        Clock.unschedule(self.waitingTriggerCallback)
-        Clock.unschedule(self.newFrameCallback)
-        self.mw.statusChanged(self.status)
+
+        #Clock.unschedule(self.waitingTriggerCallback)
+        try:    remove_timeout_callback(self.waitingTriggerCallback)
+        except: pass
+        #Clock.unschedule(self.newFrameCallback)
+        try:    remove_next_tick_callback(self.newFrameCallback)
+        except: pass
+
         return
     # --------------------------------------------------------
     # This method sends a "Start Request" to the device.
-    def newFrameCallback(self,dt):
+    @gen.coroutine
+    def newFrameCallback(self):
         self.triggered      = 0
         self.buffer_full    = 0
         self.count          = 0
         print("> Request Start")
         self.smartbench.request_start()
-        Clock.schedule_once(self.waitingTriggerCallback) # Called as soon as possible
+        self.doc.add_next_tick_callback(self.waitingTriggerCallback) # Called as soon as possible
         return
 
     # --------------------------------------------------------
@@ -96,7 +122,8 @@ class SmartbenchApp(App):
     # be {Triggered / Not triggered} and { buffer full / buffer not full } respectively.
     # Depending on the status, and the mode of operation (Normal or Auto) will wait or
     # not to show the data.
-    def waitingTriggerCallback(self,dt):
+    @gen.coroutine
+    def waitingTriggerCallback(self):
         print("> Request Trigger Status")
         self.smartbench.request_trigger_status()
         print("> Waiting...")
@@ -105,12 +132,12 @@ class SmartbenchApp(App):
 
         if self.triggered==0 or self.buffer_full==0:
             if( self.smartbench.is_trigger_mode_single() or self.smartbench.is_trigger_mode_normal() ):
-                Clock.schedule_once(self.waitingTriggerCallback,0.5) # Check again in 500 ms.
+                self.doc.add_timeout_callback(self.waitingTriggerCallback,100) # Check again in 100 ms.
                 return
             else:
                 if(self.buffer_full == 1 and self.count < 5):
                     self.count = self.count + 1
-                    Clock.schedule_once(self.waitingTriggerCallback,0.5) # Check again in 500 ms.
+                    self.doc.add_timeout_callback(self.waitingTriggerCallback,100) # Check again in 100 ms.
                     return
 
         # First, stops the capturing.
@@ -143,59 +170,26 @@ class SmartbenchApp(App):
             self.dataX_chB = []
 
 
-        self.mw.channelRefresh(self.plotChA, self.dataX_chA, self.dataY_chA)
-        self.mw.channelRefresh(self.plotChB, self.dataX_chB, self.dataY_chB)
-        self.mw.channelRefresh(self.plotTriggerMark, [self.smartbench.get_pretrigger()-1], [self.smartbench.get_trigger_value()])
+        self.source_chA.data = dict(x=self.dataX_chA, y=self.dataY_chA)
+        self.source_chB.data = dict(x=self.dataX_chB, y=self.dataY_chB)
 
         if( self.smartbench.is_trigger_mode_auto() or self.smartbench.is_trigger_mode_normal() ):
             if(self.status == _STATUS_RUNNING):
-                Clock.schedule_once( self.newFrameCallback ) # Called as soon as possible
+                self.doc.add_next_tick_callback(self.newFrameCallback ) # Called as soon as possible
 
         return
 
 
-    def setDefaultConfiguration(self):
-        self.smartbench.set_trigger_source_cha()
-        self.smartbench.set_trigger_negedge()
-        #self.smartbench.set_trigger_value(-28)
-        self.smartbench.set_trigger_value(0)
-        self.smartbench.set_number_of_samples(150)
-        self.smartbench.set_pretrigger(50)
-        self.smartbench.send_trigger_settings()
+    def configureScope(self):
+        self.smartbench.setDefaultConfiguration()
 
-        self.smartbench.chA.set_attenuator(0)
-        self.smartbench.chA.set_gain(1)
-        self.smartbench.chA.set_coupling_dc()
-        self.smartbench.chA.set_ch_on()
-        self.smartbench.chA.send_settings()
-        self.smartbench.chA.set_offset(0)
-        #self.smartbench.chA.set_nprom(1)
-        #self.smartbench.chA.set_clk_divisor(1)
-        # ADC CLOCK SET TO 20MHz
-        #self.smartbench.chA.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13])
-        # AVERAGE DISABLED (1 SAMPLE)
+        # # For a good visualization with "Fake_ADC", clk divisor must be 1.
+        # # ADC CLOCK SET TO 20MHz
+        # self.smartbench.chA.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13])
+        # self.smartbench.chB.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13]) # not necessary, ignored
+        # # AVERAGE DISABLED (1 SAMPLE)
         self.smartbench.chA.set_nprom(Configuration_Definitions.Mov_Ave_Sel[13])
-
-        self.smartbench.chA.set_clk_divisor(10000)
-        self.smartbench.chA.set_nprom(1)
-
-
-        self.smartbench.chB.set_attenuator(0)
-        self.smartbench.chB.set_gain(1)
-        self.smartbench.chB.set_coupling_dc()
-        self.smartbench.chB.set_ch_on()
-        self.smartbench.chB.send_settings()
-        self.smartbench.chB.set_offset(0)
-        #self.smartbench.chB.set_nprom(1)
-        #self.smartbench.chB.set_clk_divisor(1)
-        # ADC CLOCK SET TO 20MHz
-        self.smartbench.chB.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13])
-        # AVERAGE DISABLED (1 SAMPLE)
         self.smartbench.chB.set_nprom(Configuration_Definitions.Mov_Ave_Sel[13])
-
-        self.smartbench.set_trigger_mode_normal()
-
-        self.mw.setAxis([0, self.smartbench.get_number_of_samples()-1, 0, 255])
 
         return
 
@@ -203,7 +197,7 @@ class SmartbenchApp(App):
 if __name__ == '__main__':
     try:
         sm = SmartbenchApp()
-        sm.run()
+        #sm.run()
     except KeyboardInterrupt:
         print ("Interrupted")
         sm.smartbench.oscope.close()
