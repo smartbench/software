@@ -22,6 +22,11 @@ class _Oscope_ftdi( ):
         self.ftdi = 0
         pass
 
+    def __exit__(self, exc_type, exc_value, traceback):
+        if(self.ftdi.is_open()):
+            self.close();
+            print("Closed USB device")
+
     def open( self, device='/dev/ttyUSB1' ):
         try:
             self.ftdi = serial.Serial(device, baudrate=921600, timeout=2)
@@ -67,7 +72,7 @@ class _Oscope_ftdi( ):
         else:
             data = data + list(self.ftdi.read(size - len(data)))
             #print ("c) data=", data)
-        #print (data)
+        print (data)
         return data
 
     def empty_read_buffer():
@@ -378,6 +383,36 @@ class Smartbench( _Definitions ):
     def is_trigger_mode_single (self): return (self.__trigger_mode == self.MODE_SINGLE)
     def is_trigger_mode_normal (self): return (self.__trigger_mode == self.MODE_NORMAL)
     def is_trigger_mode_auto   (self): return (self.__trigger_mode == self.MODE_AUTO)
+
+    def setDefaultConfiguration(self):
+        self.set_trigger_source_cha()
+        self.set_trigger_negedge()
+        self.set_trigger_value(-28)
+        self.set_number_of_samples(150)
+        self.set_pretrigger(50)
+        self.send_trigger_settings()
+
+        self.chA.set_attenuator(1)
+        self.chA.set_gain(2)
+        self.chA.set_coupling_dc()
+        self.chA.set_ch_on()
+        self.chA.send_settings()
+        self.chA.set_offset(0)
+        self.chA.set_nprom(1)
+        self.chA.set_clk_divisor(1)
+
+        self.chB.set_attenuator(3)
+        self.chB.set_gain(4)
+        self.chB.set_coupling_dc()
+        self.chB.set_ch_on()
+        self.chB.send_settings()
+        self.chB.set_offset(0)
+        self.chB.set_nprom(1)
+        self.chB.set_clk_divisor(1)
+
+        self.set_trigger_mode_normal()
+
+        return
 
 if __name__ == "__main__":
     oscope = Smartbench()
