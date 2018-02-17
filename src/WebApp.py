@@ -5,11 +5,11 @@ type into the title text box to update the title of the plot.
 
 Use the ``bokeh serve`` command to run the example by executing:
 
-    bokeh serve sliders.py
+    bokeh serve WebApp.py
 
 at your command prompt. Then navigate to the URL
 
-    http://localhost:5006/sliders
+    http://localhost:5006/WebApp
 
 in your browser.
 
@@ -76,4 +76,4 @@ for w in [offset, amplitude, phase, freq]:
 inputs = widgetbox(text, offset, amplitude, phase, freq,sizing_mode='stretch_both')
 
 curdoc().add_root(row(inputs,plot,sizing_mode= 'stretch_both'))
-curdoc().title = "Sliders"
+curdoc().title = "Smartbench"
