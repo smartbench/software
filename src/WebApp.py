@@ -60,7 +60,7 @@ amplitude = Slider(title="amplitude", value=1.0, start=-5.0, end=5.0, step=0.1)
 phase = Slider(title="phase", value=0.0, start=0.0, end=2*np.pi)
 freq = Slider(title="frequency", value=1.0, start=0.1, end=5.1, step=0.1)
 #btnStart = Button(label="Start", button_type=)
-tglStart = Toggle(label="Start/Stop", active=False)
+tglStart = Toggle(label="Start/Stop", active=False, width=20)
 spa = Spacer(sizing_mode= 'stretch_both')
 spa2 = Spacer(sizing_mode= 'stretch_both')
 
