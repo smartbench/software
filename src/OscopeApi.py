@@ -9,9 +9,16 @@ from array import array
 #from struct import *
 import time
 
+DEBUG_ = False
+
 #######################################################
 ################## FTDI bridge driver #################
 #######################################################
+
+def printDebug(str):
+    global DEBUG_
+    if(DEBUG_): print(str)
+    return
 
 class _Oscope_ftdi( ):
 
@@ -52,7 +59,7 @@ class _Oscope_ftdi( ):
         aux = bytes( [ int(addr) , int(data%256) , int((data>>8)%256) ] )
         try:
             n = self.ftdi.write( aux )
-            print("written {} bytes: {}".format(len(list(aux)), aux))
+            printDebug("written {} bytes: {}".format(len(list(aux)), aux))
             i = 0
         except serial.SerialException:
             print("ERROR: Device not connected!")
@@ -62,48 +69,36 @@ class _Oscope_ftdi( ):
             return -1
 
     def receive(self, size, blocking=True, timeout=0):
-        data = []
-        if(blocking==True):
-            if(timeout==0):
-                while(len(data) < size):
-                    try:
+        try:
+            data = []
+            if(blocking==True):
+                if(timeout==0):
+                    while(len(data) < size):
                         data = data + list(self.ftdi.read(size - len(data)))
-                    except serial.SerialException:
-                        print("ERROR: Device not connected!")
-                        return -1
-                    except:
-                        print("Unknown Error when trying to Read")
-                        return -1
-                    if(len(data)>0): pass # print ("data=", data)
-                    else: print ("receiving...")
-                    if(len(data) < size):   time.sleep(0.3)
-                    #print ("a) data=", data)
+                        if(len(data)>0):
+                            pass # print ("data=", data)
+                        else:
+                            printDebug("receiving...")
+                        if(len(data) < size):   time.sleep(0.3)
+                        #print ("a) data=", data)
+                else:
+                    to = Timeout(timeout)
+                    while(len(data) < size and to.timeout == False):
+                        data = data + list(self.ftdi.read(size - len(data)))
+                        if(len(data) < size and to.timeout == False):   time.sleep(0.05)
+                        #print ("b) data=", data)
+                    del to
             else:
-                to = Timeout(timeout)
-                while(len(data) < size and to.timeout == False):
-                    try:
-                        data = data + list(self.ftdi.read(size - len(data)))
-                    except serial.SerialException:
-                        print("ERROR: Device not connected!")
-                        return -1
-                    except:
-                        print("Unknown Error when trying to Read")
-                        return -1
-                    if(len(data) < size and to.timeout == False):   time.sleep(0.05)
-                    #print ("b) data=", data)
-                del to
-        else:
-            try:
                 data = data + list(self.ftdi.read(size - len(data)))
-            except serial.SerialException:
-                print("ERROR: Device not connected!")
-                return -1
-            except:
-                print("Unknown Error when trying to Read")
-                return -1
-            #print ("c) data=", data)
-        print (data)
-        return data
+                #print ("c) data=", data)
+            #print (data)
+            return data
+        except serial.SerialException:
+            print("ERROR: Device not connected!")
+            return []
+        except:
+            print("Unknown Error when trying to Read")
+            return []
 
     def empty_read_buffer(self):
         data = range(10)
@@ -358,8 +353,11 @@ class Smartbench( _Definitions ):
 
     def receive_trigger_status( self ):
         data = self.oscope.receive( 1, blocking=True )
-        print("data len={}".format( len(data) ) )
-        print ("data={}".format(data[0]))
+        if(len(data)==0):
+            print("Unable to receive trigger status")
+            return [0,0]
+        #printDebug("data len={}".format( len(data) ) )
+        #printDebug("data={}".format(data[0]))
         buffer_full = (data[0] >> self._BUFFER_FULL) & 0x01
         triggered = (data[0] >> self._TRIGGERED) & 0x01
         return [buffer_full, triggered]

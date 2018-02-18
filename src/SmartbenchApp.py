@@ -68,17 +68,18 @@ class SmartbenchApp():
             self.configureScope()
 
             # This starts the application flow
-            self.status = _STATUS_RUNNING
+            self.status = _STATUS_STOPPED
 
             # Plot axes
             self.plot.x_range = Range1d(0,self.smartbench.get_number_of_samples()-1)
             self.plot.y_range = Range1d(0,255)
 
             # Callback to start the acqusition, called as soon as possible
-            self.doc.add_next_tick_callback(self.newFrameCallback)
+            # self.doc.add_next_tick_callback(self.newFrameCallback)
+            #self.start()
         else:
             print("Device not connected!")
-            exit()
+            #exit()
 
         return
 
@@ -109,10 +110,11 @@ class SmartbenchApp():
     # This method sends a "Start Request" to the device.
     @gen.coroutine
     def newFrameCallback(self):
+        if(self.status == _STATUS_STOPPED): return
         self.triggered      = 0
         self.buffer_full    = 0
         self.count          = 0
-        print("> Request Start")
+        printDebug("> Request Start")
         self.smartbench.request_start()
         self.doc.add_next_tick_callback(self.waitingTriggerCallback) # Called as soon as possible
         return
@@ -124,11 +126,12 @@ class SmartbenchApp():
     # not to show the data.
     @gen.coroutine
     def waitingTriggerCallback(self):
-        print("> Request Trigger Status")
+        if(self.status == _STATUS_STOPPED): return
+        printDebug("> Request Trigger Status")
         self.smartbench.request_trigger_status()
-        print("> Waiting...")
+        printDebug("> Waiting...")
         self.buffer_full,self.triggered = self.smartbench.receive_trigger_status()
-        print("> Trigger={}\tBuffer_full={}".format( self.triggered, self.buffer_full ))
+        printDebug("> Trigger={}\tBuffer_full={}".format( self.triggered, self.buffer_full ))
 
         if self.triggered==0 or self.buffer_full==0:
             if( self.smartbench.is_trigger_mode_single() or self.smartbench.is_trigger_mode_normal() ):
@@ -141,15 +144,15 @@ class SmartbenchApp():
                     return
 
         # First, stops the capturing.
-        print("> Request Stop")
+        printDebug("> Request Stop")
         self.smartbench.request_stop()
 
         # If channel is ON, requests the data.
         if(self.smartbench.get_chA_status() == _CHANNEL_ON):
-            print("> Request CHA")
+            printDebug("> Request CHA")
             self.smartbench.request_chA()
 
-            print("> Waiting...")
+            printDebug("> Waiting...")
             self.dataY_chA = list(reversed(self.smartbench.receive_channel_data()))
             self.dataX_chA = range(0,len(self.dataY_chA))
         else:
@@ -159,10 +162,10 @@ class SmartbenchApp():
         # If channel is ON, requests the data.
         if(self.smartbench.get_chB_status() == _CHANNEL_ON):
             # Then, requests the data.
-            print("> Request CHB")
+            printDebug("> Request CHB")
             self.smartbench.request_chB()
 
-            print("> Waiting...")
+            printDebug("> Waiting...")
             self.dataY_chB = list(reversed(self.smartbench.receive_channel_data()))
             self.dataX_chB = range(0,len(self.dataY_chB))
         else:
