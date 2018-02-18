@@ -1,8 +1,7 @@
 
 class Configuration_Definitions(object):
 
-    escV=[]
-    escT=[]
+    PLL_freq =  100.0e6
 
     voltage_scales_int =    [   50  , 20    , 10    ,
                                 5   , 2     , 1     ,
@@ -11,6 +10,15 @@ class Configuration_Definitions(object):
     voltage_scales_str =    [   "5 V/div"    , "2 V/div"     , "1 V/div"     ,
                                 "500 mV/div" , "200 mV/div"  , "100 mV/div"  ,
                                 "50 mV/div"  , "20 mV/div"   , "10 mV/div"   ]
+
+# https://docs.google.com/spreadsheets/d/1bY0WnD-5lPMWCzxdtq6AacOtwHaX9ymvFMviB-GncO8/edit#gid=2102131143
+    Att_Sel =               [   1   , 1     , 1     ,
+                                0   , 0     , 0     ,
+                                0   , 0     , 0     ]
+
+    Gain_Sel =              [   0   , 1     , 2     ,
+                                0   , 1     , 2     ,
+                                3   , 4     , 5     ]
 
     timebase_scales_int =   [   10      , 5         , 2         , # 10   s
                                 1       , 0.5       , 0.2       , # 1    s
@@ -30,22 +38,7 @@ class Configuration_Definitions(object):
                                 "10 us"     , "5 us"    , "2 us"    ,
                                 "1 us"      , "500 ns" ]
 
-    escV = escV + [(str(x),'') for x in voltage_scales_str]
-    escT = escT + [(str(x),'') for x in timebase_scales_str]
-
-# https://docs.google.com/spreadsheets/d/1bY0WnD-5lPMWCzxdtq6AacOtwHaX9ymvFMviB-GncO8/edit#gid=2102131143
-    Att_Sel =               [   1   , 1     , 1     ,
-                                0   , 0     , 0     ,
-                                0   , 0     , 0     ]
-
-    Gain_Sel =              [   0   , 1     , 2     ,
-                                0   , 1     , 2     ,
-                                3   , 4     , 5     ]
-
 # https://docs.google.com/spreadsheets/d/1bY0WnD-5lPMWCzxdtq6AacOtwHaX9ymvFMviB-GncO8/edit#gid=80072049
-
-    PLL_freq =  100.0e6
-
     Clock_Adc_Div_Sel =     [   3814    , 1908  , 763   ,
                                 382     , 191   , 77    ,
                                 39      , 20    , 8     ,
