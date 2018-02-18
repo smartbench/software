@@ -81,7 +81,7 @@ plot.yaxis.axis_label = "Tensión []"
 # Set up widgets
 text        = TextInput(title="title", value='Signal')
 offset      = Slider(title="offset", value=0.0, start=-5.0, end=5.0, step=0.1)
-amplitude   = Slider(title="amplitude", value=1.0, start=-5.0, end=5.0, step=0.1)
+amplitude   = Slider(title="amplitude", value=1.0, start=-5.0, end=5.0, step=0.1, callback_policy='mouseup')
 phase       = Slider(title="phase", value=0.0, start=0.0, end=2*np.pi)
 freq        = Slider(title="frequency", value=1.0, start=0.1, end=5.1, step=0.1)
 spa         = Spacer(sizing_mode= 'stretch_both')
@@ -153,7 +153,9 @@ listScaleT.on_click(updateScaleT)
 
 
 # Set up layouts and add to document
-inputs = widgetbox(text, offset, amplitude, phase, freq, tglStart, listScaleV, listScaleT, sizing_mode='stretch_both')
+sliders = column([text, offset, amplitude, phase, freq], sizing_mode='scale_width')
+scopeConf = row([tglStart, listScaleV, listScaleT], sizing_mode='stretch_both')
+mybox = column([sliders, scopeConf], sizing_mode='scale_width')
 
-doc.add_root(row(inputs,plot,sizing_mode= 'stretch_both'))
+doc.add_root(row([mybox, plot], sizing_mode='stretch_both'))
 doc.title = "Smartbench"
