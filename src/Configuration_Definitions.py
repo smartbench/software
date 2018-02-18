@@ -1,6 +1,9 @@
 
 class Configuration_Definitions(object):
 
+    escV=[]
+    escT=[]
+
     voltage_scales_int =    [   50  , 20    , 10    ,
                                 5   , 2     , 1     ,
                                 0.5 , 0.2   , 0.1   ]
@@ -26,6 +29,9 @@ class Configuration_Definitions(object):
                                 "100 us"    , "50 us"   , "20 us"   ,
                                 "10 us"     , "5 us"    , "2 us"    ,
                                 "1 us"      , "500 ns" ]
+
+    escV = escV + [(str(x),'') for x in voltage_scales_str]
+    escT = escT + [(str(x),'') for x in timebase_scales_str]
 
 # https://docs.google.com/spreadsheets/d/1bY0WnD-5lPMWCzxdtq6AacOtwHaX9ymvFMviB-GncO8/edit#gid=2102131143
     Att_Sel =               [   1   , 1     , 1     ,

@@ -16,7 +16,7 @@ from bokeh.io import curdoc
 from bokeh.layouts import row, widgetbox
 from bokeh.models import ColumnDataSource, Range1d
 from bokeh.models.layouts import Spacer
-from bokeh.models.widgets import Slider, TextInput, Button, Toggle
+from bokeh.models.widgets import Slider, TextInput, Button, Toggle, Dropdown
 from bokeh.plotting import figure
 from bokeh.palettes import Viridis3
 
@@ -60,7 +60,9 @@ amplitude = Slider(title="amplitude", value=1.0, start=-5.0, end=5.0, step=0.1)
 phase = Slider(title="phase", value=0.0, start=0.0, end=2*np.pi)
 freq = Slider(title="frequency", value=1.0, start=0.1, end=5.1, step=0.1)
 #btnStart = Button(label="Start", button_type=)
-tglStart = Toggle(label="Start/Stop", active=False, width=20)
+tglStart = Toggle(label="Start/Stop", active=False, width=130)
+listScaleV = Dropdown(label="Escala V", menu=Configuration_Definitions.escV, width=130)
+listScaleT = Dropdown(label="Base de Tiempo", menu=Configuration_Definitions.escT, width=130)
 spa = Spacer(sizing_mode= 'stretch_both')
 spa2 = Spacer(sizing_mode= 'stretch_both')
 
@@ -103,7 +105,7 @@ def updateStatus(attrname):
 tglStart.on_click(updateStatus)
 
 # Set up layouts and add to document
-inputs = widgetbox(text, offset, amplitude, phase, freq, tglStart, sizing_mode='stretch_both')
+inputs = widgetbox(text, offset, amplitude, phase, freq, tglStart, listScaleV, listScaleT, sizing_mode='stretch_both')
 
 doc.add_root(row(inputs,plot,sizing_mode= 'stretch_both'))
 doc.title = "Smartbench"
