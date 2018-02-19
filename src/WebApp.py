@@ -9,6 +9,11 @@ Then navigate to the URL
 
 in your browser.
 
+To run the server on a specific port,
+
+    bokeh serve WebApp.py --port <port number>
+    http://localhost:<port number>/WebApp
+
 '''
 import numpy as np
 
@@ -35,6 +40,9 @@ _STATUS_RUNNING = 1
 _CHANNEL_ON     = 1
 _CHANNEL_OFF    = 0
 
+MODE='scale_both'
+DEFAULT_WIDTH = 300
+
 # Set up data
 N = 200
 x = np.linspace(0, 4*np.pi, N)
@@ -49,9 +57,13 @@ escT = [(str(x),str(i)) for i,x in enumerate(Configuration_Definitions.timebase_
 
 
 # Set up plot
-plot = figure(plot_width= 100, plot_height= 100,sizing_mode='scale_both',title="Signal",
-              tools="crosshair,pan,reset,save,wheel_zoom",
-              x_range=[0, 4*np.pi], y_range=[-2.5, 2.5])
+plot = figure(plot_width= 100,
+              plot_height= 100,
+              sizing_mode='scale_both',
+              title="Signal",
+              tools="",#tools="crosshair,pan,reset,save,wheel_zoom",
+              x_range=[0, 4*np.pi],
+              y_range=[-2.5, 2.5])
 
 plot.line('x', 'y', source=source_chA, line_width=3, line_alpha=0.6, color=Viridis3[0], legend="Channel A")
 plot.line('x', 'y', source=source_chB, line_width=3, line_alpha=0.6, color=Viridis3[1], legend="Channel B")
@@ -79,17 +91,43 @@ plot.yaxis.axis_label = "Tensión []"
 # p.axis.minor_tick_out = 8
 
 # Set up widgets
-text        = TextInput(title="title", value='Signal')
-offset      = Slider(title="offset", value=0.0, start=-5.0, end=5.0, step=0.1)
-amplitude   = Slider(title="amplitude", value=1.0, start=-5.0, end=5.0, step=0.1, callback_policy='mouseup')
-phase       = Slider(title="phase", value=0.0, start=0.0, end=2*np.pi)
-freq        = Slider(title="frequency", value=1.0, start=0.1, end=5.1, step=0.1)
-spa         = Spacer(sizing_mode= 'stretch_both')
-#btnStart = Button(label="Start", button_type=)
-tglStart    = Toggle(label="Start", active=False, width=130)
-listScaleV  = Dropdown(label="Escala V", menu=escV, width=130)
-listScaleT  = Dropdown(label="Base de Tiempo", menu=escT, width=130)
-spa2        = Spacer(sizing_mode= 'stretch_both')
+text        = TextInput(title="title",
+                        value='Signal')
+
+offset      = Slider(title="offset",
+                     value=0.0,
+                     start=-5.0,
+                     end=5.0,
+                     step=0.1)
+
+amplitude   = Slider(title="amplitude",
+                     value=1.0,
+                     start=-5.0,
+                     end=5.0,
+                     step=0.1,
+                     callback_policy='mouseup')
+
+phase       = Slider(title="phase",
+                     value=0.0,
+                     start=0.0,
+                     end=2*np.pi)
+
+freq        = Slider(title="frequency",
+                     value=1.0,
+                     start=0.1,
+                     end=5.1,
+                     step=0.1)
+
+
+tglStart    = Toggle(label="Start",
+                     active=False)
+
+listScaleV  = Dropdown(label="Escala V",
+                       menu=escV)
+
+listScaleT  = Dropdown(label="Base de Tiempo",
+                       menu=escT)
+
 
 listScaleV.value = escV[0][1]
 listScaleT.value = escT[0][1]
@@ -151,11 +189,25 @@ def updateScaleT(attrname):
 listScaleT.on_click(updateScaleT)
 
 
+command = row([tglStart, listScaleV, listScaleT],
+              sizing_mode=MODE,
+              width=DEFAULT_WIDTH,
+              responsive=True)
 
-# Set up layouts and add to document
-sliders = column([text, offset, amplitude, phase, freq], sizing_mode='scale_width')
-scopeConf = row([tglStart, listScaleV, listScaleT], sizing_mode='stretch_both')
-mybox = column([sliders, scopeConf], sizing_mode='scale_width')
+sliders = column([text, offset, amplitude, phase, freq, command],
+                 sizing_mode=MODE,
+                 responsive=True)
 
-doc.add_root(row([mybox, plot], sizing_mode='stretch_both'))
+doc.add_root( row(
+                sliders,
+                plot,
+                sizing_mode=MODE,
+                responsive=True ) )
+
+# # Set up layouts and add to document
+# sliders = column([text, offset, amplitude, phase, freq], sizing_mode='scale_width')
+# scopeConf = row([tglStart, listScaleV, listScaleT], sizing_mode='stretch_both')
+# mybox = column([sliders, scopeConf], sizing_mode='scale_width')
+#
+# doc.add_root(row([mybox, plot], sizing_mode='stretch_both'))
 doc.title = "Smartbench"
