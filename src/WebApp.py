@@ -40,7 +40,7 @@ _STATUS_RUNNING = 1
 _CHANNEL_ON     = 1
 _CHANNEL_OFF    = 0
 
-MODE='scale_both'
+MODE='scale_width'
 DEFAULT_WIDTH = 300
 
 # Set up data
@@ -188,26 +188,19 @@ def updateScaleT(attrname):
 
 listScaleT.on_click(updateScaleT)
 
+# https://bokeh.pydata.org/en/latest/docs/reference/models/layouts.html#bokeh.models.layouts.LayoutDOM
+# usar siempre "scale_width"
 
 command = row([tglStart, listScaleV, listScaleT],
               sizing_mode=MODE,
-              width=DEFAULT_WIDTH,
-              responsive=True)
+              width=DEFAULT_WIDTH )
 
 sliders = column([text, offset, amplitude, phase, freq, command],
-                 sizing_mode=MODE,
-                 responsive=True)
+                 sizing_mode=MODE )
 
 doc.add_root( row(
                 sliders,
                 plot,
-                sizing_mode=MODE,
-                responsive=True ) )
+                sizing_mode=MODE ) )
 
-# # Set up layouts and add to document
-# sliders = column([text, offset, amplitude, phase, freq], sizing_mode='scale_width')
-# scopeConf = row([tglStart, listScaleV, listScaleT], sizing_mode='stretch_both')
-# mybox = column([sliders, scopeConf], sizing_mode='scale_width')
-#
-# doc.add_root(row([mybox, plot], sizing_mode='stretch_both'))
 doc.title = "Smartbench"
