@@ -16,6 +16,7 @@ To run the server on a specific port,
 
 '''
 import numpy as np
+from math import log
 
 from bokeh.io import curdoc
 from bokeh.layouts import row, widgetbox, column
@@ -91,42 +92,87 @@ plot.yaxis.axis_label = "Tensión []"
 # p.axis.minor_tick_out = 8
 
 # Set up widgets
-text        = TextInput(title="title",
-                        value='Signal')
+text_cha    = TextInput(title="",
+                        value='Channel A',
+                        disabled=True)
 
-offset      = Slider(title="offset",
-                     value=0.0,
-                     start=-5.0,
-                     end=5.0,
-                     step=0.1)
+offset_cha  = Slider(title="Offset",
+                     value=0,
+                     start=-512,
+                     end=511,
+                     step=1,
+                     callback_policy='mouseup') #to avoid multiple writes
 
-amplitude   = Slider(title="amplitude",
-                     value=1.0,
-                     start=-5.0,
-                     end=5.0,
-                     step=0.1,
-                     callback_policy='mouseup')
+gain_cha    = Slider(title="Gain",
+                     value=0,
+                     start=0,
+                     end=7,
+                     step=1)
 
-phase       = Slider(title="phase",
-                     value=0.0,
-                     start=0.0,
-                     end=2*np.pi)
+att_cha     = Slider(title="Attenuation",
+                     value=0,
+                     start=0,
+                     end=7,
+                     step=1)
 
-freq        = Slider(title="frequency",
-                     value=1.0,
-                     start=0.1,
-                     end=5.1,
-                     step=0.1)
+DC_coupling_cha = Toggle(label="Coupling: DC",
+                     active=False)
 
+
+text_chb    = TextInput(title="",
+                        value='Channel B',
+                        disabled=True)
+
+offset_chb  = Slider(title="Offset",
+                     value=0,
+                     start=-512,
+                     end=511,
+                     step=1,
+                     callback_policy='mouseup') #to avoid multiple writes
+
+gain_chb    = Slider(title="Gain",
+                     value=0,
+                     start=0,
+                     end=7,
+                     step=1)
+
+att_chb     = Slider(title="Attenuation",
+                     value=0,
+                     start=0,
+                     end=7,
+                     step=1)
+
+DC_coupling_chb = Toggle(label="Coupling: DC",
+                     active=False)
+
+
+# Both channels
+
+mov_ave     = Slider(title="Moving Average [N=2^k] (CHA) k",
+                     value=0,
+                     start=0,
+                     end=3,
+                     step=1)
+
+# adc_clk_div = Slider(title="ADC Clock divisor /* 32 bits */",
+#                      value=0,
+#                      start=5,
+#                      end=2**32,
+#                      step=1)
+adc_clk_div = TextInput(title="ADC Clock divisor (32 bits)",
+                        value='5')
 
 tglStart    = Toggle(label="Start",
                      active=False)
 
 listScaleV  = Dropdown(label="Escala V",
-                       menu=escV)
+                       menu=escV,
+                       disabled=True)
 
 listScaleT  = Dropdown(label="Base de Tiempo",
-                       menu=escT)
+                       menu=escT,
+                       disabled=True)
+
 
 
 listScaleV.value = escV[0][1]
@@ -138,29 +184,10 @@ listScaleT.label = escT[int(listScaleT.value)][0]
 myApp = SmartbenchApp(doc, plot, source_chA, source_chB)
 
 # Set up callbacks
-def update_title(attrname, old, new):
-    plot.title.text = text.value
-
-text.on_change('value', update_title)
-
-def update_data(attrname, old, new):
-
-    # Get the current slider values
-    a = amplitude.value
-    b = offset.value
-    w = phase.value
-    k = freq.value
-
-    # Generate the new curve
-    x = np.linspace(0, 4*np.pi, N)
-    y_sin = a*np.sin(k*x + w) + b
-    y_cos = a*np.cos(k*x + w) + b
-
-    source_chA.data = dict(x=x, y=y_sin)
-    source_chB.data = dict(x=x, y=y_cos)
-
-for w in [offset, amplitude, phase, freq]:
-    w.on_change('value', update_data)
+# def update_title(attrname, old, new):
+#     plot.title.text = text.value
+#
+# text.on_change('value', update_title)
 
 def updateStatus(attrname):
     global myApp
@@ -172,21 +199,119 @@ def updateStatus(attrname):
         tglStart.label = "Start"
     return
 
-tglStart.on_click(updateStatus)
-
 def updateScaleV(attrname):
     listScaleV.label = escV[int(listScaleV.value)][0]
     #myApp.smartbench.
     return
 
-listScaleV.on_click(updateScaleV)
-
 def updateScaleT(attrname):
     listScaleT.label = escV[int(listScaleT.value)][0]
-
+    #...
     return
 
+def update_DC_coupling_cha(attrname):
+    print("attrname={}".format(attrname))
+    if(DC_coupling_cha.active==True):
+        myApp.smartbench.chA.set_coupling_dc()
+        DC_coupling_cha.label = "Coupling: DC"
+        myApp.smartbench.chA.send_settings()
+    else:
+        myApp.smartbench.chA.set_coupling_ac()
+        DC_coupling_cha.label ="Coupling: AC"
+        myApp.smartbench.chA.send_settings()
+    return
+
+def update_att_cha(attrname, old, new):
+    myApp.smartbench.chA.set_attenuator(att_cha.value)
+    myApp.smartbench.chA.send_settings()
+    return
+
+def update_gain_cha(attrname, old, new):
+    myApp.smartbench.chA.set_gain(gain_cha.value)
+    myApp.smartbench.chA.send_settings()
+    return
+
+def update_offset_cha(attrname, old, new):
+    #print("attrname = {}".format(attrname))
+    #print("old,new = {},{}".format(old, new))
+    myApp.smartbench.chA.set_offset(offset_cha.value)
+    return
+
+
+def update_DC_coupling_chb(attrname):
+    #print("attrname={}".format(attrname))
+    if(DC_coupling_chb.active==True):
+        myApp.smartbench.chB.set_coupling_dc()
+        DC_coupling_chb.label = "Coupling: DC"
+        myApp.smartbench.chB.send_settings()
+    else:
+        myApp.smartbench.chB.set_coupling_ac()
+        DC_coupling_chb.label ="Coupling: AC"
+        myApp.smartbench.chB.send_settings()
+    return
+
+def update_att_chb(attrname, old, new):
+    myApp.smartbench.chB.set_attenuator(att_chb.value)
+    myApp.smartbench.chB.send_settings()
+    return
+
+def update_gain_chb(attrname, old, new):
+    myApp.smartbench.chB.set_gain(gain_chb.value)
+    myApp.smartbench.chB.send_settings()
+    return
+
+def update_offset_chb(attrname, old, new):
+    myApp.smartbench.chB.set_offset(offset_chb.value)
+    return
+
+
+def update_mov_ave(attrname, old, new):
+    myApp.smartbench.chA.set_nprom(2**mov_ave.value)
+    myApp.smartbench.chB.set_nprom(2**mov_ave.value)
+    return
+
+def update_adc_clk_div(attrname, old, new):
+    myApp.smartbench.chA.set_clk_divisor(int(adc_clk_div.value))
+    myApp.smartbench.chB.set_clk_divisor(int(adc_clk_div.value))
+    return
+
+#text.on_change('value', update_title)
+
+# Callbacks associations
+tglStart.on_click(updateStatus)
+listScaleV.on_click(updateScaleV)
 listScaleT.on_click(updateScaleT)
+
+DC_coupling_cha.on_click(update_DC_coupling_cha)
+att_cha.on_change('value',update_att_cha)
+gain_cha.on_change('value',update_gain_cha)
+offset_cha.on_change('value',update_offset_cha)
+
+DC_coupling_chb.on_click(update_DC_coupling_chb)
+att_chb.on_change('value',update_att_chb)
+gain_chb.on_change('value',update_gain_chb)
+offset_chb.on_change('value',update_offset_chb)
+
+mov_ave.on_change('value',update_mov_ave)
+adc_clk_div.on_change('value',update_adc_clk_div)
+
+
+# Initialization of sliders, buttons, etc
+DC_coupling_cha.active = bool(myApp.smartbench.chA.get_coupling())
+att_cha.value       = myApp.smartbench.chA.get_attenuator()
+gain_cha.value      = myApp.smartbench.chA.get_gain()
+offset_cha.value    = myApp.smartbench.chA.get_offset()
+
+DC_coupling_chb.active = bool(myApp.smartbench.chB.get_coupling())
+att_chb.value       = myApp.smartbench.chB.get_attenuator()
+gain_chb.value      = myApp.smartbench.chB.get_gain()
+offset_chb.value    = myApp.smartbench.chB.get_offset()
+
+mov_ave.value   = int(log(myApp.smartbench.chA.get_nprom(),2))
+adc_clk_div.value   =str(myApp.smartbench.chA.get_clk_divisor())
+
+#if(DC_coupling_cha.active==True):
+    #DC_coupling_cha.label = "Coupling: DC"
 
 # https://bokeh.pydata.org/en/latest/docs/reference/models/layouts.html#bokeh.models.layouts.LayoutDOM
 # usar siempre "scale_width"
@@ -195,7 +320,22 @@ command = row([tglStart, listScaleV, listScaleT],
               sizing_mode=MODE,
               width=DEFAULT_WIDTH )
 
-sliders = column([text, offset, amplitude, phase, freq, command],
+#sliders = column([text, offset, amplitude, phase, freq, command],
+                 #sizing_mode=MODE )
+sliders = column([ command,
+                  text_cha,
+                  DC_coupling_cha,
+                  att_cha,
+                  gain_cha,
+                  offset_cha,
+                  text_chb,
+                  DC_coupling_chb,
+                  att_chb,
+                  gain_chb,
+                  offset_chb,
+                  mov_ave,
+                  adc_clk_div
+                  ],
                  sizing_mode=MODE )
 
 doc.add_root( row(

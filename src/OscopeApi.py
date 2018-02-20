@@ -238,7 +238,7 @@ class _Channel( _Definitions ):
             print( "Attenuation selector must be a number between 0 and 7" )
 
     def get_gain( self ):
-        return ( self._settings >> _CONF_CH_GAIN ) & 0x7
+        return ( self._settings >> self._CONF_CH_GAIN ) & 0x7
 
     def set_gain( self, gain ):
         if gain<8 and gain>=0:
@@ -284,7 +284,7 @@ class _Channel( _Definitions ):
     # 8     3
     # ...
     def get_nprom( self ):
-        return int(2 ** _nprom)
+        return int(2 ** self._nprom)
 
     def set_nprom( self, n ):
         self._nprom = int(log(n,2))
