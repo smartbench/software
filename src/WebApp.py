@@ -393,15 +393,14 @@ sliders = column([ command,
                   gain_chb,
                   offset_chb,
                   mov_ave,
-                  adc_clk_div
+                  adc_clk_div,
+                  trigger_val,
+                  num_samples,
+                  pre_trigger
                   ],
                  sizing_mode=MODE )
 
-rightPanel = column([
-                    trigger_val,
-                    num_samples,
-                    pre_trigger,
-                    plot],
+rightPanel = column([ plot],
                     sizing_mode=MODE )
 
 
