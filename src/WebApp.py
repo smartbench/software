@@ -58,8 +58,8 @@ escT = [(str(x),str(i)) for i,x in enumerate(Configuration_Definitions.timebase_
 
 
 # Set up plot
-plot = figure(plot_width= 100,
-              plot_height= 100,
+plot = figure(plot_width= 10,
+              plot_height= 10,
               sizing_mode='scale_both',
               title="Signal",
               tools="",#tools="crosshair,pan,reset,save,wheel_zoom",
@@ -107,13 +107,15 @@ gain_cha    = Slider(title="Gain",
                      value=0,
                      start=0,
                      end=7,
-                     step=1)
+                     step=1,
+                     callback_policy='mouseup')
 
 att_cha     = Slider(title="Attenuation",
                      value=0,
                      start=0,
                      end=7,
-                     step=1)
+                     step=1,
+                     callback_policy='mouseup')
 
 DC_coupling_cha = Toggle(label="Coupling: DC",
                      active=False)
@@ -134,13 +136,15 @@ gain_chb    = Slider(title="Gain",
                      value=0,
                      start=0,
                      end=7,
-                     step=1)
+                     step=1,
+                     callback_policy='mouseup')
 
 att_chb     = Slider(title="Attenuation",
                      value=0,
                      start=0,
                      end=7,
-                     step=1)
+                     step=1,
+                     callback_policy='mouseup')
 
 DC_coupling_chb = Toggle(label="Coupling: DC",
                      active=False)
@@ -152,7 +156,8 @@ mov_ave     = Slider(title="Moving Average [N=2^k] (CHA) k",
                      value=0,
                      start=0,
                      end=3,
-                     step=1)
+                     step=1,
+                     callback_policy='mouseup')
 
 # adc_clk_div = Slider(title="ADC Clock divisor /* 32 bits */",
 #                      value=0,
@@ -172,6 +177,37 @@ listScaleV  = Dropdown(label="Escala V",
 listScaleT  = Dropdown(label="Base de Tiempo",
                        menu=escT,
                        disabled=True)
+
+trigger_val = Slider(title="Trigger Value",
+                     value=-28,
+                     start=-128,
+                     end=127,
+                     step=1,
+                     callback_policy='mouseup')
+
+num_samples = Slider(title="Number of samples",
+                     value=150,
+                     start=50,
+                     end=1000, # <-- Check max (depends on available ram)
+                     step=1,
+                     callback_policy='mouseup')
+
+pre_trigger = Slider(title="Pretrigger",
+                     value=150,
+                     start=0,
+                     end=num_samples.value,
+                     step=1,
+                     callback_policy='mouseup')
+
+# To add:
+# Trigger source (cha, chb, ext)
+# Trigger edge (pos, neg)
+# Trigger mode (single, normal, auto)
+# chA on/off
+# chB on/off
+
+# Timebase
+# V/div (both channels)
 
 
 
@@ -275,6 +311,21 @@ def update_adc_clk_div(attrname, old, new):
     myApp.smartbench.chB.set_clk_divisor(int(adc_clk_div.value))
     return
 
+def update_trigger_val(attrname, old, new):
+    myApp.smartbench.set_trigger_value(trigger_val.value)
+    return
+
+def update_num_samples(attrname, old, new):
+    myApp.smartbench.set_number_of_samples(num_samples.value)
+    if(pre_trigger.value > num_samples.value):
+        pre_trigger.value = num_samples.value
+    pre_trigger.end = num_samples.value
+    return
+
+def update_pre_trigger(attrname, old, new):
+    myApp.smartbench.set_pretrigger(pre_trigger.value)
+    return
+
 #text.on_change('value', update_title)
 
 # Callbacks associations
@@ -295,6 +346,10 @@ offset_chb.on_change('value',update_offset_chb)
 mov_ave.on_change('value',update_mov_ave)
 adc_clk_div.on_change('value',update_adc_clk_div)
 
+trigger_val.on_change('value', update_trigger_val)
+num_samples.on_change('value', update_num_samples)
+pre_trigger.on_change('value', update_pre_trigger)
+
 
 # Initialization of sliders, buttons, etc
 DC_coupling_cha.active = bool(myApp.smartbench.chA.get_coupling())
@@ -309,6 +364,10 @@ offset_chb.value    = myApp.smartbench.chB.get_offset()
 
 mov_ave.value   = int(log(myApp.smartbench.chA.get_nprom(),2))
 adc_clk_div.value   =str(myApp.smartbench.chA.get_clk_divisor())
+
+trigger_val.value   = myApp.smartbench.get_trigger_value()
+num_samples.value   = myApp.smartbench.get_number_of_samples()
+pre_trigger.value  = myApp.smartbench.get_pretrigger()
 
 #if(DC_coupling_cha.active==True):
     #DC_coupling_cha.label = "Coupling: DC"
@@ -338,9 +397,17 @@ sliders = column([ command,
                   ],
                  sizing_mode=MODE )
 
+rightPanel = column([
+                    trigger_val,
+                    num_samples,
+                    pre_trigger,
+                    plot],
+                    sizing_mode=MODE )
+
+
 doc.add_root( row(
                 sliders,
-                plot,
+                rightPanel,
                 sizing_mode=MODE ) )
 
 doc.title = "Smartbench"

@@ -391,9 +391,11 @@ class Smartbench( _Definitions ):
 
     def set_trigger_posedge( self ):
         self._trigger_settings &= ~( 1 << self._TRIGGER_CONF_EDGE )
+        self.send_trigger_settings()
 
     def set_trigger_negedge( self ):
         self._trigger_settings |= ( 1 << self._TRIGGER_CONF_EDGE )
+        self.send_trigger_settings()
 
     def get_trigger_source( self ):
         return ( self._trigger_settings >> self._TRIGGER_CONF_SOURCE_SEL ) & 0x3
@@ -401,21 +403,24 @@ class Smartbench( _Definitions ):
     def set_trigger_source_cha( self ):
         self._trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
         self._trigger_settings |= self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL
+        self.send_trigger_settings()
 
     def set_trigger_source_chb( self ):
         self._trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
         self._trigger_settings |= self.TRIGGER_SOURCE_CHB << self._TRIGGER_CONF_SOURCE_SEL
+        self.send_trigger_settings()
 
     def set_trigger_source_ext( self ):
         self._trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
         self._trigger_settings |= self.TRIGGER_SOURCE_EXT << self._TRIGGER_CONF_SOURCE_SEL
+        self.send_trigger_settings()
 
     def send_trigger_settings( self ):
         self.oscope.send( self._ADDR_TRIGGER_SETTINGS, self._trigger_settings )
         print("Trigger settings set to {}".format(hex(self._trigger_settings) ) )
 
     def get_trigger_value( self ):
-        return self._trigger_value# - 2**( self._ADC_WIDTH-1 )
+        return self._trigger_value - 2**( self._ADC_WIDTH-1 )
 
     def set_trigger_value( self, val ):
         self._trigger_value = (1 << self._ADC_WIDTH-1 ) + val
