@@ -141,18 +141,19 @@ class _Definitions ( object ):
     _ADDR_REQUESTS = 0
     _ADDR_SETTINGS_CHA = 1
     _ADDR_SETTINGS_CHB = 2
-    _ADDR_DAC_CHA = 3
-    _ADDR_DAC_CHB = 4
+    #_ADDR_DAC_CHA = 3
+    #_ADDR_DAC_CHB = 4
+    _ADDR_I2C = 3
     _ADDR_TRIGGER_SETTINGS = 5
     _ADDR_TRIGGER_VALUE = 6
     _ADDR_PRETRIGGER = 8
     _ADDR_NUM_SAMPLES = 7
     _ADDR_ADC_CLK_DIV_CHA_L = 9
     _ADDR_ADC_CLK_DIV_CHA_H = 10
-    _ADDR_ADC_CLK_DIV_CHB_L = 11
-    _ADDR_ADC_CLK_DIV_CHB_H = 12
+    _ADDR_ADC_CLK_DIV_CHB_L = 9#11
+    _ADDR_ADC_CLK_DIV_CHB_H = 10#12
     _ADDR_N_MOVING_AVERAGE_CHA = 13
-    _ADDR_N_MOVING_AVERAGE_CHB = 14
+    _ADDR_N_MOVING_AVERAGE_CHB = 13#14
 
     ### BIT FIELDS ###
     # DEFINES ARE THE INITIAL BIT NUMBER OF THIS FIELD
@@ -274,7 +275,26 @@ class _Channel( _Definitions ):
 
     def set_offset( self, val ):
         self._dac_value = val + 2**( self._DAC_WIDTH-1 )
-        self.oscope.send( self._ADDR_DAC_CHA + self._nchannel, self._dac_value )
+        #self.oscope.send( self._ADDR_DAC_CHA + self._nchannel, self._dac_value )
+        self.oscope.send(
+            self._ADDR_I2C,
+            0x00C0 | (self._nchannel << 1) )
+        self.oscope.send(
+            self._ADDR_I2C,
+            0x0058 )
+        self.oscope.send(
+            self._ADDR_I2C,
+            0x0200 | (self._dac_value >> 2) )
+        self.oscope.send(
+            self._ADDR_I2C,
+            0x0040 | ( (self._dac_value & 0x0003) << 4) )
+
+# W1 = 110000x0; x=0 CHA; x=1 CHB
+# W2 = 01011000; Ahora chequeo 2 bits de este
+# W3 = 1,0,dato[9:2]
+# W4 = {1,dato[1:0],x,x,x,x}
+
+#inout wire (weak1, strong0) PACKAGE_PIN)
 
     # Documentation for nprom:
     # Prom  Fpga_value
