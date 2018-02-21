@@ -96,12 +96,15 @@ text_cha    = TextInput(title="",
                         value='Channel A',
                         disabled=True)
 
-offset_cha  = Slider(title="Offset",
-                     value=0,
-                     start=-512,
-                     end=511,
-                     step=1,
-                     callback_policy='mouseup') #to avoid multiple writes
+# offset_cha  = Slider(title="Offset",
+#                      value=0,
+#                      start=-512,
+#                      end=511,
+#                      step=1,
+#                      callback_policy='mouseup') #to avoid multiple writes
+
+offset_cha    = TextInput(title="Offset CHA <-521,+511>",
+                        value='0')
 
 gain_cha    = Slider(title="Gain",
                      value=0,
@@ -116,6 +119,7 @@ att_cha     = Slider(title="Attenuation",
                      end=7,
                      step=1,
                      callback_policy='mouseup')
+
 
 DC_coupling_cha = Toggle(label="Coupling: DC",
                      active=False)
@@ -269,8 +273,9 @@ def update_gain_cha(attrname, old, new):
 
 def update_offset_cha(attrname, old, new):
     #print("attrname = {}".format(attrname))
-    #print("old,new = {},{}".format(old, new))
-    myApp.smartbench.chA.set_offset(offset_cha.value)
+    print("old,new = {},{}".format(old, new))
+    #myApp.smartbench.chA.set_offset(offset_cha.value)
+    myApp.smartbench.chA.set_offset(int(offset_cha.value))
     return
 
 
@@ -355,7 +360,7 @@ pre_trigger.on_change('value', update_pre_trigger)
 DC_coupling_cha.active = bool(myApp.smartbench.chA.get_coupling())
 att_cha.value       = myApp.smartbench.chA.get_attenuator()
 gain_cha.value      = myApp.smartbench.chA.get_gain()
-offset_cha.value    = myApp.smartbench.chA.get_offset()
+offset_cha.value    = str(myApp.smartbench.chA.get_offset())
 
 DC_coupling_chb.active = bool(myApp.smartbench.chB.get_coupling())
 att_chb.value       = myApp.smartbench.chB.get_attenuator()

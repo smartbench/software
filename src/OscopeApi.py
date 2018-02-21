@@ -284,10 +284,10 @@ class _Channel( _Definitions ):
             0x0058 )
         self.oscope.send(
             self._ADDR_I2C,
-            0x0200 | (self._dac_value >> 2) )
+            0x00FF & (self._dac_value >> 2) )
         self.oscope.send(
             self._ADDR_I2C,
-            0x0040 | ( (self._dac_value & 0x0003) << 4) )
+            0x0100 | ( (self._dac_value & 0x0003) << 6) )
 
 # W1 = 110000x0; x=0 CHA; x=1 CHB
 # W2 = 01011000; Ahora chequeo 2 bits de este
@@ -337,7 +337,7 @@ class Smartbench( _Definitions ):
         # Pretrigger:           0
         # Trigger mode:         normal
         self._trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
-        self._triger_value = 2 ** ( self._ADC_WIDTH-1 )
+        self._trigger_value = 2 ** ( self._ADC_WIDTH-1 )
         self._num_samples  = 100
         self._pretrigger   = 0
         self._trigger_mode = self.MODE_NORMAL
