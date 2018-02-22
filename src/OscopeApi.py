@@ -276,18 +276,22 @@ class _Channel( _Definitions ):
     def set_offset( self, val ):
         self._dac_value = val + 2**( self._DAC_WIDTH-1 )
         #self.oscope.send( self._ADDR_DAC_CHA + self._nchannel, self._dac_value )
-        self.oscope.send(
-            self._ADDR_I2C,
-            0x00C0 | (self._nchannel << 1) )
-        self.oscope.send(
-            self._ADDR_I2C,
-            0x0058 )
-        self.oscope.send(
-            self._ADDR_I2C,
-            0x00FF & (self._dac_value >> 2) )
-        self.oscope.send(
-            self._ADDR_I2C,
-            0x0100 | ( (self._dac_value & 0x0003) << 6) )
+        self.oscope.send(self._ADDR_I2C, 0xA3)
+        self.oscope.send(self._ADDR_I2C, 0xA3)
+        self.oscope.send(self._ADDR_I2C, 0xA3)
+        self.oscope.send(self._ADDR_I2C, 0x1A3)
+        # self.oscope.send(
+        #     self.;,
+        #     0x00C0 | (self._nchannel << 1) )
+        # self.oscope.send(
+        #     self._ADDR_I2C,
+        #     0x0058 )
+        # self.oscope.send(
+        #     self._ADDR_I2C,
+        #     0x00FF & (self._dac_value >> 2) )
+        # self.oscope.send(
+        #     self._ADDR_I2C,
+        #     0x0100 | ( (self._dac_value & 0x0003) << 6) )
 
 # W1 = 110000x0; x=0 CHA; x=1 CHB
 # W2 = 01011000; Ahora chequeo 2 bits de este
