@@ -104,7 +104,8 @@ text_cha    = TextInput(title="",
 #                      callback_policy='mouseup') #to avoid multiple writes
 
 offset_cha    = TextInput(title="Offset CHA <-521,+511>",
-                        value='0')
+                        value='0',
+                        disabled=True)
 
 gain_cha    = Slider(title="Gain",
                      value=0,
@@ -134,6 +135,7 @@ offset_chb  = Slider(title="Offset",
                      start=-512,
                      end=511,
                      step=1,
+                     disabled=True,
                      callback_policy='mouseup') #to avoid multiple writes
 
 gain_chb    = Slider(title="Gain",
@@ -272,10 +274,8 @@ def update_gain_cha(attrname, old, new):
     return
 
 def update_offset_cha(attrname, old, new):
-    #print("attrname = {}".format(attrname))
-    print("old,new = {},{}".format(old, new))
-    #myApp.smartbench.chA.set_offset(offset_cha.value)
-    myApp.smartbench.chA.set_offset(int(offset_cha.value))
+    #print("old,new = {},{}".format(old, new))
+    #myApp.smartbench.chA.set_offset(int(offset_cha.value))
     return
 
 
@@ -302,7 +302,7 @@ def update_gain_chb(attrname, old, new):
     return
 
 def update_offset_chb(attrname, old, new):
-    myApp.smartbench.chB.set_offset(offset_chb.value)
+    #myApp.smartbench.chB.set_offset(offset_chb.value)
     return
 
 
