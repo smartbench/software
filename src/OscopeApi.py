@@ -56,8 +56,6 @@ class _Oscope_ftdi( ):
         print ("Device closed.")
 
     def send( self, addr, data ):
-        if(addr == 3):
-            print("I2C FRAME: {}".format(bin(data)))
         aux = bytes( [ int(addr) , int(data%256) , int((data>>8)%256) ] )
         try:
             n = self.ftdi.write( aux )
@@ -277,14 +275,10 @@ class _Channel( _Definitions ):
 
     def set_offset( self, val ):
         self._dac_value = val + 2**( self._DAC_WIDTH-1 )
-        #self.oscope.send( self._ADDR_DAC_CHA + self._nchannel, self._dac_value )
-        # print("Sending {} to address {}.".format(0xA3, self._ADDR_I2C))
-
         # W1 = 110000x0; x=0 CHA; x=1 CHB
         # W2 = 01011000
         # W3 = 1,0,dato[9:2]
         # W4 = {1, dato[1:0],0,0,0,0,0,0}
-        #for i in range(0,9999):
         self.oscope.send(self._ADDR_I2C,
                          0x00C0 | (self._nchannel << 1))
         self.oscope.send(self._ADDR_I2C,
@@ -293,6 +287,7 @@ class _Channel( _Definitions ):
                          (self._dac_value >> 2) & 0xFF)
         self.oscope.send(self._ADDR_I2C,
                          0x0100 | (0xC0 & (self._dac_value << 6)))
+        #print("Sending data to address {}.".format(self._ADDR_I2C))
 
 #inout wire (weak1, strong0) PACKAGE_PIN)
 
