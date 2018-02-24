@@ -50,6 +50,8 @@ _STATUS_RUNNING = 1
 _CHANNEL_ON     = 1
 _CHANNEL_OFF    = 0
 
+DEBUG_ = True
+
 class SmartbenchApp():
     #global source_chA, source_chB, doc, plot
 
@@ -143,12 +145,12 @@ class SmartbenchApp():
 
         if self.triggered==0 or self.buffer_full==0:
             if( self.smartbench.is_trigger_mode_single() or self.smartbench.is_trigger_mode_normal() ):
-                self.doc.add_timeout_callback(self.waitingTriggerCallback,100) # Check again in 100 ms.
+                self.doc.add_timeout_callback(self.waitingTriggerCallback,500) # Check again in 100 ms.
                 return
             else:
                 if(self.buffer_full == 1 and self.count < 5):
                     self.count = self.count + 1
-                    self.doc.add_timeout_callback(self.waitingTriggerCallback,100) # Check again in 100 ms.
+                    self.doc.add_timeout_callback(self.waitingTriggerCallback,500) # Check again in 100 ms.
                     return
 
         # First, stops the capturing.

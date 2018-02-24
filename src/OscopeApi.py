@@ -9,7 +9,7 @@ from array import array
 #from struct import *
 import time
 
-DEBUG_ = False
+DEBUG_ = True
 
 #######################################################
 ################## FTDI bridge driver #################
@@ -476,8 +476,8 @@ class Smartbench( _Definitions ):
         self.set_pretrigger(50)
         self.send_trigger_settings()
 
-        self.chA.set_attenuator(1)
-        self.chA.set_gain(2)
+        self.chA.set_attenuator(0)
+        self.chA.set_gain(0)
         self.chA.set_coupling_dc()
         self.chA.set_ch_on()
         self.chA.send_settings()
@@ -485,8 +485,8 @@ class Smartbench( _Definitions ):
         self.chA.set_nprom(1)
         self.chA.set_clk_divisor(1)
 
-        self.chB.set_attenuator(3)
-        self.chB.set_gain(4)
+        self.chB.set_attenuator(0)
+        self.chB.set_gain(1)
         self.chB.set_coupling_dc()
         self.chB.set_ch_on()
         self.chB.send_settings()

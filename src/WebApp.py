@@ -235,6 +235,7 @@ def updateStatus(attrname):
     global myApp
     if(tglStart.active == True):
         tglStart.label = "Stop"
+        myApp.smartbench.set_trigger_mode_auto()
         myApp.start()
     else:
         myApp.stop()
@@ -254,13 +255,13 @@ def updateScaleT(attrname):
 def update_DC_coupling_cha(attrname):
     print("attrname={}".format(attrname))
     if(DC_coupling_cha.active==True):
-        myApp.smartbench.chA.set_coupling_dc()
         DC_coupling_cha.label = "Coupling: DC"
+        myApp.smartbench.chA.set_coupling_dc()
         myApp.smartbench.chA.send_settings()
     else:
         myApp.smartbench.chA.set_coupling_ac()
-        DC_coupling_cha.label ="Coupling: AC"
         myApp.smartbench.chA.send_settings()
+        DC_coupling_cha.label ="Coupling: AC"
     return
 
 def update_att_cha(attrname, old, new):
