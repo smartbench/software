@@ -178,7 +178,7 @@ class _Definitions ( object ):
 
     # TRIGGER Status
     _BUFFER_FULL = 0
-    _TRIGGERED   = 0
+    _TRIGGERED   = 1
 
     ### WIDTH DEFINITIONS ###
     _ADC_WIDTH = 8
