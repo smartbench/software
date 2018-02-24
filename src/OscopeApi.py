@@ -321,9 +321,9 @@ class _Channel( _Definitions ):
         return self._clk_divisor+1
 
     def set_clk_divisor( self, div ):
-        self._clk_divisor = div-1
-        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_L + self._nchannel, self._clk_divisor&0xFFFF )
-        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_H + self._nchannel, (self._clk_divisor>>16)&0xFFFF )
+        self._clk_divisor = div
+        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_L, self._clk_divisor&0xFFFF )
+        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_H, (self._clk_divisor>>16)&0xFFFF )
 
 #######################################################
 ##################### OSCOPE CLASS ####################
