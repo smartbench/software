@@ -40,6 +40,8 @@ class _Oscope_ftdi( ):
             if(self.ftdi.is_open):
                 self.status = 'opened'
                 print("Opened device!")
+                self.send(0xFF, 0xFFFF)
+                self.send(0xEE, 0xEEEE)
                 return True
             else:
                 self.status = 'closed'
