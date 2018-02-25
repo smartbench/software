@@ -118,7 +118,7 @@ class SmartbenchApp():
         return
     # --------------------------------------------------------
     # This method sends a "Start Request" to the device.
-    @gen.coroutine
+    # @gen.coroutine
     def newFrameCallback(self):
         if(self.status == _STATUS_STOPPED): return
         self.triggered      = 0
@@ -135,7 +135,7 @@ class SmartbenchApp():
     # be {Triggered / Not triggered} and { buffer full / buffer not full } respectively.
     # Depending on the status, and the mode of operation (Normal or Auto) will wait or
     # not to show the data.
-    @gen.coroutine
+    # @gen.coroutine
     def waitingTriggerCallback(self):
         if(self.status == _STATUS_STOPPED): return
         printDebug("> Request Trigger Status")
