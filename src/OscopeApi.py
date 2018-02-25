@@ -2,7 +2,7 @@
 
 #from pyftdi.ftdi import Ftdi
 import serial
-#import time
+import time
 from threading import Timer
 from math import log
 from array import array
@@ -40,8 +40,18 @@ class _Oscope_ftdi( ):
             if(self.ftdi.is_open):
                 self.status = 'opened'
                 print("Opened device!")
+                # time.sleep(1)
+                self.send(0xFF, 0xFFFF)
+                self.send(0xFF, 0xFFFF)
+                self.send(0xFF, 0xFFFF)
+                self.send(0xFF, 0xFFFF)
                 self.send(0xFF, 0xFFFF)
                 self.send(0xEE, 0xEEEE)
+                # print("FALTA: {}".format(self.ftdi.in_waiting))
+                # self.empty_read_buffer()
+                # print("FALTA: {}".format(self.ftdi.in_waiting))
+                # self.ftdi.reset_input_buffer()
+                # time.sleep(1)
                 return True
             else:
                 self.status = 'closed'
@@ -320,7 +330,7 @@ class _Channel( _Definitions ):
         self.oscope.send( self._ADDR_N_MOVING_AVERAGE_CHA + self._nchannel, self._nprom )
 
     def get_clk_divisor( self ):
-        return self._clk_divisor+1
+        return self._clk_divisor
 
     def set_clk_divisor( self, div ):
         self._clk_divisor = div
@@ -394,7 +404,7 @@ class Smartbench( _Definitions ):
 
     def receive_channel_data( self , n=0 ):
         if(n==0): n = self._num_samples
-        return self.oscope.receive(n, blocking=True)
+        return self.oscope.receive(n, blocking=False, timeout=2)
 
     def get_trigger_edge( self ):
         return ( self._trigger_settings >> self._TRIGGER_CONF_EDGE ) & 0x1
@@ -485,7 +495,7 @@ class Smartbench( _Definitions ):
         self.chA.send_settings()
         self.chA.set_offset(0)
         self.chA.set_nprom(1)
-        self.chA.set_clk_divisor(1)
+        self.chA.set_clk_divisor(500)
 
         self.chB.set_attenuator(0)
         self.chB.set_gain(1)
@@ -494,7 +504,7 @@ class Smartbench( _Definitions ):
         self.chB.send_settings()
         self.chB.set_offset(0)
         self.chB.set_nprom(1)
-        self.chB.set_clk_divisor(1)
+        #self.chB.set_clk_divisor(1)
 
         self.set_trigger_mode_normal()
 
