@@ -108,12 +108,12 @@ class SmartbenchApp():
     def stop(self):
         self.status = _STATUS_STOPPED
 
-        #Clock.unschedule(self.waitingTriggerCallback)
         try:    remove_timeout_callback(self.waitingTriggerCallback)
         except: pass
-        #Clock.unschedule(self.newFrameCallback)
-        try:    remove_next_tick_callback(self.newFrameCallback)
+        try:    remove_timeout_callback(self.newFrameCallback)
         except: pass
+        #try:    remove_next_tick_callback(self.newFrameCallback)
+        #except: pass
 
         return
     # --------------------------------------------------------
@@ -126,7 +126,8 @@ class SmartbenchApp():
         self.count          = 0
         printDebug("> Request Start")
         self.smartbench.request_start()
-        self.doc.add_next_tick_callback(self.waitingTriggerCallback) # Called as soon as possible
+        #self.doc.add_next_tick_callback(self.waitingTriggerCallback) # Called as soon as possible
+        self.doc.add_timeout_callback(self.waitingTriggerCallback, 500) # Called as soon as possible
         return
 
     # --------------------------------------------------------

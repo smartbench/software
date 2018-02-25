@@ -235,7 +235,7 @@ def updateStatus(attrname):
     global myApp
     if(tglStart.active == True):
         tglStart.label = "Stop"
-        myApp.smartbench.set_trigger_mode_auto()
+        #myApp.smartbench.set_trigger_mode_auto()
         myApp.start()
     else:
         myApp.stop()
