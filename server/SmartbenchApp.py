@@ -79,10 +79,10 @@ class SmartbenchApp():
             self.plot.x_range = Range1d(0, Nsamp-1)
             self.plot.y_range = Range1d(0,255)
 
-            self.plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(0,Nsamp-1,Nsamp/10))   #10 div
+            # self.plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(0,Nsamp-1,Nsamp/10))   #10 div
             self.plot.xgrid[0].ticker=FixedTicker(ticks=np.arange(0,Nsamp-1,Nsamp/10))
             #change yaxis ticker & ygrid ticker with fixed-width spacing
-            self.plot.yaxis[0].ticker=FixedTicker(ticks=np.arange(0,255,256/10))   #10 div
+            # self.plot.yaxis[0].ticker=FixedTicker(ticks=np.arange(0,255,256/10))   #10 div
             self.plot.ygrid[0].ticker=FixedTicker(ticks=np.arange(0,255,256/10))
 
             # Callback to start the acqusition, called as soon as possible
