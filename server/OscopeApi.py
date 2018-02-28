@@ -204,9 +204,9 @@ class _Definitions ( object ):
     NEGATIVE_EDGE = 1
 
     # TRIGGER_SOURCE_VALUES
-    TRIGGER_SOURCE_CHA = 1
-    TRIGGER_SOURCE_CHB = 2
-    TRIGGER_SOURCE_EXT = 3
+    TRIGGER_SOURCE_CHA = 0x01
+    TRIGGER_SOURCE_CHB = 0x02
+    TRIGGER_SOURCE_EXT = 0x03
 
     COUPLING_AC     = 1
     COUPLING_DC     = 0
@@ -427,20 +427,20 @@ class Smartbench( _Definitions ):
         self.send_trigger_settings()
 
     def get_trigger_source( self ):
-        return ( self._trigger_settings >> self._TRIGGER_CONF_SOURCE_SEL ) & 0x3
+        return (( self._trigger_settings >> self._TRIGGER_CONF_SOURCE_SEL ) & 0x3)
 
     def set_trigger_source_cha( self ):
-        self._trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
+        self._trigger_settings &= ~0x3 << self._TRIGGER_CONF_SOURCE_SEL
         self._trigger_settings |= self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL
         self.send_trigger_settings()
 
     def set_trigger_source_chb( self ):
-        self._trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
-        self._trigger_settings |= self.TRIGGER_SOURCE_CHB << self._TRIGGER_CONF_SOURCE_SEL
+        self._trigger_settings &= ~(0x3 << self._TRIGGER_CONF_SOURCE_SEL)
+        self._trigger_settings |= (self.TRIGGER_SOURCE_CHB << self._TRIGGER_CONF_SOURCE_SEL)
         self.send_trigger_settings()
 
     def set_trigger_source_ext( self ):
-        self._trigger_settings &= 0x3 << self._TRIGGER_CONF_SOURCE_SEL
+        self._trigger_settings &= ~0x3 << self._TRIGGER_CONF_SOURCE_SEL
         self._trigger_settings |= self.TRIGGER_SOURCE_EXT << self._TRIGGER_CONF_SOURCE_SEL
         self.send_trigger_settings()
 
