@@ -11,7 +11,7 @@ def update_on(active, tgl, channel):
     else:
         channel.set_ch_on()
         tgl.label = "CHA: OFF"
-    print("Start/Stop button pressed")
+    print("Updated channel on/off")
     return
 
 def update_dc_coupling(dc, tgl, channel):

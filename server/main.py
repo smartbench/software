@@ -144,17 +144,21 @@ def update_horizontal(attrname, old, new):
     cb.update_horizontal(int(new), horizontal, app)
 
 def update_but_connect(value):
-    if app.smartbench.isOpen() is False:
-        if app.smartbench.open(devices.label)==True :
+    print ("Entered into update_but_connect")
+    if but_connect.label == 'Connect':
+        if app.smartbench.open(devices.label) is True :
             but_connect.label = "Disconnect"
     else:
         app.smartbench.close()
         but_connect.label = "Connect"
 
+
 def update_but_refresh(value):
     devices.menu = list_ttys()
     if len(devices.menu)==0:
-        devices.label = 'Devices'
+        devices.value = 'Device'
+    update_devices(devices.value)
+
 
 def update_devices(value):
     devices.label = value
@@ -168,8 +172,10 @@ def update_status():
     return
 
 def update_port_closed():
+    print ("Entered port_closed callback")
     update_but_refresh(0)
     but_connect.label = "Connect"
+    printDebug ("Exited from port_closed callback")
     return
 
 

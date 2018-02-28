@@ -41,7 +41,7 @@ class _Oscope_ftdi( ):
             self.ftdi = serial.Serial(device, baudrate=921600, timeout=2)
             if(self.ftdi.is_open):
                 self.status = 'opened'
-                print("Opened device!")
+                print("Opened device {} !".format(device))
                 # time.sleep(1)
                 self.send(0xFF, 0xFFFF)
                 self.send(0xFF, 0xFFFF)
@@ -66,6 +66,7 @@ class _Oscope_ftdi( ):
 
 
     def close(self):
+        printDebug ("Entered into Oscope.close()")
         try:
             self.ftdi.close()
         except:
@@ -139,9 +140,16 @@ class _Oscope_ftdi( ):
             return -1
 
     def isOpen(self):
+        printDebug ("Entered into Oscope.isOpen()")
         try:
+            printDebug("isOpen() ? {}".format(
+                    self.ftdi.is_open))
+            printDebug ("Not blocked in Oscope.isOpen()")
             return self.ftdi.is_open
         except:
+            printDebug("isOpen() ? {}".format(
+                    False))
+            self.close()
             return False
 
     def set_port_closed_callback(self, callback):
@@ -368,10 +376,10 @@ class Smartbench( _Definitions ):
 
         self.oscope_status = False
 
-        # Channel register instance
         if device != None:
             self.open(device)
 
+        # Channel register instance
         self.chA = _Channel(0, self.oscope)
         self.chB = _Channel(1, self.oscope)
 
@@ -380,13 +388,12 @@ class Smartbench( _Definitions ):
     def open (self,device):
         try:
             self.oscope_status = self.oscope.open(device)
-            return self.oscope_status
+            return self.oscope.isOpen()
         except:
             return False
 
     def close (self):
         self.oscope.close()
-
 
     def get_oscope_status (self):
         return (self.oscope_status)
