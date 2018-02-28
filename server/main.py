@@ -53,7 +53,7 @@ DEFAULT_WIDTH = 300
 
 # Set up data
 N = 200
-x = np.linspace(0, 4*np.pi, N)
+x = np.linspace(0, 10, N)
 y_sin = np.sin(x)
 y_cos = np.cos(x)
 source_chA = ColumnDataSource(data=dict(x=x, y=y_sin))
@@ -65,6 +65,8 @@ escT = [(str(x)+'/div',str(i)) for i,x in enumerate(Configuration_Definitions.ti
 
 trig_types = [(s,str(i)) for i,s in enumerate(['Auto','Normal','Single'])]
 
+trig_line = ColumnDataSource(data=dict(x=(0,10), y=np.ones(2)*0.5))
+
 
 # Set up plot
 plot = figure(plot_width= 10,
@@ -72,11 +74,19 @@ plot = figure(plot_width= 10,
               sizing_mode='scale_both',
               title="",
               tools="crosshair,pan,reset,save,wheel_zoom",
-              x_range=[0, 4*np.pi],
-              y_range=[-2.5, 2.5])
+              x_range=[0, 10],
+              y_range=[-4, 4])
 
-plot.line('x', 'y', source=source_chA, line_width=4, line_alpha=0.8, color="#CC00FB")
+plot.line('x', 'y', source=trig_line, line_width=1, line_alpha=0.8, color="yellow")
+plot.line('x', 'y', source=source_chA, line_width=2, line_alpha=0.8, color="#CC00FB")
 plot.line('x', 'y', source=source_chB, line_width=4, line_alpha=0.8, color="#00CCAA")
+
+#### ESTO ES PAR SETEAR LA GRID, me falto los minorticks y sin eso no queda bien
+
+#plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(0,10,1))
+#plot.xgrid[0].ticker=FixedTicker(ticks=np.arange(0,10,1))
+#plot.yaxis[0].ticker=FixedTicker(ticks=np.arange(-4,+4,1))
+#plot.ygrid[0].ticker=FixedTicker(ticks=np.arange(-4,+4,1))
 
 # https://bokeh.pydata.org/en/latest/docs/user_guide/styling.html
 #legend, grid, xgrid, ygrid, axis, xaxis, yaxis
