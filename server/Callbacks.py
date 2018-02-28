@@ -50,7 +50,7 @@ def update_trigger_source(tgl, app):
     elif(app.smartbench.get_trigger_source() == app.smartbench.TRIGGER_SOURCE_CHB):
         app.smartbench.set_trigger_source_cha()
         tgl.label = "Source: CHA"
-    print("Updated Trigger Source")
+    print("Updated Trigger Source. {}".format(app.smartbench.get_trigger_source()))
 
 def update_trigger_edge(tgl, app):
     print("Completar Kuku")
