@@ -160,12 +160,9 @@ class _Definitions ( object ):
     _ADDR_TRIGGER_VALUE = 6
     _ADDR_PRETRIGGER = 8
     _ADDR_NUM_SAMPLES = 7
-    _ADDR_ADC_CLK_DIV_CHA_L = 9
-    _ADDR_ADC_CLK_DIV_CHA_H = 10
-    _ADDR_ADC_CLK_DIV_CHB_L = 9#11
-    _ADDR_ADC_CLK_DIV_CHB_H = 10#12
-    _ADDR_N_MOVING_AVERAGE_CHA = 13
-    _ADDR_N_MOVING_AVERAGE_CHB = 13#14
+    _ADDR_ADC_CLK_DIV_L = 9
+    _ADDR_ADC_CLK_DIV_H = 10
+    _ADDR_N_MOVING_AVERAGE = 13
 
     ### BIT FIELDS ###
     # DEFINES ARE THE INITIAL BIT NUMBER OF THIS FIELD
@@ -324,27 +321,7 @@ class _Channel( _Definitions ):
 
 #inout wire (weak1, strong0) PACKAGE_PIN)
 
-    # Documentation for nprom:
-    # Prom  Fpga_value
-    # 1     0
-    # 2     1
-    # 4     2
-    # 8     3
-    # ...
-    def get_nprom( self ):
-        return int(2 ** self._nprom)
 
-    def set_nprom( self, n ):
-        self._nprom = int(log(n,2))
-        self.oscope.send( self._ADDR_N_MOVING_AVERAGE_CHA + self._nchannel, self._nprom )
-
-    def get_clk_divisor( self ):
-        return self._clk_divisor
-
-    def set_clk_divisor( self, div ):
-        self._clk_divisor = div
-        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_L, self._clk_divisor&0xFFFF )
-        self.oscope.send( self._ADDR_ADC_CLK_DIV_CHA_H, (self._clk_divisor>>16)&0xFFFF )
 
 #######################################################
 ##################### OSCOPE CLASS ####################
@@ -486,6 +463,28 @@ class Smartbench( _Definitions ):
     def is_trigger_mode_normal (self): return (self._trigger_mode == self.MODE_NORMAL)
     def is_trigger_mode_auto   (self): return (self._trigger_mode == self.MODE_AUTO)
 
+    # Documentation for nprom:
+    # Prom  Fpga_value
+    # 1     0
+    # 2     1
+    # 4     2
+    # 8     3
+    # ...
+    def get_nprom( self ):
+        return int(2 ** self._nprom)
+
+    def set_nprom( self, n ):
+        self._nprom = int(log(n,2))
+        self.oscope.send( self._ADDR_N_MOVING_AVERAGE, self._nprom )
+
+    def get_clk_divisor( self ):
+        return self._clk_divisor
+
+    def set_clk_divisor( self, div ):
+        self._clk_divisor = div
+        self.oscope.send( self._ADDR_ADC_CLK_DIV_L, self._clk_divisor&0xFFFF )
+        self.oscope.send( self._ADDR_ADC_CLK_DIV_H, (self._clk_divisor>>16)&0xFFFF )
+
     def setDefaultConfiguration(self):
         self.set_trigger_source_cha()
         self.set_trigger_negedge()
@@ -493,6 +492,9 @@ class Smartbench( _Definitions ):
         self.set_number_of_samples(150)
         self.set_pretrigger(50)
         self.send_trigger_settings()
+        self.set_nprom(1)
+        self.set_clk_divisor(500)
+        self.set_trigger_mode_normal()
 
         self.chA.set_attenuator(0)
         self.chA.set_gain(0)
@@ -500,8 +502,6 @@ class Smartbench( _Definitions ):
         self.chA.set_ch_on()
         self.chA.send_settings()
         self.chA.set_offset(0)
-        self.chA.set_nprom(1)
-        self.chA.set_clk_divisor(500)
 
         self.chB.set_attenuator(0)
         self.chB.set_gain(1)
@@ -509,10 +509,6 @@ class Smartbench( _Definitions ):
         self.chB.set_ch_on()
         self.chB.send_settings()
         self.chB.set_offset(0)
-        self.chB.set_nprom(1)
-        #self.chB.set_clk_divisor(1)
-
-        self.set_trigger_mode_normal()
 
         return
 

@@ -74,5 +74,15 @@ def update_trigger_type(idx, drpdwn, app):
     drpdwn.label = Configuration_Definitions.trigger_type_str[idx]
     print("Updated trigger type - idx = {}".format(idx))
 
-def update_horizontal(attrname, old, new):
-    print("Completar Kuku")
+def update_horizontal(idx, dwrdwn, app):
+    app.smartbench.set_clk_divisor(
+        Configuration_Definitions.Clock_Adc_Div_Sel[idx]
+    )
+    app.smartbench.set_nprom(
+        Configuration_Definitions.Mov_Ave_Sel[idx]
+    )
+    dwrdwn.label = Configuration_Definitions.timebase_scales_str[idx]+'/div'
+    print("Updated BT. clk divider = {}\tprom = {}".format(
+        Configuration_Definitions.Clock_Adc_Div_Sel[idx],
+        Configuration_Definitions.Mov_Ave_Sel[idx]
+    ))

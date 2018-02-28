@@ -201,8 +201,8 @@ class SmartbenchApp():
 
         # # For a good visualization with "Fake_ADC", clk divisor must be 1.
         # # ADC CLOCK SET TO 20MHz
-        # self.smartbench.chA.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13])
-        # self.smartbench.chB.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13]) # not necessary, ignored
+        # self.smartbench.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13])
+        # self.smartbench.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13]) # not necessary, ignored
         # # AVERAGE DISABLED (1 SAMPLE)
         self.smartbench.chA.set_nprom(Configuration_Definitions.Mov_Ave_Sel[13])
         self.smartbench.chB.set_nprom(Configuration_Definitions.Mov_Ave_Sel[13])

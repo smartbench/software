@@ -135,8 +135,8 @@ def update_trigger_type(attrname, old, new):
     cb.update_trigger_type(int(new), trigger_type, app)
 
 def update_horizontal(attrname, old, new):
-    print("Completar Kuku")
-
+    cb.update_horizontal(int(new), horizontal, app)
+    
 def update_but_connect(attrname,old,new):
     print("Completar Kuku")
 
@@ -356,8 +356,8 @@ doc.title = "Smartbench"
 #    return
 #
 #def update_adc_clk_div(attrname, old, new):
-#    myApp.smartbench.chA.set_clk_divisor(int(adc_clk_div.value))
-#    myApp.smartbench.chB.set_clk_divisor(int(adc_clk_div.value))
+#    myApp.smartbench.set_clk_divisor(int(adc_clk_div.value))
+#    myApp.smartbench.set_clk_divisor(int(adc_clk_div.value))
 #    return
 #
 #def update_trigger_val(attrname, old, new):
