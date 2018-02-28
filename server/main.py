@@ -94,8 +94,8 @@ plot.yaxis.axis_label = "Tensión []"
 
 # Set up widgets
 
-def channel_layout(text, coupling, vert_gain):
-    lay = column([text,row([coupling, vert_gain], sizing_mode=MODE, width=DEFAULT_WIDTH)],sizing_mode=MODE)
+def channel_layout(text,on, coupling, vert_gain):
+    lay = column([text,row([on,coupling, vert_gain], sizing_mode=MODE, width=DEFAULT_WIDTH)],sizing_mode=MODE)
     return lay
 
 def trigger_layout(text, run, source, edge, trigger, pretrigger ):
@@ -105,30 +105,52 @@ def trigger_layout(text, run, source, edge, trigger, pretrigger ):
 ###### CHANNEL A ########
 
 text_cha    = Div(text='<h2>Channel A</h2>')
-scale_cha    = Dropdown(label="Scale A", menu = escV, disabled = False )
-DC_coupling_cha = Toggle(label="Coupling: DC", active = True)
+on_cha = Toggle(label='On/Off', active = True)
+on_cha.on_change('value', update_on_cha)
 
-cha_layout = channel_layout(text_cha, DC_coupling_cha, scale_cha)
+scale_cha    = Dropdown(label="Scale A", menu = escV, disabled = False )
+scale_cha.on_change('value',update_scale_cha)
+
+dc_coupling_cha = Toggle(label="Coupling: DC", active = True)
+dc_coupling_cha.on_change('value',update_dc_coupling_cha)
+
+cha_layout = channel_layout(text_cha,on_cha, dc_coupling_cha, scale_cha)
 
 
 
 ####### CHANNEL B ########
 
 text_chb    = Div(text='<h2>Channel B</h2>')
-scale_chb    = Dropdown(label="Scale B", menu = escV, disabled = False)
-DC_coupling_chb = Toggle(label="Coupling: DC", active=True)
+on_chb = Toggle(label='On/Off', active = True)
+on_chb.on_change('value', update_on_chb)
 
-chb_layout = channel_layout(text_chb, DC_coupling_chb, scale_chb)
+scale_chb    = Dropdown(label="Scale B", menu = escV, disabled = False )
+scale_chb.on_change('value',update_scale_chb)
+
+dc_coupling_chb = Toggle(label="Coupling: DC", active = True)
+dc_coupling_chb.on_change('value',update_dc_coupling_chb)
+
+chb_layout = channel_layout(text_chb,on_chb, dc_coupling_chb, scale_chb)
 
 ######## TRIGGER #########
 
 NUM_SAMPLES= 300
 text_trigger    = Div(text='<h2>Trigger</h2>')
+
 trigger_run = Toggle(label="Run", active=True)
+trigger_run.on_change('value',update_trigger_run)
+
 trigger_source = Toggle(label="Source", active=True)
+trigger_source.on_change('value',update_trigger_source)
+
 trigger_edge = Toggle(label="Edge", active=True)
+trigger_edge.on_change('value',update_trigger_edge)
+
 pre_trigger = Slider(title="Pretrigger", value=150, start=0, end=NUM_SAMPLES, step=1, callback_policy='mouseup')
+pre_trigger.on_change('value',update_pre_trigger)
+
 trigger = Slider(title="Trigger", value=150, start=0, end=NUM_SAMPLES, step=1, callback_policy='mouseup')
+trigger.on_change('value',update_trigger_val)
 
 tri_layout = trigger_layout(text_trigger,trigger_run,trigger_source,trigger_edge,pre_trigger,trigger)
 
@@ -136,7 +158,7 @@ tri_layout = trigger_layout(text_trigger,trigger_run,trigger_source,trigger_edge
 
 text_horiz = Div(text='<h2>Horizontal</h2>')
 horizontal  = Dropdown(label="Base de Tiempo", menu=escT, disabled= False)
-mov_ave     = Slider(title="Moving Average [N=2^k] (CHA) k", value=0, start=0, end=3, step=1, callback_policy='mouseup')
+horizontal.on_change('value',update_horizontal)
 
 hor_layout = column([text_horiz,horizontal,mov_ave],sizing_mode=MODE)
 
@@ -162,46 +184,55 @@ doc.add_root( row(
 
 doc.title = "Smartbench"
 
-# adc_clk_div = Slider(title="ADC Clock divisor /* 32 bits */",
-#                      value=0,
-#                      start=5,
-#                      end=2**32,
-#                      step=1)
 
-#tglStart    = Toggle(label="Start",
-#                     active=False)
-#
-#listScaleV  = Dropdown(label="Escala V",
-#                       menu=escV,
-#                       disabled=True)
-#
-#
-#trigger_val = Slider(title="Trigger Value",
-#                     value=-28,
-#                     start=-128,
-#                     end=127,
-#                     step=1,
-#                     callback_policy='mouseup')
-#
-#num_samples = Slider(title="Number of samples",
-#                     value=150,
-#                     start=50,
-#                     end=1000, # <-- Check max (depends on available ram)
-#                     step=1,
-#                     callback_policy='mouseup')
-#
-#
+########## Callbacks #############
+
+
+def update_on_cha(attrname, old, new):
+    sadfjadj
+
+def update_scale_cha(attrname, old, new):
+    asjdfal
+
+def update_dc_coupling_cha(attrname, old, new):
+    asdfads
+
+def update_on_chb(attrname, old, new):
+    asefas
+
+def update_scale_chb(attrname, old, new):
+    sadfjadj
+
+def update_dc_coupling_chb(attrname, old, new):
+    sdfad
+
+def update_trigger_run(attrname, old, new):
+    sdfad
+
+def update_trigger_source(attrname, old, new):
+    sdfad
+
+def update_trigger_edge(attrname, old, new):
+    sdfad
+
+def update_pre_trigger(attrname, old, new):
+    sdfad
+
+def update_trigger_val(attrname, old, new):
+    sdfad
+
+def update_horizontal(attrname, old, new):
+    sdfad
+
+
+
+
+
+
 ## To add:
-## Trigger source (cha, chb, ext)
-## Trigger edge (pos, neg)
 ## Trigger mode (single, normal, auto)
-## chA on/off
-## chB on/off
 #
-## Timebase
-## V/div (both channels)
-#
-#
+
 #
 #listScaleV.value = escV[0][1]
 #listScaleT.value = escT[0][1]
@@ -210,12 +241,7 @@ doc.title = "Smartbench"
 #
 #
 #myApp = SmartbenchApp(doc, plot, source_chA, source_chB)
-#
-## Set up callbacks
-## def update_title(attrname, old, new):
-##     plot.title.text = text.value
-##
-## text.on_change('value', update_title)
+
 #
 #def updateStatus(attrname):
 #    global myApp
@@ -365,11 +391,3 @@ doc.title = "Smartbench"
 #    #DC_coupling_cha.label = "Coupling: DC"
 #
 ## https://bokeh.pydata.org/en/latest/docs/reference/models/layouts.html#bokeh.models.layouts.LayoutDOM
-## usar siempre "scale_width"
-#
-#command = row([tglStart, listScaleV, listScaleT],
-#              sizing_mode=MODE,
-#              width=DEFAULT_WIDTH )
-
-#sliders = column([text, offset, amplitude, phase, freq, command],
-                 #sizing_mode=MODE )
