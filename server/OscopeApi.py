@@ -68,12 +68,14 @@ class _Oscope_ftdi( ):
     def close(self):
         printDebug ("Entered into Oscope.close()")
         try:
+            printDebug ("...Closing...")
             self.ftdi.close()
+            printDebug ("... Finally!")
         except:
             pass
         self.ftdi = None
         self.status = 'closed'
-        print ("Device closed.")
+        printDebug ("Device closed.")
         self.port_closed_callback()
         return
 

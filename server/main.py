@@ -147,10 +147,10 @@ def update_but_connect(value):
     print ("Entered into update_but_connect")
     if but_connect.label == 'Connect':
         if app.smartbench.open(devices.label) is True :
-            but_connect.label = "Disconnect"
+            but_connect.label = 'Disconnect'
     else:
         app.smartbench.close()
-        but_connect.label = "Connect"
+        #but_connect.label = 'Connect'
 
 
 def update_but_refresh(value):
@@ -174,7 +174,7 @@ def update_status():
 def update_port_closed():
     print ("Entered port_closed callback")
     update_but_refresh(0)
-    but_connect.label = "Connect"
+    but_connect.label = 'Connect'
     printDebug ("Exited from port_closed callback")
     return
 
