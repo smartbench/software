@@ -84,48 +84,32 @@ plot.legend.location = "top_right"
 #plot.xaxis.axis_label = "Tiempo []"
 #plot.yaxis.axis_label = "Tensión []"
 
-# plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(-15,200,5))   #spacing by 5 units from -15 to 200
-# plot.xgrid[0].ticker=FixedTicker(ticks=np.arange(-15,200,5))
-# #change yaxis ticker & ygrid ticker with fixed-width spacing
-# plot.yaxis[0].ticker=FixedTicker(ticks=np.arange(0,101,5))   #spacing by 5 units from 0 to 100
-# plot.ygrid[0].ticker=FixedTicker(ticks=np.arange(0,101,5))
-#plot.xaxis.bounds = (0, 99)
-# plot.yaxis.bounds = (0, 255)
-# p.xaxis.ticker = FixedTicker(ticks=[10, 20, 37.4])
-# p.xaxis.major_tick_line_color = "firebrick"
-# p.xaxis.major_tick_line_width = 3
-# p.xaxis.minor_tick_line_color = "orange"
-# p.yaxis.minor_tick_line_color = None
-# p.axis.major_tick_out = 10
-# p.axis.minor_tick_in = -3
-# p.axis.minor_tick_out = 8
-
-# Set up widgets
-
-
-
-
-
 ########## Callbacks #############
-
+# import Callbacks as cb
 
 def update_on_cha(attrname, old, new):
     print("Completar Kuku")
+    # cb.update_on(new, on_cha.label, smartbench.chA)
 
 def update_scale_cha(attrname, old, new):
     print("Completar Kuku")
+    # cb.update_scale(intt(new), scale_cha.label, smartbench.chA)
 
 def update_dc_coupling_cha(attrname, old, new):
     print("Completar Kuku")
+    # cb.update_dc_coupling(new, dc_coupling_cha.label, smartbench.chA)
 
 def update_on_chb(attrname, old, new):
     print("Completar Kuku")
+    # cb.update_on(new, on_cha.label, smartbench.chB)
 
 def update_scale_chb(attrname, old, new):
     print("Completar Kuku")
+    # cb.update_scale(intt(new), scale_cha.label, smartbench.chB)
 
 def update_dc_coupling_chb(attrname, old, new):
     print("Completar Kuku")
+    # cb.update_dc_coupling(new, dc_coupling_cha.label, smartbench.chB)
 
 def update_trigger_run(attrname, old, new):
     print("Completar Kuku")
@@ -233,6 +217,30 @@ doc.title = "Smartbench"
 
 
 
+
+
+
+
+
+
+
+# plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(-15,200,5))   #spacing by 5 units from -15 to 200
+# plot.xgrid[0].ticker=FixedTicker(ticks=np.arange(-15,200,5))
+# #change yaxis ticker & ygrid ticker with fixed-width spacing
+# plot.yaxis[0].ticker=FixedTicker(ticks=np.arange(0,101,5))   #spacing by 5 units from 0 to 100
+# plot.ygrid[0].ticker=FixedTicker(ticks=np.arange(0,101,5))
+#plot.xaxis.bounds = (0, 99)
+# plot.yaxis.bounds = (0, 255)
+# p.xaxis.ticker = FixedTicker(ticks=[10, 20, 37.4])
+# p.xaxis.major_tick_line_color = "firebrick"
+# p.xaxis.major_tick_line_width = 3
+# p.xaxis.minor_tick_line_color = "orange"
+# p.yaxis.minor_tick_line_color = None
+# p.axis.major_tick_out = 10
+# p.axis.minor_tick_in = -3
+# p.axis.minor_tick_out = 8
+
+# Set up widgets
 
 #
 #listScaleV.value = escV[0][1]
