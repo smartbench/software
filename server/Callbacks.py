@@ -11,7 +11,7 @@ def update_on(active, tgl, channel):
     else:
         channel.set_ch_on()
         tgl.label = "CHA: OFF"
-    print("UPDATED ON")
+    print("Start/Stop button pressed")
     return
 
 def update_dc_coupling(dc, tgl, channel):
@@ -21,7 +21,7 @@ def update_dc_coupling(dc, tgl, channel):
     else:
         channel.set_coupling_ac()
         tgl.label = "Coupling: AC"
-    print("UPDATED COUPLING")
+    print("Updated coupling")
     return
 
 def update_scale(idx, drpdwn, channel):
@@ -53,7 +53,15 @@ def update_trigger_source(tgl, app):
     print("Updated Trigger Source. {}".format(app.smartbench.get_trigger_source()))
 
 def update_trigger_edge(tgl, app):
-    print("Completar Kuku")
+    if(app.smartbench.get_trigger_edge() == app.smartbench.POSITIVE_EDGE):
+        app.smartbench.set_trigger_negedge()
+        tgl.label = "Negative Edge"
+    else:
+        app.smartbench.set_trigger_posedge()
+        tgl.label = "Positive Edge"
+    print("Updated trigger edge")
+    return
+
 
 def update_pre_trigger(value, app):
     app.smartbench.set_pretrigger(value)
@@ -61,6 +69,7 @@ def update_pre_trigger(value, app):
 
 def update_trigger_val(value, app):
     app.smartbench.set_trigger_value(value)
+    # change in plot
     print("Updated Trigger Value")
 
 def update_trigger_type(idx, drpdwn, app):

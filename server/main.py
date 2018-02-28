@@ -129,7 +129,7 @@ def update_trigger_source(value):
     cb.update_trigger_source(trigger_source, app)
 
 def update_trigger_edge(value):
-    print("Completar Kuku")
+    cb.update_trigger_edge(trigger_edge, app)
 
 def update_pre_trigger(attrname, old, new):
     cb.update_pre_trigger(new, app)
@@ -150,7 +150,6 @@ def update_but_connect(value):
     else:
         app.smartbench.close()
         but_connect.label = "Connect"
-
 
 def update_but_refresh(value):
     devices.menu = list_ttys()
