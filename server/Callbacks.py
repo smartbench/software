@@ -1,33 +1,38 @@
 
-import SmartbenchApp
-import OscopeApi
+from Configuration_Definitions import *
+from SmartbenchApp import *
+from OscopeApi import *
 
 
-def update_on(active, label, channel):
+def update_on(active, tgl, channel):
     #if(active is True):
-    if ( channel.get_ch_status() == _CHANNEL_ON):
+    if ( channel.is_ch_on() ):
         channel.set_ch_off()
-        label = "CHA: ON"
+        tgl.label = "CHA: ON"
     else:
         channel.set_ch_on()
-        label = "CHA: OFF"
+        tgl.label = "CHA: OFF"
+    print("UPDATED ON")
     return
 
-def update_scale(idx, label, channel):
+def update_scale(idx, drpdwn, channel):
     channel.set_attenuator(
-        Configuration_Definitions.Att_Sel(idx) )
+        Configuration_Definitions.Att_Sel[idx] )
     channel.set_gain(
-        Configuration_Definitions.Gain_Sel(idx) )
-    label = Configuration_Definitions.voltage_scales_str(idx)
+        Configuration_Definitions.Gain_Sel[idx] )
+    print("idx={}".format(idx))
+    drpdwn.label = Configuration_Definitions.voltage_scales_str[idx]
+    print("UPDATED SCALE")
     return
 
-def update_dc_coupling(dc, label, channel):
+def update_dc_coupling(dc, tgl, channel):
     if(dc is True):
         channel.set_coupling_dc()
-        label = "Coupling: DC"
+        tgl.label = "Coupling: DC"
     else:
         channel.set_coupling_ac()
-        label = "Coupling: AC"
+        tgl.label = "Coupling: AC"
+    print("UPDATED COUPLING")
     return
 
 

@@ -159,7 +159,7 @@ class SmartbenchApp():
         self.smartbench.request_stop()
 
         # If channel is ON, requests the data.
-        if(self.smartbench.get_chA_status() == _CHANNEL_ON):
+        if(self.smartbench.chA.is_ch_on()):
             printDebug("> Request CHA")
             self.smartbench.request_chA()
 
@@ -171,7 +171,7 @@ class SmartbenchApp():
             self.dataX_chA = []
 
         # If channel is ON, requests the data.
-        if(self.smartbench.get_chB_status() == _CHANNEL_ON):
+        if(self.smartbench.chB.is_ch_on()):
             # Then, requests the data.
             printDebug("> Request CHB")
             self.smartbench.request_chB()

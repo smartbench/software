@@ -33,7 +33,7 @@ import tornado
 
 from OscopeApi import *
 from Configuration_Definitions import *
-from SmartbenchApp import SmartbenchApp
+from SmartbenchApp import *
 
 AUTORS = '''<hr><h1>Authors</h1>
 <p> Nahuel Carducci </p>
@@ -95,31 +95,32 @@ plot.legend.location = "top_right"
 #plot.yaxis.axis_label = "Tensión []"
 
 ########## Callbacks #############
-# import Callbacks as cb
+import Callbacks as cb
+app = SmartbenchApp(doc, plot, source_chA, source_chB)
 
-def update_on_cha(attrname, old, new):
+def update_on_cha(value):
     print("Completar Kuku")
-    # cb.update_on(new, on_cha.label, smartbench.chA)
+    cb.update_on(value, on_cha, app.smartbench.chA)
 
 def update_scale_cha(attrname, old, new):
     print("Completar Kuku")
-    # cb.update_scale(intt(new), scale_cha.label, smartbench.chA)
+    cb.update_scale(int(new), scale_cha, app.smartbench.chA)
 
-def update_dc_coupling_cha(attrname, old, new):
+def update_dc_coupling_cha(value):
     print("Completar Kuku")
-    # cb.update_dc_coupling(new, dc_coupling_cha.label, smartbench.chA)
+    cb.update_dc_coupling(value, dc_coupling_cha, app.smartbench.chA)
 
 def update_on_chb(attrname, old, new):
     print("Completar Kuku")
-    # cb.update_on(new, on_cha.label, smartbench.chB)
+    # cb.update_on(new, on_cha.label, app.smartbench.chB)
 
 def update_scale_chb(attrname, old, new):
     print("Completar Kuku")
-    # cb.update_scale(intt(new), scale_cha.label, smartbench.chB)
+    # cb.update_scale(intt(new), scale_cha.label, app.smartbench.chB)
 
 def update_dc_coupling_chb(attrname, old, new):
     print("Completar Kuku")
-    # cb.update_dc_coupling(new, dc_coupling_cha.label, smartbench.chB)
+    # cb.update_dc_coupling(new, dc_coupling_cha.label, app.smartbench.chB)
 
 def update_trigger_run(attrname, old, new):
     print("Completar Kuku")

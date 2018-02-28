@@ -247,6 +247,7 @@ class _Channel( _Definitions ):
         if att<8 and att>=0:
             self._settings &= ~( 0x7 << self._CONF_CH_ATT )
             self._settings |= att << self._CONF_CH_ATT
+            self.send_settings()
         else:
             print( "Attenuation selector must be a number between 0 and 7" )
 
@@ -257,6 +258,7 @@ class _Channel( _Definitions ):
         if gain<8 and gain>=0:
             self._settings &= ~( 0x7 << self._CONF_CH_GAIN )
             self._settings |= gain << self._CONF_CH_GAIN
+            self.send_settings()
         else:
             print( "Gain selector must be a number between 0 and 7" )
 
@@ -265,18 +267,25 @@ class _Channel( _Definitions ):
 
     def set_coupling_dc( self ):
         self._settings |= 1 << self._CONF_CH_DC_COUPLING
+        self.send_settings()
 
     def set_coupling_ac( self ):
         self._settings &= ~( 1 << self._CONF_CH_DC_COUPLING )
+        self.send_settings()
 
     def get_ch_status( self ):
         return ( self._settings >> self._CONF_CH_ON ) & 0x1
 
+    def is_ch_on( self ):
+        return ( self.get_ch_status() == self.CHANNEL_ON )
+
     def set_ch_on( self ):
         self._settings |= 1 << self._CONF_CH_ON
+        self.send_settings()
 
     def set_ch_off( self ):
         self._settings &= ~(1 << self._CONF_CH_ON)
+        self.send_settings()
 
     def send_settings( self ):
         self.oscope.send( self._ADDR_SETTINGS_CHA + self._nchannel, self._settings )
@@ -476,9 +485,6 @@ class Smartbench( _Definitions ):
     def is_trigger_mode_single (self): return (self._trigger_mode == self.MODE_SINGLE)
     def is_trigger_mode_normal (self): return (self._trigger_mode == self.MODE_NORMAL)
     def is_trigger_mode_auto   (self): return (self._trigger_mode == self.MODE_AUTO)
-
-    def get_chA_status(self): return self.chA.get_ch_status()
-    def get_chB_status(self): return self.chB.get_ch_status()
 
     def setDefaultConfiguration(self):
         self.set_trigger_source_cha()
