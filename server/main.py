@@ -78,7 +78,7 @@ plot = figure(plot_width= 10,
               y_range=[-4, 4])
 
 plot.line('x', 'y', source=trig_line, line_width=1, line_alpha=0.8, color="yellow")
-plot.line('x', 'y', source=source_chA, line_width=2, line_alpha=0.8, color="#CC00FB")
+plot.line('x', 'y', source=source_chA, line_width=4, line_alpha=0.8, color="#CC00FB")
 plot.line('x', 'y', source=source_chB, line_width=4, line_alpha=0.8, color="#00CCAA")
 
 #### ESTO ES PAR SETEAR LA GRID, me falto los minorticks y sin eso no queda bien
