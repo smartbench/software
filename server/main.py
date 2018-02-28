@@ -35,6 +35,12 @@ from OscopeApi import *
 from Configuration_Definitions import *
 from SmartbenchApp import SmartbenchApp
 
+AUTORS = '''<hr><h1>Authors</h1>
+<p> Nahuel Carducci </p>
+<p> Andres Demski </p>
+<p> Ariel Kukulanski </p>
+<p> Ivan Paunovic </p>
+'''
 
 _STATUS_STOPPED = 0
 _STATUS_RUNNING = 1
@@ -64,19 +70,19 @@ trig_types = [(s,str(i)) for i,s in enumerate(['Auto','Normal','Single'])]
 plot = figure(plot_width= 10,
               plot_height= 10,
               sizing_mode='scale_both',
-              title="Signal",
-              tools="",#tools="crosshair,pan,reset,save,wheel_zoom",
+              title="",
+              tools="crosshair,pan,reset,save,wheel_zoom",
               x_range=[0, 4*np.pi],
               y_range=[-2.5, 2.5])
 
-plot.line('x', 'y', source=source_chA, line_width=3, line_alpha=0.6, color=Viridis3[0], legend="Channel A")
-plot.line('x', 'y', source=source_chB, line_width=3, line_alpha=0.6, color=Viridis3[1], legend="Channel B")
+plot.line('x', 'y', source=source_chA, line_width=4, line_alpha=0.8, color="#CC00FB")
+plot.line('x', 'y', source=source_chB, line_width=4, line_alpha=0.8, color="#00CCAA")
 
 # https://bokeh.pydata.org/en/latest/docs/user_guide/styling.html
 #legend, grid, xgrid, ygrid, axis, xaxis, yaxis
 plot.legend.location = "top_right"
-plot.xaxis.axis_label = "Tiempo []"
-plot.yaxis.axis_label = "Tensión []"
+#plot.xaxis.axis_label = "Tiempo []"
+#plot.yaxis.axis_label = "Tensión []"
 
 # plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(-15,200,5))   #spacing by 5 units from -15 to 200
 # plot.xgrid[0].ticker=FixedTicker(ticks=np.arange(-15,200,5))
@@ -104,44 +110,49 @@ plot.yaxis.axis_label = "Tensión []"
 
 
 def update_on_cha(attrname, old, new):
-    sadfjadj
+    print("Completar Kuku")
 
 def update_scale_cha(attrname, old, new):
-    asjdfal
+    print("Completar Kuku")
 
 def update_dc_coupling_cha(attrname, old, new):
-    asdfads
+    print("Completar Kuku")
 
 def update_on_chb(attrname, old, new):
-    asefas
+    print("Completar Kuku")
 
 def update_scale_chb(attrname, old, new):
-    sadfjadj
+    print("Completar Kuku")
 
 def update_dc_coupling_chb(attrname, old, new):
-    sdfad
+    print("Completar Kuku")
 
 def update_trigger_run(attrname, old, new):
-    sdfad
+    print("Completar Kuku")
 
 def update_trigger_source(attrname, old, new):
-    sdfad
+    print("Completar Kuku")
 
 def update_trigger_edge(attrname, old, new):
-    sdfad
+    print("Completar Kuku")
 
 def update_pre_trigger(attrname, old, new):
-    sdfad
+    print("Completar Kuku")
 
 def update_trigger_val(attrname, old, new):
-    sdfad
+    print("Completar Kuku")
 
 def update_trigger_type(attrname, old, new):
-    sdfad
+    print("Completar Kuku")
 
 def update_horizontal(attrname, old, new):
-    sdfad
+    print("Completar Kuku")
 
+
+
+
+
+###### Layout funcs ######
 
 def channel_layout(text,on, coupling, vert_gain):
     lay = column([text,row([on,coupling, vert_gain], sizing_mode=MODE, width=DEFAULT_WIDTH)],sizing_mode=MODE)
@@ -151,11 +162,9 @@ def trigger_layout(text, run, ttype, source, edge, trigger, pretrigger ):
     lay = column([text,row([run,ttype,source, edge], sizing_mode=MODE, width=DEFAULT_WIDTH),trigger,pretrigger],sizing_mode=MODE)
     return lay
 
-
-
 ###### CHANNEL A ########
 
-text_cha    = Div(text='<h2>Channel A</h2>')
+text_cha    = Div(text='<hr><h2>Channel A</h2>')
 on_cha = Toggle(label='On/Off', active = True)
 on_cha.on_click( update_on_cha)
 
@@ -167,11 +176,9 @@ dc_coupling_cha.on_click(update_dc_coupling_cha)
 
 cha_layout = channel_layout(text_cha,on_cha, dc_coupling_cha, scale_cha)
 
-
-
 ####### CHANNEL B ########
 
-text_chb    = Div(text='<h2>Channel B</h2>')
+text_chb    = Div(text='<hr><h2>Channel B</h2>')
 on_chb = Toggle(label='On/Off', active = True)
 on_chb.on_click( update_on_chb)
 
@@ -186,7 +193,7 @@ chb_layout = channel_layout(text_chb,on_chb, dc_coupling_chb, scale_chb)
 ######## TRIGGER #########
 
 NUM_SAMPLES= 300
-text_trigger    = Div(text='<h2>Trigger</h2>')
+text_trigger    = Div(text='<hr><h2>Trigger</h2>')
 
 trigger_run = Toggle(label="Run", active=True)
 trigger_run.on_click(update_trigger_run)
@@ -210,7 +217,7 @@ tri_layout = trigger_layout(text_trigger,trigger_run,trigger_type,trigger_source
 
 ######### Time ###########
 
-text_horiz = Div(text='<h2>Horizontal</h2>')
+text_horiz = Div(text='<hr><h2>Horizontal</h2>')
 horizontal  = Dropdown(label="Base de Tiempo", menu=escT, disabled= False)
 horizontal.on_change('value',update_horizontal)
 
@@ -219,31 +226,13 @@ hor_layout = column([text_horiz,horizontal],sizing_mode=MODE)
 
 ######### Layout ############
 
-sliders = column([
-                    cha_layout,
-                    chb_layout,
-                    tri_layout,
-                    hor_layout
-                  ],
-                 sizing_mode=MODE )
-
-rightPanel = column([ plot],
-                    sizing_mode=MODE )
-
-
-doc.add_root( row(
-                sliders,
-                rightPanel,
-                sizing_mode=MODE ) )
-
+sliders = column([ cha_layout, chb_layout, tri_layout, hor_layout,Div(text='<hr>') ], sizing_mode=MODE )
+rightPanel = column([ plot, Div(text= AUTORS)], sizing_mode=MODE )
+doc.add_root( row( sliders, rightPanel, sizing_mode=MODE ) )
 doc.title = "Smartbench"
 
 
 
-
-## To add:
-## Trigger mode (single, normal, auto)
-#
 
 #
 #listScaleV.value = escV[0][1]
