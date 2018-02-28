@@ -144,7 +144,7 @@ def update_horizontal(attrname, old, new):
     cb.update_horizontal(int(new), horizontal, app)
 
 def update_but_connect(value):
-    if but_connect.label == "Connect":
+    if app.smartbench.isOpen() is False:
         if app.smartbench.open(devices.label)==True :
             but_connect.label = "Disconnect"
     else:
@@ -156,19 +156,21 @@ def update_but_refresh(value):
     if len(devices.menu)==0:
         devices.label = 'Devices'
 
-
 def update_devices(value):
     devices.label = value
 
 def update_status():
-    global update_trigger_run
-    if(app.isRunning()):
+    if app.isRunning():
         trigger_run.label = "Stop"
     else:
         trigger_run.label = "Run"
     print("Updated Button Label to {}".format(trigger_run.label))
     return
 
+def update_port_closed():
+    update_but_refresh(0)
+    but_connect.label = "Connect"
+    return
 
 
 ###### Layout funcs ######
@@ -185,6 +187,7 @@ def trigger_layout(text, run, ttype, source, edge, trigger, pretrigger ):
 
 but_connect = Toggle(label='Connect', active = True,sizing_mode='stretch_both')
 but_connect.on_click( update_but_connect)
+app.set_port_closed_callback(update_port_closed)
 
 devices    = Dropdown(label="Device", menu = list_ttys(), disabled = False )
 devices.on_click(update_devices)

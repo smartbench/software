@@ -24,15 +24,17 @@ class _Oscope_ftdi( ):
 
     _BYTEORDER = 'little' # 'big' # 'big' / 'little'
 
+    def nothing(self):
+        pass
+
     def __init__(self,**kwargs):
         self.ftdi = None
         self.status = 'closed'
+        self.port_closed_callback = self.nothing
 #        pass
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if(self.ftdi.is_open()):
-            self.close();
-            print("Closed USB device")
+        self.close();
 
     def open( self, device='/dev/ttyUSB1' ):
         try:
@@ -54,19 +56,25 @@ class _Oscope_ftdi( ):
                 # time.sleep(1)
                 return True
             else:
-                self.status = 'closed'
                 print ("Device not connected!")
+                self.close()
                 return False
         except:
-            self.status = 'closed'
             print ("Device not connected!")
+            self.close()
             return False
 
 
     def close(self):
-        if self.ftdi != None:
+        try:
             self.ftdi.close()
+        except:
+            pass
+        self.ftdi = None
+        self.status = 'closed'
         print ("Device closed.")
+        self.port_closed_callback()
+        return
 
     def send( self, addr, data ):
         aux = bytes( [ int(addr) , int(data%256) , int((data>>8)%256) ] )
@@ -76,12 +84,11 @@ class _Oscope_ftdi( ):
             i = 0
         except serial.SerialException:
             print("ERROR: Device not connected!")
-            if self.ftdi != None:
-                self.ftdi.close()
-                self.ftdi = None
+            self.close()
             return -1
         except:
             print("Unknown Error when trying to Write")
+            self.close()
             return -1
 
     def receive(self, size, blocking=True, timeout=0):
@@ -111,12 +118,11 @@ class _Oscope_ftdi( ):
             return data
         except serial.SerialException:
             print("ERROR: Device not connected!")
-            if self.ftdi != None:
-                self.ftdi.close()
-                self.ftdi = None
+            self.close()
             return []
         except:
             print("Unknown Error when trying to Read")
+            self.close()
             return []
 
     def empty_read_buffer(self):
@@ -124,13 +130,12 @@ class _Oscope_ftdi( ):
         try:
             while (len(data) == 10): data = self.ftdi.read(10)
         except serial.SerialException:
-            if self.ftdi != None:
-                self.ftdi.close()
-                self.ftdi = None
             print("ERROR: Device not connected!")
+            self.close()
             return -1
         except:
             print("Unknown Error when trying to Read")
+            self.close()
             return -1
 
     def isOpen(self):
@@ -138,6 +143,10 @@ class _Oscope_ftdi( ):
             return self.ftdi.is_open
         except:
             return False
+
+    def set_port_closed_callback(self, callback):
+        self.port_closed_callback = callback
+        return
 
 
 class Timeout (Timer):

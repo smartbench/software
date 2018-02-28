@@ -126,6 +126,10 @@ class SmartbenchApp():
         self.change_status_callback = callback
         return
 
+    def set_port_closed_callback(self, callback):
+        self.smartbench.oscope.set_port_closed_callback(callback)
+        return
+
     # --------------------------------------------------------
     # This method sends a "Start Request" to the device.
     # @gen.coroutine
