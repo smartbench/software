@@ -63,7 +63,7 @@ doc = curdoc()
 escV = [(str(x),str(i)) for i,x in enumerate(Configuration_Definitions.voltage_scales_str)]
 escT = [(str(x)+'/div',str(i)) for i,x in enumerate(Configuration_Definitions.timebase_scales_str)]
 
-trig_types = [(s,str(i)) for i,s in enumerate(['Auto','Normal','Single'])]
+trig_types = [(s,str(i)) for i,s in enumerate(Configuration_Definitions.trigger_type_str)]
 
 trig_line = ColumnDataSource(data=dict(x=(0,10), y=np.ones(2)*0.5))
 
@@ -99,46 +99,40 @@ import Callbacks as cb
 app = SmartbenchApp(doc, plot, source_chA, source_chB)
 
 def update_on_cha(value):
-    print("Completar Kuku")
     cb.update_on(value, on_cha, app.smartbench.chA)
 
-def update_scale_cha(attrname, old, new):
-    print("Completar Kuku")
-    cb.update_scale(int(new), scale_cha, app.smartbench.chA)
-
 def update_dc_coupling_cha(value):
-    print("Completar Kuku")
     cb.update_dc_coupling(value, dc_coupling_cha, app.smartbench.chA)
 
-def update_on_chb(attrname, old, new):
-    print("Completar Kuku")
-    # cb.update_on(new, on_cha.label, app.smartbench.chB)
+def update_scale_cha(attrname, old, new):
+    cb.update_scale(int(new), scale_cha, app.smartbench.chA)
+
+def update_on_chb(value):
+    cb.update_on(value, on_chb, app.smartbench.chB)
+
+def update_dc_coupling_chb(value):
+    cb.update_dc_coupling(value, dc_coupling_chb, app.smartbench.chB)
 
 def update_scale_chb(attrname, old, new):
-    print("Completar Kuku")
-    # cb.update_scale(intt(new), scale_cha.label, app.smartbench.chB)
+    cb.update_scale(int(new), scale_chb, app.smartbench.chB)
 
-def update_dc_coupling_chb(attrname, old, new):
-    print("Completar Kuku")
-    # cb.update_dc_coupling(new, dc_coupling_cha.label, app.smartbench.chB)
+def update_trigger_run(value):
+    cb.update_trigger_run(value, app)
 
-def update_trigger_run(attrname, old, new):
-    print("Completar Kuku")
+def update_trigger_source(value):
+    cb.update_trigger_source(trigger_source, app)
 
-def update_trigger_source(attrname, old, new):
-    print("Completar Kuku")
-
-def update_trigger_edge(attrname, old, new):
+def update_trigger_edge(value):
     print("Completar Kuku")
 
 def update_pre_trigger(attrname, old, new):
-    print("Completar Kuku")
+    cb.update_pre_trigger(new, app)
 
 def update_trigger_val(attrname, old, new):
-    print("Completar Kuku")
+    cb.update_trigger_val(new, app)
 
 def update_trigger_type(attrname, old, new):
-    print("Completar Kuku")
+    cb.update_trigger_type(int(new), trigger_type, app)
 
 def update_horizontal(attrname, old, new):
     print("Completar Kuku")

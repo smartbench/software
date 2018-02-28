@@ -61,6 +61,7 @@ class SmartbenchApp():
         self.plot = plot
         self.source_chA = source_chA
         self.source_chB = source_chB
+        self.status = _STATUS_STOPPED
 
         # Initializing oscope api
         self.smartbench = Smartbench()
@@ -69,9 +70,6 @@ class SmartbenchApp():
 
             # Default configuration
             self.configureScope()
-
-            # This starts the application flow
-            self.status = _STATUS_STOPPED
 
             # Plot axes
             Nsamp = self.smartbench.get_number_of_samples()
@@ -93,13 +91,6 @@ class SmartbenchApp():
 
         return
 
-    def statusChanged(self, status):
-        if(status == _STATUS_RUNNING):
-            self.stop()
-        else:
-            self.start()
-        return
-
     def start(self):
         self.status = _STATUS_RUNNING
         self.doc.add_next_tick_callback(self.newFrameCallback)
@@ -114,8 +105,17 @@ class SmartbenchApp():
         except: pass
         #try:    remove_next_tick_callback(self.newFrameCallback)
         #except: pass
-
         return
+
+    def isRunning(self):
+        return self.status == _STATUS_RUNNING
+
+    def getSingleSeq(self):
+        self.stop()
+        self.smartbench.set_trigger_mode_single()
+        self.start()
+        return
+
     # --------------------------------------------------------
     # This method sends a "Start Request" to the device.
     # @gen.coroutine
@@ -187,7 +187,9 @@ class SmartbenchApp():
         self.source_chA.data = dict(x=self.dataX_chA, y=self.dataY_chA)
         self.source_chB.data = dict(x=self.dataX_chB, y=self.dataY_chB)
 
-        if( self.smartbench.is_trigger_mode_auto() or self.smartbench.is_trigger_mode_normal() ):
+        if( self.smartbench.is_trigger_mode_single()):
+            self.stop()
+        else:
             if(self.status == _STATUS_RUNNING):
                 self.doc.add_next_tick_callback(self.newFrameCallback ) # Called as soon as possible
 

@@ -3,6 +3,8 @@ class Configuration_Definitions(object):
 
     PLL_freq =  100.0e6
 
+    trigger_type_str =      ['Auto','Normal','Single']
+
     voltage_scales_int =    [   50  , 20    , 10    ,
                                 5   , 2     , 1     ,
                                 0.5 , 0.2   , 0.1   ]
