@@ -143,6 +143,12 @@ def update_trigger_type(attrname, old, new):
 def update_horizontal(attrname, old, new):
     print("Completar Kuku")
 
+def update_but_connect(attrname,old,new):
+    print("Completar Kuku")
+
+def update_devices(attrname,old,new):
+    print("Completar Kuku")
+
 
 
 
@@ -156,6 +162,16 @@ def channel_layout(text,on, coupling, vert_gain):
 def trigger_layout(text, run, ttype, source, edge, trigger, pretrigger ):
     lay = column([text,row([run,ttype,source, edge], sizing_mode=MODE, width=DEFAULT_WIDTH),trigger,pretrigger],sizing_mode=MODE)
     return lay
+
+###### CONNECT ##########
+
+but_connect = Toggle(label='Connect', active = True,sizing_mode='stretch_both')
+but_connect.on_click( update_but_connect)
+
+devices    = Dropdown(label="Device", menu = [], disabled = False )
+devices.on_change('value',update_devices)
+
+connect_layout = row([but_connect,devices],sizing_mode=MODE)
 
 ###### CHANNEL A ########
 
@@ -221,7 +237,8 @@ hor_layout = column([text_horiz,horizontal],sizing_mode=MODE)
 
 ######### Layout ############
 
-sliders = column([ cha_layout, chb_layout, tri_layout, hor_layout,Div(text='<hr>') ], sizing_mode=MODE )
+sliders = column([ connect_layout,cha_layout, chb_layout, tri_layout, hor_layout,Div(text='<hr>') ],
+                 sizing_mode=MODE )
 rightPanel = column([ plot, Div(text= AUTORS)], sizing_mode=MODE )
 doc.add_root( row( sliders, rightPanel, sizing_mode=MODE ) )
 doc.title = "Smartbench"
