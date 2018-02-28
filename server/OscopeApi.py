@@ -452,9 +452,12 @@ class Smartbench( _Definitions ):
     def set_trigger_mode( self, mode ):
         self._trigger_mode = mode
 
-    def set_trigger_mode_single ( self ): self.set_trigger_mode(self.MODE_SINGLE)
-    def set_trigger_mode_normal ( self ): self.set_trigger_mode(self.MODE_NORMAL)
-    def set_trigger_mode_auto   ( self ): self.set_trigger_mode(self.MODE_AUTO)
+    def set_trigger_mode_single ( self ):
+        self.set_trigger_mode(self.MODE_SINGLE)
+    def set_trigger_mode_normal ( self ):
+        self.set_trigger_mode(self.MODE_NORMAL)
+    def set_trigger_mode_auto ( self ):
+        self.set_trigger_mode(self.MODE_AUTO)
 
     def get_trigger_mode( self ):
         return self._trigger_mode

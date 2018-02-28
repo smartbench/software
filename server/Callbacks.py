@@ -70,7 +70,7 @@ def update_trigger_type(idx, drpdwn, app):
         app.smartbench.set_trigger_mode_normal()
     else: # Single
         app.getSingleSeq()
-    Configuration_Definitions.trigger_type_str[idx]
+        print("Single!")
     drpdwn.label = Configuration_Definitions.trigger_type_str[idx]
     print("Updated trigger type - idx = {}".format(idx))
 

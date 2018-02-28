@@ -117,7 +117,7 @@ def update_scale_chb(attrname, old, new):
     cb.update_scale(int(new), scale_chb, app.smartbench.chB)
 
 def update_trigger_run(value):
-    cb.update_trigger_run(value, app)
+    cb.update_trigger_run(trigger_run, app)
 
 def update_trigger_source(value):
     cb.update_trigger_source(trigger_source, app)
@@ -136,14 +136,21 @@ def update_trigger_type(attrname, old, new):
 
 def update_horizontal(attrname, old, new):
     cb.update_horizontal(int(new), horizontal, app)
-    
+
 def update_but_connect(attrname,old,new):
     print("Completar Kuku")
 
 def update_devices(attrname,old,new):
     print("Completar Kuku")
 
-
+def update_status():
+    global update_trigger_run
+    if(app.isRunning()):
+        trigger_run.label = "Stop"
+    else:
+        trigger_run.label = "Run"
+    print("Updated Button Label to {}".format(trigger_run.label))
+    return
 
 
 
@@ -202,6 +209,7 @@ text_trigger    = Div(text='<hr><h2>Trigger</h2>')
 
 trigger_run = Toggle(label="Run", active=True)
 trigger_run.on_click(update_trigger_run)
+app.set_change_status_callback(update_status)#, trigger_run)
 
 trigger_type    = Dropdown(label="Type", menu = trig_types, disabled = False )
 trigger_type.on_change('value',update_trigger_type)

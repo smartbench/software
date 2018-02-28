@@ -54,6 +54,8 @@ DEBUG_ = True
 
 class SmartbenchApp():
     #global source_chA, source_chB, doc, plot
+    def nothing(self):
+        pass
 
     def __init__(self, doc, plot, source_chA, source_chB):
 
@@ -62,6 +64,7 @@ class SmartbenchApp():
         self.source_chA = source_chA
         self.source_chB = source_chB
         self.status = _STATUS_STOPPED
+        self.change_status_callback = self.nothing
 
         # Initializing oscope api
         self.smartbench = Smartbench()
@@ -93,11 +96,14 @@ class SmartbenchApp():
 
     def start(self):
         self.status = _STATUS_RUNNING
+        self.change_status_callback()
         self.doc.add_next_tick_callback(self.newFrameCallback)
         return
 
     def stop(self):
         self.status = _STATUS_STOPPED
+        self.change_status_callback()
+        return
 
         try:    remove_timeout_callback(self.waitingTriggerCallback)
         except: pass
@@ -111,9 +117,13 @@ class SmartbenchApp():
         return self.status == _STATUS_RUNNING
 
     def getSingleSeq(self):
-        self.stop()
         self.smartbench.set_trigger_mode_single()
+        self.stop()
         self.start()
+        return
+
+    def set_change_status_callback(self, callback):
+        self.change_status_callback = callback
         return
 
     # --------------------------------------------------------
@@ -191,7 +201,8 @@ class SmartbenchApp():
             self.stop()
         else:
             if(self.status == _STATUS_RUNNING):
-                self.doc.add_next_tick_callback(self.newFrameCallback ) # Called as soon as possible
+                self.doc.add_timeout_callback(self.newFrameCallback, 300 ) # Called as soon as possible
+                #self.doc.add_next_tick_callback(self.newFrameCallback ) # Called as soon as possible
 
         return
 
