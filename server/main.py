@@ -16,6 +16,7 @@ To run the server on a specific port,
 
 '''
 import numpy as np
+import glob
 from math import log
 
 from bokeh.io import curdoc
@@ -94,6 +95,11 @@ plot.legend.location = "top_right"
 #plot.xaxis.axis_label = "Tiempo []"
 #plot.yaxis.axis_label = "Tensión []"
 
+######## Func ###########
+def list_ttys ():
+    ttys = glob.glob('/dev/ttyUSB*')
+    return [ (tty,tty) for i,tty in enumerate(ttys) ]
+
 ########## Callbacks #############
 import Callbacks as cb
 app = SmartbenchApp(doc, plot, source_chA, source_chB)
@@ -137,11 +143,23 @@ def update_trigger_type(attrname, old, new):
 def update_horizontal(attrname, old, new):
     cb.update_horizontal(int(new), horizontal, app)
 
-def update_but_connect(attrname,old,new):
-    print("Completar Kuku")
+def update_but_connect(value):
+    if but_connect.label == "Connect":
+        if app.smartbench.open(devices.label)==True :
+            but_connect.label = "Disconnect"
+    else:
+        app.smartbench.close()
+        but_connect.label = "Connect"
 
-def update_devices(attrname,old,new):
-    print("Completar Kuku")
+
+def update_but_refresh(value):
+    devices.menu = list_ttys()
+    if len(devices.menu)==0:
+        devices.label = 'Devices'
+
+
+def update_devices(value):
+    devices.label = value
 
 def update_status():
     global update_trigger_run
@@ -169,10 +187,13 @@ def trigger_layout(text, run, ttype, source, edge, trigger, pretrigger ):
 but_connect = Toggle(label='Connect', active = True,sizing_mode='stretch_both')
 but_connect.on_click( update_but_connect)
 
-devices    = Dropdown(label="Device", menu = [], disabled = False )
-devices.on_change('value',update_devices)
+devices    = Dropdown(label="Device", menu = list_ttys(), disabled = False )
+devices.on_click(update_devices)
 
-connect_layout = row([but_connect,devices],sizing_mode=MODE)
+but_refresh = Toggle(label='Refresh', active = True,sizing_mode='stretch_both')
+but_refresh.on_click( update_but_refresh)
+
+connect_layout = row([but_connect,devices,but_refresh],sizing_mode=MODE)
 
 ###### CHANNEL A ########
 
@@ -244,6 +265,7 @@ sliders = column([ connect_layout,cha_layout, chb_layout, tri_layout, hor_layout
 rightPanel = column([ plot, Div(text= AUTORS)], sizing_mode=MODE )
 doc.add_root( row( sliders, rightPanel, sizing_mode=MODE ) )
 doc.title = "Smartbench"
+
 
 
 

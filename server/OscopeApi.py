@@ -25,7 +25,7 @@ class _Oscope_ftdi( ):
     _BYTEORDER = 'little' # 'big' # 'big' / 'little'
 
     def __init__(self,**kwargs):
-        self.ftdi = 0
+        self.ftdi = None
         self.status = 'closed'
 #        pass
 
@@ -64,7 +64,8 @@ class _Oscope_ftdi( ):
 
 
     def close(self):
-        self.ftdi.close()
+        if self.ftdi != None:
+            self.ftdi.close()
         print ("Device closed.")
 
     def send( self, addr, data ):
@@ -75,6 +76,9 @@ class _Oscope_ftdi( ):
             i = 0
         except serial.SerialException:
             print("ERROR: Device not connected!")
+            if self.ftdi != None:
+                self.ftdi.close()
+                self.ftdi = None
             return -1
         except:
             print("Unknown Error when trying to Write")
@@ -107,6 +111,9 @@ class _Oscope_ftdi( ):
             return data
         except serial.SerialException:
             print("ERROR: Device not connected!")
+            if self.ftdi != None:
+                self.ftdi.close()
+                self.ftdi = None
             return []
         except:
             print("Unknown Error when trying to Read")
@@ -117,6 +124,9 @@ class _Oscope_ftdi( ):
         try:
             while (len(data) == 10): data = self.ftdi.read(10)
         except serial.SerialException:
+            if self.ftdi != None:
+                self.ftdi.close()
+                self.ftdi = None
             print("ERROR: Device not connected!")
             return -1
         except:
@@ -329,10 +339,9 @@ class _Channel( _Definitions ):
 
 class Smartbench( _Definitions ):
 
-    def __init__( self , device='/dev/ttyUSB1'):
+    def __init__( self , device=None):
 
         self.oscope = _Oscope_ftdi()
-        self.oscope_status = self.oscope.open(device)
         #if(self.oscope_status == False):
         #    exit()
         # initial configuration:
@@ -345,12 +354,29 @@ class Smartbench( _Definitions ):
         self._trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
         self._trigger_value = 2 ** ( self._ADC_WIDTH-1 )
         self._num_samples  = 100
-        self._pretrigger   = 0
+        self._pretrigger   = 1
         self._trigger_mode = self.MODE_NORMAL
 
+        self.oscope_status = False
+
         # Channel register instance
+        if device != None:
+            self.open(device)
+
         self.chA = _Channel(0, self.oscope)
         self.chB = _Channel(1, self.oscope)
+
+
+
+    def open (self,device):
+        try:
+            self.oscope_status = self.oscope.open(device)
+            return self.oscope_status
+        except:
+            return False
+
+    def close (self):
+        self.oscope.close()
 
 
     def get_oscope_status (self):
