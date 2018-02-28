@@ -55,7 +55,9 @@ source_chB = ColumnDataSource(data=dict(x=x, y=y_cos))
 doc = curdoc()
 
 escV = [(str(x),str(i)) for i,x in enumerate(Configuration_Definitions.voltage_scales_str)]
-escT = [(str(x),str(i)) for i,x in enumerate(Configuration_Definitions.timebase_scales_str)]
+escT = [(str(x)+'/div',str(i)) for i,x in enumerate(Configuration_Definitions.timebase_scales_str)]
+
+trig_types = [(s,str(i)) for i,s in enumerate(['Auto','Normal','Single'])]
 
 
 # Set up plot
@@ -94,95 +96,8 @@ plot.yaxis.axis_label = "Tensión []"
 
 # Set up widgets
 
-def channel_layout(text,on, coupling, vert_gain):
-    lay = column([text,row([on,coupling, vert_gain], sizing_mode=MODE, width=DEFAULT_WIDTH)],sizing_mode=MODE)
-    return lay
-
-def trigger_layout(text, run, source, edge, trigger, pretrigger ):
-    lay = column([text,row([run,source, edge], sizing_mode=MODE, width=DEFAULT_WIDTH),trigger,pretrigger],sizing_mode=MODE)
-    return lay
-
-###### CHANNEL A ########
-
-text_cha    = Div(text='<h2>Channel A</h2>')
-on_cha = Toggle(label='On/Off', active = True)
-on_cha.on_change('value', update_on_cha)
-
-scale_cha    = Dropdown(label="Scale A", menu = escV, disabled = False )
-scale_cha.on_change('value',update_scale_cha)
-
-dc_coupling_cha = Toggle(label="Coupling: DC", active = True)
-dc_coupling_cha.on_change('value',update_dc_coupling_cha)
-
-cha_layout = channel_layout(text_cha,on_cha, dc_coupling_cha, scale_cha)
 
 
-
-####### CHANNEL B ########
-
-text_chb    = Div(text='<h2>Channel B</h2>')
-on_chb = Toggle(label='On/Off', active = True)
-on_chb.on_change('value', update_on_chb)
-
-scale_chb    = Dropdown(label="Scale B", menu = escV, disabled = False )
-scale_chb.on_change('value',update_scale_chb)
-
-dc_coupling_chb = Toggle(label="Coupling: DC", active = True)
-dc_coupling_chb.on_change('value',update_dc_coupling_chb)
-
-chb_layout = channel_layout(text_chb,on_chb, dc_coupling_chb, scale_chb)
-
-######## TRIGGER #########
-
-NUM_SAMPLES= 300
-text_trigger    = Div(text='<h2>Trigger</h2>')
-
-trigger_run = Toggle(label="Run", active=True)
-trigger_run.on_change('value',update_trigger_run)
-
-trigger_source = Toggle(label="Source", active=True)
-trigger_source.on_change('value',update_trigger_source)
-
-trigger_edge = Toggle(label="Edge", active=True)
-trigger_edge.on_change('value',update_trigger_edge)
-
-pre_trigger = Slider(title="Pretrigger", value=150, start=0, end=NUM_SAMPLES, step=1, callback_policy='mouseup')
-pre_trigger.on_change('value',update_pre_trigger)
-
-trigger = Slider(title="Trigger", value=150, start=0, end=NUM_SAMPLES, step=1, callback_policy='mouseup')
-trigger.on_change('value',update_trigger_val)
-
-tri_layout = trigger_layout(text_trigger,trigger_run,trigger_source,trigger_edge,pre_trigger,trigger)
-
-######### Time ###########
-
-text_horiz = Div(text='<h2>Horizontal</h2>')
-horizontal  = Dropdown(label="Base de Tiempo", menu=escT, disabled= False)
-horizontal.on_change('value',update_horizontal)
-
-hor_layout = column([text_horiz,horizontal,mov_ave],sizing_mode=MODE)
-
-
-######### Layout ############
-
-sliders = column([
-                    cha_layout,
-                    chb_layout,
-                    tri_layout,
-                    hor_layout
-                  ],
-                 sizing_mode=MODE )
-
-rightPanel = column([ plot],
-                    sizing_mode=MODE )
-
-
-doc.add_root( row(
-                sliders,
-                rightPanel,
-                sizing_mode=MODE ) )
-
-doc.title = "Smartbench"
 
 
 ########## Callbacks #############
@@ -221,10 +136,107 @@ def update_pre_trigger(attrname, old, new):
 def update_trigger_val(attrname, old, new):
     sdfad
 
+def update_trigger_type(attrname, old, new):
+    sdfad
+
 def update_horizontal(attrname, old, new):
     sdfad
 
 
+def channel_layout(text,on, coupling, vert_gain):
+    lay = column([text,row([on,coupling, vert_gain], sizing_mode=MODE, width=DEFAULT_WIDTH)],sizing_mode=MODE)
+    return lay
+
+def trigger_layout(text, run, ttype, source, edge, trigger, pretrigger ):
+    lay = column([text,row([run,ttype,source, edge], sizing_mode=MODE, width=DEFAULT_WIDTH),trigger,pretrigger],sizing_mode=MODE)
+    return lay
+
+
+
+###### CHANNEL A ########
+
+text_cha    = Div(text='<h2>Channel A</h2>')
+on_cha = Toggle(label='On/Off', active = True)
+on_cha.on_click( update_on_cha)
+
+scale_cha    = Dropdown(label="Scale A", menu = escV, disabled = False )
+scale_cha.on_change('value',update_scale_cha)
+
+dc_coupling_cha = Toggle(label="Coupling: DC", active = True)
+dc_coupling_cha.on_click(update_dc_coupling_cha)
+
+cha_layout = channel_layout(text_cha,on_cha, dc_coupling_cha, scale_cha)
+
+
+
+####### CHANNEL B ########
+
+text_chb    = Div(text='<h2>Channel B</h2>')
+on_chb = Toggle(label='On/Off', active = True)
+on_chb.on_click( update_on_chb)
+
+scale_chb    = Dropdown(label="Scale B", menu = escV, disabled = False )
+scale_chb.on_change('value',update_scale_chb)
+
+dc_coupling_chb = Toggle(label="Coupling: DC", active = True)
+dc_coupling_chb.on_click(update_dc_coupling_chb)
+
+chb_layout = channel_layout(text_chb,on_chb, dc_coupling_chb, scale_chb)
+
+######## TRIGGER #########
+
+NUM_SAMPLES= 300
+text_trigger    = Div(text='<h2>Trigger</h2>')
+
+trigger_run = Toggle(label="Run", active=True)
+trigger_run.on_click(update_trigger_run)
+
+trigger_type    = Dropdown(label="Type", menu = trig_types, disabled = False )
+trigger_type.on_change('value',update_trigger_type)
+
+trigger_source = Toggle(label="Source", active=True)
+trigger_source.on_click(update_trigger_source)
+
+trigger_edge = Toggle(label="Edge", active=True)
+trigger_edge.on_click(update_trigger_edge)
+
+pre_trigger = Slider(title="Pretrigger", value=150, start=0, end=NUM_SAMPLES, step=1, callback_policy='mouseup')
+pre_trigger.on_change('value',update_pre_trigger)
+
+trigger = Slider(title="Trigger", value=150, start=0, end=NUM_SAMPLES, step=1, callback_policy='mouseup')
+trigger.on_change('value',update_trigger_val)
+
+tri_layout = trigger_layout(text_trigger,trigger_run,trigger_type,trigger_source, trigger_edge,pre_trigger,trigger)
+
+######### Time ###########
+
+text_horiz = Div(text='<h2>Horizontal</h2>')
+horizontal  = Dropdown(label="Base de Tiempo", menu=escT, disabled= False)
+horizontal.on_change('value',update_horizontal)
+
+hor_layout = column([text_horiz,horizontal],sizing_mode=MODE)
+
+
+######### Layout ############
+
+sliders = column([
+                    cha_layout,
+                    chb_layout,
+                    tri_layout,
+                    hor_layout
+                  ],
+                 sizing_mode=MODE )
+
+rightPanel = column([ plot],
+                    sizing_mode=MODE )
+
+
+doc.add_root( row(
+                sliders,
+                rightPanel,
+                sizing_mode=MODE ) )
+
+doc.title = "Smartbench"
 
 
 
