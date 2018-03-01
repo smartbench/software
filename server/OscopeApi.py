@@ -372,7 +372,7 @@ class Smartbench( _Definitions ):
         # Trigger mode:         normal
         self._trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
         self._trigger_value = 2 ** ( self._ADC_WIDTH-1 )
-        self._num_samples  = 100
+        self._num_samples  = 200
         self._pretrigger   = 1
         self._trigger_mode = self.MODE_NORMAL
 
@@ -390,6 +390,7 @@ class Smartbench( _Definitions ):
     def open (self,device):
         try:
             self.oscope_status = self.oscope.open(device)
+            self.setDefaultConfiguration()
             return self.oscope.isOpen()
         except:
             return False

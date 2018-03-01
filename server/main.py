@@ -152,6 +152,9 @@ def update_trigger_type(attrname, old, new):
 
 def update_horizontal(attrname, old, new):
     cb.update_horizontal(int(new), horizontal, app)
+    app.smartbench.set_clk_divisor(1)
+    app.smartbench.set_nprom(1)
+    app.smartbench.set_number_of_samples(150)
 
 def update_but_connect(value):
     print ("Entered into update_but_connect")
@@ -202,7 +205,7 @@ def init_UI():
     trigger_source.active = False
     trigger_edge.active = False
     pre_trigger.value   = 50
-    trigger.value       = 128
+    trigger.value       = 0
 
     horizontal.value    = '0'
 
@@ -301,7 +304,7 @@ trigger_edge.on_click(update_trigger_edge)
 pre_trigger = Slider(title="Pretrigger", value=150, start=0, end=NUM_SAMPLES, step=1, callback_policy='mouseup')
 pre_trigger.on_change('value',update_pre_trigger)
 
-trigger = Slider(title="Trigger", value=150, start=0, end=NUM_SAMPLES, step=1, callback_policy='mouseup')
+trigger = Slider(title="Trigger", value=0, start=-128, end=127, step=1, callback_policy='mouseup')
 trigger.on_change('value',update_trigger_val)
 
 tri_layout = trigger_layout(text_trigger,trigger_run,trigger_type,trigger_source, trigger_edge,pre_trigger,trigger)

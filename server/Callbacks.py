@@ -75,11 +75,13 @@ def update_trigger_val(value, app):
 def update_trigger_type(idx, drpdwn, app):
     if(idx == 0): # mode Auto
         app.smartbench.set_trigger_mode_auto()
+        print("\n\nAUTO\n\n")
     elif (idx == 1):
         app.smartbench.set_trigger_mode_normal()
+        print("\n\nNORMAL\n\n")
     else: # Single
         app.getSingleSeq()
-        print("Single!")
+        print("\n\nSINGLE\n\n")
     drpdwn.label = Configuration_Definitions.trigger_type_str[idx]
     print("Updated trigger type - idx = {}".format(idx))
 
