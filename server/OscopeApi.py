@@ -303,7 +303,7 @@ class _Channel( _Definitions ):
         return ( self._settings >> self._CONF_CH_ON ) & 0x1
 
     def is_ch_on( self ):
-        return ( self.get_ch_status() == self.CHANNEL_ON )
+        return ( self.get_ch_status() == 1 )
 
     def set_ch_on( self ):
         self._settings |= 1 << self._CONF_CH_ON
