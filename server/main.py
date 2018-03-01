@@ -75,8 +75,7 @@ plot = figure(plot_width= 10,
               sizing_mode='scale_both',
               title="",
               tools="crosshair,pan,reset,save,wheel_zoom",
-              x_range=[0, 10],
-              y_range=[-4, 4])
+              )
 
 plot.line('x', 'y', source=trig_line, line_width=1, line_alpha=0.8, color="yellow")
 plot.line('x', 'y', source=source_chA, line_width=4, line_alpha=0.8, color="#CC00FB")
@@ -151,7 +150,7 @@ def update_trigger_type(attrname, old, new):
     cb.update_trigger_type(int(new), trigger_type, app)
 
 def update_horizontal(attrname, old, new):
-    cb.update_horizontal(int(new), horizontal, app)
+    cb.update_horizontal(int(new), horizontal, app, pre_trigger)
 
 def update_but_connect(value):
     print ("Entered into update_but_connect")

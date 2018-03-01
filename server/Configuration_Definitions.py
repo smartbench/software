@@ -34,7 +34,7 @@ class Configuration_Definitions(object):
             0.0001  , 0.00005   , 0.00002   , # 100 us/div
             0.00001 , 0.000005  , 0.000002  , # 10  us/div
             0.000001, 0.0000005 , 0.0000002 , # 1   us/div
-            0.0000001,0.00000005 ]            # 100 ns/div
+            0.0000001 ]            # 100 ns/div
 
     timebase_scales_str =   [
             "1 s"       , "500 ms"  , "200 ms"  ,
@@ -44,7 +44,7 @@ class Configuration_Definitions(object):
             "100 us"    , "50 us"   , "20 us"   ,
             "10 us"     , "5 us"    , "2 us"    ,
             "1 us"      , "500 ns"  , "200 ns"  ,
-            "100 ns"    , "50 ns" ]
+            "100 ns" ]
 
 # https://docs.google.com/spreadsheets/d/1bY0WnD-5lPMWCzxdtq6AacOtwHaX9ymvFMviB-GncO8/edit#gid=80072049
 # Values updated 28/02/2018 - 00:59hs
@@ -68,3 +68,13 @@ class Configuration_Definitions(object):
             1       , 1     , 1     ,
             1       , 1     , 1     ,
             1 ]
+
+    Num_Samples = [
+            25      , 50    , 125   ,
+            167     , 334   , 834   ,
+            1667    , 2000  , 1924  ,
+            1924    , 1924  , 1954  ,
+            1954    , 1954  , 2030  ,
+            2043    , 2043  , 2048  ,
+            2048    , 2048  , 2048  ,
+            2048 ]
