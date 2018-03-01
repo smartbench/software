@@ -158,17 +158,16 @@ def update_but_connect(value):
     if but_connect.label == 'Connect':
         if app.smartbench.open(devices.label) is True :
             but_connect.label = 'Disconnect'
+            app.smartbench.sendFullConfiguration()
     else:
         app.smartbench.close()
         #but_connect.label = 'Connect'
-
 
 def update_but_refresh(value):
     devices.menu = list_ttys()
     if len(devices.menu)==0:
         devices.value = 'Device'
     update_devices(devices.value)
-
 
 def update_devices(value):
     devices.label = value
@@ -186,6 +185,46 @@ def update_port_closed():
     update_but_refresh(0)
     but_connect.label = 'Connect'
     printDebug ("Exited from port_closed callback")
+    return
+
+def init_UI():
+    print("Loading default values")
+    on_cha.active = True
+    scale_cha.value = '0'
+    dc_coupling_cha.active = True
+
+    on_chb.active = True
+    scale_chb.value = '0'
+    dc_coupling_chb.active = True
+
+    trigger_run.active  = False
+    trigger_type.value = '0'
+    trigger_source.active = False
+    trigger_edge.active = False
+    pre_trigger.value   = 50
+    trigger.value       = 128
+
+    horizontal.value    = '0'
+
+    update_on_cha(on_cha.active)
+    update_scale_cha(0,0,scale_cha.value)
+    update_dc_coupling_cha(dc_coupling_cha.active)
+
+    update_on_chb(on_chb.active)
+    update_scale_chb(0,0,scale_chb.value)
+    update_dc_coupling_chb(dc_coupling_chb.active)
+
+    update_trigger_run(trigger_run.active)
+    update_trigger_type(0,0,trigger_type.value)
+    update_trigger_source(trigger_source.active)
+    update_trigger_edge(trigger_edge.active)
+    update_pre_trigger(0,0,pre_trigger.value)
+    update_trigger_val(0,0,trigger.value)
+
+    update_horizontal(0,0,horizontal.value)
+
+    print("Done...")
+
     return
 
 
@@ -284,6 +323,7 @@ rightPanel = column([ plot, Div(text= AUTORS)], sizing_mode=MODE )
 doc.add_root( row( sliders, rightPanel, sizing_mode=MODE ) )
 doc.title = "Smartbench"
 
+init_UI()
 
 
 

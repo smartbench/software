@@ -7,10 +7,10 @@ from OscopeApi import *
 def update_on(active, tgl, channel):
     if ( channel.is_ch_on() ):
         channel.set_ch_off()
-        tgl.label = "CHA: ON"
+        tgl.label = "CHANNEL ON"
     else:
         channel.set_ch_on()
-        tgl.label = "CHA: OFF"
+        tgl.label = "CHANNEL: OFF"
     print("Updated channel on/off")
     return
 
@@ -95,3 +95,32 @@ def update_horizontal(idx, dwrdwn, app):
         Configuration_Definitions.Clock_Adc_Div_Sel[idx],
         Configuration_Definitions.Mov_Ave_Sel[idx]
     ))
+
+def initScope( self, app ):
+    # Channel A
+    # ON/Off
+    app.smartbench.chA.set_ch_on
+    # coupling
+
+    # scaleV
+
+    # Channel B
+    # ON/Off
+
+    # coupling
+
+    # scaleV
+
+    # Run/Stop
+
+    # Trigger source
+
+    # Trigger Edge
+
+    # Pre trigger
+
+    # Trigger value
+
+    # Trigger type
+
+    # BT
