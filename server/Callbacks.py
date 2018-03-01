@@ -101,9 +101,9 @@ def update_horizontal(idx, dwrdwn, app, pretrigger):
     app.smartbench.set_nprom( mov_ave )
     app.smartbench.set_number_of_samples( N )
 
-    app.plot.x_range = Range1d(0, N-1)
+    #app.plot.x_range = Range1d(0, N-1)
     app.plot.x_range.end = N-1
-    #app.plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(0,N-1,N/10))
+    #app.plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(0,N,N/10))
     app.plot.xgrid[0].ticker=FixedTicker(ticks=np.arange(0,N-1,N/10))
     if(pretrigger.value > N-1):
         pretrigger.value = N-1
