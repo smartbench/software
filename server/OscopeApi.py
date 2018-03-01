@@ -372,7 +372,7 @@ class Smartbench( _Definitions ):
         # Trigger mode:         normal
         self._trigger_settings = ( self.TRIGGER_SOURCE_CHA << self._TRIGGER_CONF_SOURCE_SEL ) | ( self.POSITIVE_EDGE << self._TRIGGER_CONF_EDGE )
         self._trigger_value = 2 ** ( self._ADC_WIDTH-1 )
-        self._num_samples  = 100
+        self._num_samples  = 200
         self._pretrigger   = 1
         self._trigger_mode = self.MODE_NORMAL
 
@@ -390,6 +390,7 @@ class Smartbench( _Definitions ):
     def open (self,device):
         try:
             self.oscope_status = self.oscope.open(device)
+            self.setDefaultConfiguration()
             return self.oscope.isOpen()
         except:
             return False
@@ -533,6 +534,7 @@ class Smartbench( _Definitions ):
         self.oscope.send( self._ADDR_ADC_CLK_DIV_H, (self._clk_divisor>>16)&0xFFFF )
 
     def setDefaultConfiguration(self):
+        self.set_trigger_mode_normal()
         self.set_trigger_source_cha()
         self.set_trigger_negedge()
         self.set_trigger_value(-28)
@@ -541,7 +543,6 @@ class Smartbench( _Definitions ):
         self.send_trigger_settings()
         self.set_nprom(1)
         self.set_clk_divisor(500)
-        self.set_trigger_mode_normal()
 
         self.chA.set_attenuator(0)
         self.chA.set_gain(0)
@@ -558,6 +559,26 @@ class Smartbench( _Definitions ):
         self.chB.set_offset(0)
 
         return
+
+    def sendFullConfiguration(self):
+        #self.set_trigger_mode(self.get_trigger_mode())
+        #self.set_trigger_edge(self.get_trigger_edge())
+        #self.set_trigger_source(self.get_trigger_source())
+        self.send_trigger_settings()
+        self.set_trigger_value(self.get_trigger_value())
+        self.set_number_of_samples(self.get_number_of_samples())
+        self.set_pretrigger(self.get_pretrigger())
+        self.set_nprom(self.get_nprom())
+        self.set_clk_divisor(self.get_clk_divisor())
+
+        self.chA.send_settings()
+        self.chA.set_offset(self.chA.get_offset())
+
+        self.chB.send_settings()
+        self.chB.set_offset(self.chB.get_offset())
+
+        return
+
 
 if __name__ == "__main__":
     oscope = Smartbench()

@@ -69,18 +69,6 @@ class SmartbenchApp():
         # Initializing oscope api
         self.smartbench = Smartbench()
 
-        if(self.smartbench.isOpen()):
-
-            # Default configuration
-            self.configureScope()
-
-            # Callback to start the acqusition, called as soon as possible
-            # self.doc.add_next_tick_callback(self.newFrameCallback)
-            #self.start()
-        else:
-            print("Device not connected!")
-            #exit()
-
         return
 
     def start(self):
@@ -147,11 +135,13 @@ class SmartbenchApp():
         self.buffer_full,self.triggered = self.smartbench.receive_trigger_status()
         printDebug("> Trigger={}\tBuffer_full={}".format( self.triggered, self.buffer_full ))
 
+        printDebug("Mode = {}".format(self.smartbench.get_trigger_mode()))
         if self.triggered==0 or self.buffer_full==0:
             if( self.smartbench.is_trigger_mode_single() or self.smartbench.is_trigger_mode_normal() ):
                 self.doc.add_timeout_callback(self.waitingTriggerCallback,500) # Check again in 100 ms.
                 return
             else:
+                printDebug("waiting... count={}".format(self.count))
                 if(self.buffer_full == 1 and self.count < 5):
                     self.count = self.count + 1
                     self.doc.add_timeout_callback(self.waitingTriggerCallback,500) # Check again in 100 ms.
@@ -199,19 +189,6 @@ class SmartbenchApp():
 
         return
 
-
-    def configureScope(self):
-        self.smartbench.setDefaultConfiguration()
-
-        # # For a good visualization with "Fake_ADC", clk divisor must be 1.
-        # # ADC CLOCK SET TO 20MHz
-        # self.smartbench.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13])
-        # self.smartbench.set_clk_divisor(Configuration_Definitions.Clock_Adc_Div_Sel[13]) # not necessary, ignored
-        # # AVERAGE DISABLED (1 SAMPLE)
-        self.smartbench.chA.set_nprom(Configuration_Definitions.Mov_Ave_Sel[13])
-        self.smartbench.chB.set_nprom(Configuration_Definitions.Mov_Ave_Sel[13])
-
-        return
 
 
 if __name__ == '__main__':

@@ -7,10 +7,10 @@ from OscopeApi import *
 def update_on(active, tgl, channel):
     if ( channel.is_ch_on() ):
         channel.set_ch_off()
-        tgl.label = "CHA: ON"
+        tgl.label = "CHANNEL ON"
     else:
         channel.set_ch_on()
-        tgl.label = "CHA: OFF"
+        tgl.label = "CHANNEL OFF"
     print("Updated channel on/off")
     return
 
@@ -75,11 +75,13 @@ def update_trigger_val(value, app):
 def update_trigger_type(idx, drpdwn, app):
     if(idx == 0): # mode Auto
         app.smartbench.set_trigger_mode_auto()
+        #print("\n\nAUTO\n\n")
     elif (idx == 1):
         app.smartbench.set_trigger_mode_normal()
+        #print("\n\nNORMAL\n\n")
     else: # Single
         app.getSingleSeq()
-        print("Single!")
+        #print("\n\nSINGLE\n\n")
     drpdwn.label = Configuration_Definitions.trigger_type_str[idx]
     print("Updated trigger type - idx = {}".format(idx))
 
@@ -96,8 +98,9 @@ def update_horizontal(idx, dwrdwn, app, pretrigger):
     app.plot.x_range.end = N-1
     #app.plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(0,N-1,N/10))
     app.plot.xgrid[0].ticker=FixedTicker(ticks=np.arange(0,N-1,N/10))
-
-    pretrigger.end = N
+    if(pretrigger.value > N-1):
+        pretrigger.value = N-1
+    pretrigger.end = N-1
     dwrdwn.label = Configuration_Definitions.timebase_scales_str[idx]+'/div'
     print("Updated BT. clk divider = {}\tprom = {}".format(
         Configuration_Definitions.Clock_Adc_Div_Sel[idx],
