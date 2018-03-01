@@ -118,7 +118,7 @@ class SmartbenchApp():
         printDebug("> Request Start")
         self.smartbench.request_start()
         #self.doc.add_next_tick_callback(self.waitingTriggerCallback) # Called as soon as possible
-        self.doc.add_timeout_callback(self.waitingTriggerCallback, 500) # Called as soon as possible
+        self.doc.add_timeout_callback(self.waitingTriggerCallback,  300) # Called as soon as possible
         return
 
     # --------------------------------------------------------
@@ -138,13 +138,13 @@ class SmartbenchApp():
         printDebug("Mode = {}".format(self.smartbench.get_trigger_mode()))
         if self.triggered==0 or self.buffer_full==0:
             if( self.smartbench.is_trigger_mode_single() or self.smartbench.is_trigger_mode_normal() ):
-                self.doc.add_timeout_callback(self.waitingTriggerCallback,500) # Check again in 100 ms.
+                self.doc.add_timeout_callback(self.waitingTriggerCallback,300) # Check again in 100 ms.
                 return
             else:
                 printDebug("waiting... count={}".format(self.count))
-                if(self.buffer_full == 1 and self.count < 5):
+                if(self.buffer_full == 1 and self.count < 1):
                     self.count = self.count + 1
-                    self.doc.add_timeout_callback(self.waitingTriggerCallback,500) # Check again in 100 ms.
+                    self.doc.add_timeout_callback(self.waitingTriggerCallback,300) # Check again in 100 ms.
                     return
 
         # First, stops the capturing.

@@ -531,10 +531,10 @@ class Smartbench( _Definitions ):
         self.oscope.send( self._ADDR_N_MOVING_AVERAGE, self._nprom )
 
     def get_clk_divisor( self ):
-        return self._clk_divisor
+        return int(2 * self._clk_divisor)
 
     def set_clk_divisor( self, div ):
-        self._clk_divisor = div
+        self._clk_divisor = int(div/2)
         self.oscope.send( self._ADDR_ADC_CLK_DIV_L, self._clk_divisor&0xFFFF )
         self.oscope.send( self._ADDR_ADC_CLK_DIV_H, (self._clk_divisor>>16)&0xFFFF )
         printDebug("clk div: high={}\tlow={}\ttotal={}".format( ((self._clk_divisor>>16)&0xFFFF), self._clk_divisor&0xFFFF, self._clk_divisor))
