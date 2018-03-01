@@ -94,7 +94,7 @@ def update_horizontal(idx, dwrdwn, app, pretrigger):
     N = Configuration_Definitions.Num_Samples[idx]
     app.smartbench.set_number_of_samples( N )
     app.plot.x_range.end = N-1
-    app.plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(0,N-1,N/10))
+    #app.plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(0,N-1,N/10))
     app.plot.xgrid[0].ticker=FixedTicker(ticks=np.arange(0,N-1,N/10))
 
     pretrigger.end = N

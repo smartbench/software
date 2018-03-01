@@ -92,10 +92,10 @@ Nsamp = 200
 plot.x_range = Range1d(0, Nsamp-1)
 plot.y_range = Range1d(0,255)
 
-plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(0,Nsamp-1,Nsamp/10))   #10 div
+plot.xaxis[0].ticker=FixedTicker()#ticks=np.arange(0,Nsamp-1,Nsamp/10))   #10 div
 plot.xgrid[0].ticker=FixedTicker(ticks=np.arange(0,Nsamp-1,Nsamp/10))
 #change yaxis ticker & ygrid ticker with fixed-width spacing
-plot.yaxis[0].ticker=FixedTicker(ticks=np.arange(0,255,256/10))   #10 div
+plot.yaxis[0].ticker=FixedTicker()#ticks=np.arange(0,255,256/10))   #10 div
 plot.ygrid[0].ticker=FixedTicker(ticks=np.arange(0,255,256/10))
 
 # https://bokeh.pydata.org/en/latest/docs/user_guide/styling.html
