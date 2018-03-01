@@ -4,23 +4,26 @@ from SmartbenchApp import *
 from OscopeApi import *
 
 
-def update_on(active, tgl, channel):
+def update_on(tgl, channel):
     if ( channel.is_ch_on() ):
         channel.set_ch_off()
-        tgl.label = "CHANNEL ON"
+        tgl.label = "CHANNEL OFF"
     else:
         channel.set_ch_on()
-        tgl.label = "CHANNEL OFF"
+        tgl.label = "CHANNEL ON"
     print("Updated channel on/off")
     return
 
 def update_dc_coupling(dc, tgl, channel):
-    if(dc is True):
-        channel.set_coupling_dc()
-        tgl.label = "Coupling: DC"
-    else:
+    #if(dc is True):
+    if(channel.is_coupling_dc()):
+        print("should change to AC")
         channel.set_coupling_ac()
         tgl.label = "Coupling: AC"
+    else:
+        channel.set_coupling_dc()
+        print("should change to DC")
+        tgl.label = "Coupling: DC"
     print("Updated coupling")
     return
 
@@ -86,15 +89,19 @@ def update_trigger_type(idx, drpdwn, app):
     print("Updated trigger type - idx = {}".format(idx))
 
 def update_horizontal(idx, dwrdwn, app, pretrigger):
-    app.smartbench.set_clk_divisor(
-        Configuration_Definitions.Clock_Adc_Div_Sel[idx]
-    )
-    app.smartbench.set_nprom(
-        Configuration_Definitions.Mov_Ave_Sel[idx]
-    )
-
+    print(">>> idx = {}".format(
+            idx ))
+    clk_div = Configuration_Definitions.Clock_Adc_Div_Sel[idx]
+    mov_ave = Configuration_Definitions.Mov_Ave_Sel[idx]
     N = Configuration_Definitions.Num_Samples[idx]
+    print("Updated BT. clk_div= {}\tmov_ave={}\tN={}".format(
+        clk_div, mov_ave, N ))
+
+    app.smartbench.set_clk_divisor( clk_div )
+    app.smartbench.set_nprom( mov_ave )
     app.smartbench.set_number_of_samples( N )
+
+    app.plot.x_range = Range1d(0, N-1)
     app.plot.x_range.end = N-1
     #app.plot.xaxis[0].ticker=FixedTicker(ticks=np.arange(0,N-1,N/10))
     app.plot.xgrid[0].ticker=FixedTicker(ticks=np.arange(0,N-1,N/10))
@@ -102,7 +109,5 @@ def update_horizontal(idx, dwrdwn, app, pretrigger):
         pretrigger.value = N-1
     pretrigger.end = N-1
     dwrdwn.label = Configuration_Definitions.timebase_scales_str[idx]+'/div'
-    print("Updated BT. clk divider = {}\tprom = {}".format(
-        Configuration_Definitions.Clock_Adc_Div_Sel[idx],
-        Configuration_Definitions.Mov_Ave_Sel[idx]
-    ))
+    print("Updated BT. clk_div= {}\tmov_ave={}\tN={}".format(
+        clk_div, mov_ave, N ))

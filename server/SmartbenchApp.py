@@ -160,6 +160,7 @@ class SmartbenchApp():
             self.dataY_chA = list(reversed(self.smartbench.receive_channel_data()))
             self.dataX_chA = range(0,len(self.dataY_chA))
         else:
+            print("Channel A Off")
             self.dataY_chA = []
             self.dataX_chA = []
 
@@ -173,6 +174,7 @@ class SmartbenchApp():
             self.dataY_chB = list(reversed(self.smartbench.receive_channel_data()))
             self.dataX_chB = range(0,len(self.dataY_chB))
         else:
+            print("Channel B Off")
             self.dataY_chB = []
             self.dataX_chB = []
 

@@ -114,7 +114,7 @@ import Callbacks as cb
 app = SmartbenchApp(doc, plot, source_chA, source_chB)
 
 def update_on_cha(value):
-    cb.update_on(value, on_cha, app.smartbench.chA)
+    cb.update_on(on_cha, app.smartbench.chA)
 
 def update_dc_coupling_cha(value):
     cb.update_dc_coupling(value, dc_coupling_cha, app.smartbench.chA)
@@ -123,7 +123,7 @@ def update_scale_cha(attrname, old, new):
     cb.update_scale(int(new), scale_cha, app.smartbench.chA)
 
 def update_on_chb(value):
-    cb.update_on(value, on_chb, app.smartbench.chB)
+    cb.update_on(on_chb, app.smartbench.chB)
 
 def update_dc_coupling_chb(value):
     cb.update_dc_coupling(value, dc_coupling_chb, app.smartbench.chB)
@@ -152,9 +152,9 @@ def update_trigger_type(attrname, old, new):
 def update_horizontal(attrname, old, new):
     cb.update_horizontal(int(new), horizontal, app, pre_trigger)
     # COMENTAR!!!
-    app.smartbench.set_clk_divisor(1)
-    app.smartbench.set_nprom(1)
-    app.smartbench.set_number_of_samples(150)
+    # app.smartbench.set_clk_divisor(1)
+    # app.smartbench.set_nprom(1)
+    # app.smartbench.set_number_of_samples(150)
 
 def update_but_connect(value):
     print ("Entered into update_but_connect")
@@ -192,21 +192,22 @@ def update_port_closed():
 
 def init_UI():
     print("Loading default values")
-    on_cha.active = True
+    on_cha.active = False
     scale_cha.value = '0'
-    dc_coupling_cha.active = True
+    dc_coupling_cha.active = False
 
-    on_chb.active = True
+    on_chb.active = False
     scale_chb.value = '0'
-    dc_coupling_chb.active = True
+    dc_coupling_chb.active = False
 
-    trigger_run.active  = False
+    #trigger_run.active  = False
     trigger_type.value = '0'
     trigger_source.active = False
     trigger_edge.active = False
     pre_trigger.value   = 50
     trigger.value       = 0
 
+    horizontal.label    = 'Base de tiempo'
     horizontal.value    = '0'
 
     update_on_cha(on_cha.active)
@@ -217,7 +218,7 @@ def init_UI():
     update_scale_chb(0,0,scale_chb.value)
     update_dc_coupling_chb(dc_coupling_chb.active)
 
-    update_trigger_run(trigger_run.active)
+    #update_trigger_run(trigger_run.active)
     update_trigger_type(0,0,trigger_type.value)
     update_trigger_source(trigger_source.active)
     update_trigger_edge(trigger_edge.active)

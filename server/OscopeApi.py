@@ -9,7 +9,7 @@ from array import array
 #from struct import *
 import time
 
-DEBUG_ = True
+DEBUG_ = False
 
 #######################################################
 ################## FTDI bridge driver #################
@@ -291,12 +291,17 @@ class _Channel( _Definitions ):
     def get_coupling( self ):
         return ( self._settings >> self._CONF_CH_DC_COUPLING ) & 0x1
 
+    def is_coupling_dc( self ):
+        return self.get_coupling() == 0x1
+
     def set_coupling_dc( self ):
-        self._settings |= 1 << self._CONF_CH_DC_COUPLING
+        self._settings |= (1 << self._CONF_CH_DC_COUPLING)
+        print("Coupling --> DC")
         self.send_settings()
 
     def set_coupling_ac( self ):
         self._settings &= ~( 1 << self._CONF_CH_DC_COUPLING )
+        print("Coupling --> AC")
         self.send_settings()
 
     def get_ch_status( self ):
@@ -390,7 +395,7 @@ class Smartbench( _Definitions ):
     def open (self,device):
         try:
             self.oscope_status = self.oscope.open(device)
-            self.setDefaultConfiguration()
+            #self.setDefaultConfiguration()
             return self.oscope.isOpen()
         except:
             return False
@@ -471,7 +476,7 @@ class Smartbench( _Definitions ):
         print("Trigger settings set to {}".format(hex(self._trigger_settings) ) )
 
     def get_trigger_value( self ):
-        return self._trigger_value - 2**( self._ADC_WIDTH-1 )
+        return self._trigger_value - (1<<( self._ADC_WIDTH-1 ))
 
     def set_trigger_value( self, val ):
         self._trigger_value = (1 << self._ADC_WIDTH-1 ) + val
@@ -532,6 +537,7 @@ class Smartbench( _Definitions ):
         self._clk_divisor = div
         self.oscope.send( self._ADDR_ADC_CLK_DIV_L, self._clk_divisor&0xFFFF )
         self.oscope.send( self._ADDR_ADC_CLK_DIV_H, (self._clk_divisor>>16)&0xFFFF )
+        printDebug("clk div: high={}\tlow={}\ttotal={}".format( ((self._clk_divisor>>16)&0xFFFF), self._clk_divisor&0xFFFF, self._clk_divisor))
 
     def setDefaultConfiguration(self):
         self.set_trigger_mode_normal()
@@ -541,6 +547,7 @@ class Smartbench( _Definitions ):
         self.set_number_of_samples(150)
         self.set_pretrigger(50)
         self.send_trigger_settings()
+        printDebug("nprom=1\tclk_div=500 (default)")
         self.set_nprom(1)
         self.set_clk_divisor(500)
 
