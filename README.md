@@ -34,9 +34,8 @@ A multi-platform software for data acquisition, developed on Python3.
 ## Installing the framework, API, widgets, etc:
 
 ### 
-* pip
+* Pip
 
-		# Python3 pip
 		sudo apt install python3-pip
         sudo -H pip3 install install --upgrade pip
 * PySerial
@@ -47,17 +46,16 @@ A multi-platform software for data acquisition, developed on Python3.
     http://eblot.github.io/pyftdi/
     Repo: https://github.com/eblot/pyftdi
 
-        sudo -H pip3 install pyftdi
-
-    or:
-
         sudo python3 setup.py config
-
         sudo python3 setup.py install
+    
+    or:
+    
+        sudo -H pip3 install pyftdi
 
 * Bokeh
 
-    sudo -H pip3 install bokeh
+        sudo -H pip3 install bokeh
     
     
 ## Developers
