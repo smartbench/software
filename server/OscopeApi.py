@@ -327,15 +327,16 @@ class _Channel( _Definitions ):
 
     def set_offset( self, val ):
         self._dac_value = val + 2**( self._DAC_WIDTH-1 )
+        print("DAC of ch {} set to {}".format(self._nchannel, self._dac_value))
 
         ########################################################
         ##### TEMPORARY, TO AVOID AN UNKNOWN CONFIGURATION, I2C
         ##### COMMANDS ARE DISABLED.
-        print(">>> WARNING <<<")
-        print(">>> TEMPORARY, TO AVOID AN UNKNOWN CONFIGURATION,"
-              "I2C COMMANDS ARE DISABLED. <<<")
-        print("------------------------")
-        return
+        # print(">>> WARNING <<<")
+        # print(">>> TEMPORARY, TO AVOID AN UNKNOWN CONFIGURATION,"
+        #       "I2C COMMANDS ARE DISABLED. <<<")
+        # print("------------------------")
+        # return
         ########################################################
 
         # W1 = 110000x0; x=0 CHA; x=1 CHB
@@ -343,11 +344,11 @@ class _Channel( _Definitions ):
         # W3 = 1,0,dato[9:2]
         # W4 = {1, dato[1:0],0,0,0,0,0,0}
         self.oscope.send(self._ADDR_I2C,
-                         0x00C0 | (self._nchannel << 1))
+                         0x00FF & ( 0x00C0 | (self._nchannel << 1) ) )
         self.oscope.send(self._ADDR_I2C,
                          0x0058)
         self.oscope.send(self._ADDR_I2C,
-                         (self._dac_value >> 2) & 0xFF)
+                         0xFF & (self._dac_value >> 2) )
         self.oscope.send(self._ADDR_I2C,
                          0x0100 | (0xC0 & (self._dac_value << 6)))
         #print("Sending data to address {}.".format(self._ADDR_I2C))
