@@ -1,0 +1,43 @@
+to Do:
+- Add offset sliders
+- Add a label with the real value in Volts for the trigger
+- Avoid intermediate values of a slider being detected on sweeps.
+    The configuration sliders should set flags and a concurrent routine
+    should read them periodically, sending the data if a change is detected.
+- Improve the detection of connected devices. Filter out. Make it multiplatform.
+- Improve window arrangement of the widgets to provide a good visualization
+    for every screen size.
+
+
+
+
+
+
+
+
+
+
+
+### list serial devices
+from serial.tools.list_ports import comports
+
+ports = sorted(comports())
+ports_strings_list = []
+for port in ports:
+    ports_strings_list.append( port.name + ': ' + port.description )
+
+ports_strings_list = tuple( ports_strings_list )
+
+
+###
+
+import serial
+import serial.tools.list_ports
+
+devices = [comport for comport in serial.tools.list_ports.comports()]
+menuDevices = [ (str(x[0]),str(i)) for i,x in enumerate(comport for comport in serial.tools.list_ports.comports()) ]
+
+# Lista de puertos (3 campos para cada puerto)
+# devices[X][0] - ruta del puerto X
+# devices[X][1] - nombre
+# devices[X][2] - ??
