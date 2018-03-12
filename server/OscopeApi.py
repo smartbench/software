@@ -344,13 +344,13 @@ class _Channel( _Definitions ):
         # W3 = 1,0,dato[9:2]
         # W4 = {1, dato[1:0],0,0,0,0,0,0}
         self.oscope.send(self._ADDR_I2C,
-                         0x00FF & ( 0x00C0 | (self._nchannel << 1) ) )
+                            0x03C0 | (self._nchannel << 1) )
         self.oscope.send(self._ADDR_I2C,
-                         0x0058)
+                            0x0058)
         self.oscope.send(self._ADDR_I2C,
-                         0xFF & (self._dac_value >> 2) )
+                            0xFF & (self._dac_value >> 2) )
         self.oscope.send(self._ADDR_I2C,
-                         0x0100 | (0xC0 & (self._dac_value << 6)))
+                            0xC0 & (self._dac_value << 6) )
         #print("Sending data to address {}.".format(self._ADDR_I2C))
         return
 

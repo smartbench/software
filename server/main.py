@@ -162,6 +162,8 @@ def update_but_connect(value):
         if app.smartbench.open(devices.label) is True :
             but_connect.label = 'Disconnect'
             app.smartbench.sendFullConfiguration()
+            app.smartbench.chA.set_offset(0)
+            app.smartbench.chB.set_offset(0)
     else:
         app.smartbench.close()
         #but_connect.label = 'Connect'
