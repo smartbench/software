@@ -69,11 +69,13 @@ def update_trigger_edge(tgl, app):
 def update_pre_trigger(value, app):
     app.smartbench.set_pretrigger(value)
     print("Updated pre-trigger")
+    return
 
 def update_trigger_val(value, app):
     app.smartbench.set_trigger_value(value)
     # change in plot
     print("Updated Trigger Value")
+    return
 
 def update_trigger_type(idx, drpdwn, app):
     if(idx == 0): # mode Auto
@@ -87,6 +89,7 @@ def update_trigger_type(idx, drpdwn, app):
         #print("\n\nSINGLE\n\n")
     drpdwn.label = Configuration_Definitions.trigger_type_str[idx]
     print("Updated trigger type - idx = {}".format(idx))
+    return
 
 def update_horizontal(idx, dwrdwn, app, pretrigger):
     print(">>> idx = {}".format(
@@ -111,3 +114,9 @@ def update_horizontal(idx, dwrdwn, app, pretrigger):
     dwrdwn.label = Configuration_Definitions.timebase_scales_str[idx]+'/div'
     print("Updated BT. clk_div= {}\tmov_ave={}\tN={}".format(
         clk_div, mov_ave, N ))
+    return
+
+def update_offset(value, channel):
+    channel.set_offset(value)
+    print("Updated offset")
+    return

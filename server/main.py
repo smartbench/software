@@ -151,10 +151,12 @@ def update_trigger_type(attrname, old, new):
 
 def update_horizontal(attrname, old, new):
     cb.update_horizontal(int(new), horizontal, app, pre_trigger)
-    # COMENTAR!!!
-    # app.smartbench.set_clk_divisor(1)
-    # app.smartbench.set_nprom(1)
-    # app.smartbench.set_number_of_samples(150)
+
+def update_offset_cha(attrname, old, new):
+    cb.update_offset(new, app.smartbench.chA)
+
+def update_offset_chb(attrname, old, new):
+    cb.update_offset(new, app.smartbench.chB)
 
 def update_but_connect(value):
     print ("Entered into update_but_connect")
@@ -162,8 +164,6 @@ def update_but_connect(value):
         if app.smartbench.open(devices.label) is True :
             but_connect.label = 'Disconnect'
             app.smartbench.sendFullConfiguration()
-            app.smartbench.chA.set_offset(0)
-            app.smartbench.chB.set_offset(0)
     else:
         app.smartbench.close()
         #but_connect.label = 'Connect'
@@ -212,6 +212,9 @@ def init_UI():
     horizontal.label    = 'Base de tiempo'
     horizontal.value    = '0'
 
+    offset_cha.value    = 0
+    offset_chb.value    = 0
+
     update_on_cha(on_cha.active)
     update_scale_cha(0,0,scale_cha.value)
     update_dc_coupling_cha(dc_coupling_cha.active)
@@ -229,6 +232,9 @@ def init_UI():
 
     update_horizontal(0,0,horizontal.value)
 
+    update_offset_cha(0,0,offset_cha.value)
+    update_offset_chb(0,0,offset_chb.value)
+
     print("Done...")
 
     return
@@ -236,8 +242,8 @@ def init_UI():
 
 ###### Layout funcs ######
 
-def channel_layout(text,on, coupling, vert_gain):
-    lay = column([text,row([on,coupling, vert_gain], sizing_mode=MODE, width=DEFAULT_WIDTH)],sizing_mode=MODE)
+def channel_layout(text,on, coupling, vert_gain, offset):
+    lay = column([text,row([on,coupling, vert_gain], sizing_mode=MODE, width=DEFAULT_WIDTH), offset],sizing_mode=MODE)
     return lay
 
 def trigger_layout(text, run, ttype, source, edge, trigger, pretrigger ):
@@ -270,7 +276,10 @@ scale_cha.on_change('value',update_scale_cha)
 dc_coupling_cha = Toggle(label="Coupling: DC", active = True)
 dc_coupling_cha.on_click(update_dc_coupling_cha)
 
-cha_layout = channel_layout(text_cha,on_cha, dc_coupling_cha, scale_cha)
+offset_cha = Slider(title="Offset", value=0, start=-512, end=511, step=1, callback_policy='mouseup')
+offset_cha.on_change('value',update_offset_cha)
+
+cha_layout = channel_layout(text_cha,on_cha, dc_coupling_cha, scale_cha, offset_cha)
 
 ####### CHANNEL B ########
 
@@ -284,7 +293,10 @@ scale_chb.on_change('value',update_scale_chb)
 dc_coupling_chb = Toggle(label="Coupling: DC", active = True)
 dc_coupling_chb.on_click(update_dc_coupling_chb)
 
-chb_layout = channel_layout(text_chb,on_chb, dc_coupling_chb, scale_chb)
+offset_chb = Slider(title="Offset", value=0, start=-512, end=511, step=1, callback_policy='mouseup')
+offset_chb.on_change('value',update_offset_chb)
+
+chb_layout = channel_layout(text_chb,on_chb, dc_coupling_chb, scale_chb, offset_chb)
 
 ######## TRIGGER #########
 
